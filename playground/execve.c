@@ -1,8 +1,25 @@
 #include <libc.h>
 
+int interpret(char *line)
+{
+    char *argv[] = {line, NULL};
+    pid_t pid = fork();
+
+    if(pid == 0)
+    {
+        execve(line, argv, 0);
+        exit(0);
+    }
+    else
+    {
+        wait(0);
+    }
+    return 0;
+}
+
+
 int main()
 {
-    char *args[3] = {"/bin/ls", NULL};
-    execve("/bin/ls", args, 0);
-    printf("execve failed\n");
+    interpret("/bin/ls");
+    printf("This line should not be printed\n");
 }
