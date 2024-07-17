@@ -6,7 +6,7 @@
 #    By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/18 17:15:58 by shinsaeki         #+#    #+#              #
-#    Updated: 2024/07/17 20:53:38 by kahori           ###   ########.fr        #
+#    Updated: 2024/07/18 07:58:02 by kahori           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,6 +29,17 @@ SRCS_DIR = src
 
 SRC    := $(SRCS)
 OBJ    := $(SRC:$(SRCS_DIR)/%.c=$(OBJS_DIR)/%.o)
+
+
+#################
+#Color Variable #
+#################
+
+CYAN = \033[0;36m
+MAGENDA = \033[0;35m
+RED = \033[0;31m
+LIME = \033[0;32m
+RESET = \033[0m
 
 #################
 # General rules #

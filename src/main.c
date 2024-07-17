@@ -6,7 +6,6 @@
 #include <readline/history.h>
 
 
-
 int interpret(char *line)
 {
     char *argv[] = {line, NULL};
@@ -19,6 +18,7 @@ int interpret(char *line)
     }
     else
     {
+		//TO DO:waitの挙動確認
         wait(0);
     }
     return 0;
