@@ -1,0 +1,75 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2024/05/18 17:15:58 by shinsaeki         #+#    #+#              #
+#    Updated: 2024/07/17 20:53:38 by kahori           ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+#############
+# Variables #
+#############
+
+NAME     = minishell
+
+CC       = cc
+RM		= rm -rf
+
+INCLUDES = -I include
+CFLAGS   = -Wall -Wextra -Werror $(INCLUDES)
+LIBS     = -lreadline
+SRCS     = src/main.c\
+
+OBJS_DIR = obj
+SRCS_DIR = src
+
+SRC    := $(SRCS)
+OBJ    := $(SRC:$(SRCS_DIR)/%.c=$(OBJS_DIR)/%.o)
+
+#################
+# General rules #
+#################
+
+all: $(NAME)
+
+$(NAME): $(OBJ)
+	$(CC) $(CFLAGS) $(OBJ) -o  $@ $(LIBS)
+
+$(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c
+	mkdir -p $(OBJS_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	$(RM) $(OBJS_DIR)
+
+fclean: clean
+	$(RM) $(NAME)
+
+
+re: fclean all
+
+test: all
+	./test.sh
+.PHONY: all clean fclean re test
+
+##########################
+# Platform Compatibility #
+##########################
+
+# Linux | Darwin
+OS := $(shell uname -s)
+
+ifeq ($(OS),Linux)
+	# commands for Linux
+endif
+
+ifeq ($(OS),Darwin)
+	# commands for macos
+	RLDIR = $(shell brew --prefix readline)
+	INCLUDES += -I$(RLDIR)/include
+	LIBS     += -L$(RLDIR)/lib
+endif
