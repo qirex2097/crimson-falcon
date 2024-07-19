@@ -1,31 +1,56 @@
-#include <stdlib.h>
-#include <unistd.h>
-
-#include <stdio.h>
-#include <readline/readline.h>
-#include <readline/history.h>
+#include "minishell.h"
+typedef struct s_token	t_token;
 
 
-int interpret(char *line)
+/*------free-------*/
+void	free_tok(t_token *tok)
 {
-    char *argv[] = {line, NULL};
-    pid_t pid = fork();
+	if (tok == NULL)
+		return ;
+	if (tok->word)
+		free(tok->word);
+	free_tok(tok->next);
+	free(tok);
+}
 
-    if(pid == 0)
-    {
-        execve(line, argv, 0);
-        exit(0);
-    }
-    else
-    {
-        wait(0);
-    }
-    return 0;
+void	free_argv(char **argv)
+{
+	int	i;
+
+	if (argv == NULL)
+		return ;
+	i = 0;
+	while (argv[i])
+	{
+		free(argv[i]);
+		i++;
+	}
+	free(argv);
+}
+/*--------------*/
+
+int interpret(char *line, int *stat_loc)
+{
+    char **argv;
+	t_token *tok;
+
+	tok = tokenize(line);
+	if (tok->kind == TK_EOF)
+		;
+	else
+	{
+		argv = token_list_to_argv(tok);
+		//*stat_loc = exec(argv);
+		free_argv(argv);
+	}
+	free_tok(tok);
+	return (0);
 }
 
 int	main()
 {
 	char	*line;
+	int	status = 0;
 
 	rl_outstream = stderr;
 	while(1)
@@ -36,11 +61,11 @@ int	main()
 			break ;
 		if(*line)
 		{
-			//add_history(line);
-			interpret(line);
+			add_history(line);
 		}
+		interpret(line, &status);
 		free(line);
 	}
-	exit(0);
+	exit(status);
 }
 

@@ -6,26 +6,7 @@ tok = tokenize(line)
 exec(tok)
 */
 
-#include <libc.h>
-#include <unistd.h>
-#include <stdbool.h>
-
-
-typedef struct s_token		t_token;
-enum e_token_kind {
-	TK_WORD,
-	TK_RESERVED,
-	TK_OP,
-	TK_EOF,
-};
-typedef enum e_token_kind	t_token_kind;
-
-// `word` is zero terminated string.
-struct s_token {
-	char			*word;
-	t_token_kind	kind;
-	t_token			*next;
-};
+#include "minishell.h"
 
 t_token	*new_token(char *word, t_token_kind kind)
 {
@@ -143,24 +124,29 @@ t_token	*tokenize(char *line)
 	return (head.next);
 }
 
-// char	**tail_recursive(t_token *tok, int nargs, char **argv)
-// {
-// 	if (tok == NULL || tok->kind == TK_EOF)
-// 		return (argv);
-// 	argv = reallocf(argv, (nargs + 2) * sizeof(char *));
-// 	argv[nargs] = strdup(tok->word);
-// 	if (argv[nargs] == NULL)
-// 		fatal_error("strdup");
-// 	argv[nargs + 1] = NULL;
-// 	return (tail_recursive(tok->next, nargs + 1, argv));
-// }
+//tokenの単語を文字列配列追加する
+//再帰
+char	**tail_recursive(t_token *tok, int nargs, char **argv)
+{
+	if (tok == NULL || tok->kind == TK_EOF)
+		return (argv);
+	//memory reallocation
+	//+2 is for NULL and new token word
+	argv = reallocf(argv, (nargs + 2) * sizeof(char *));
+	argv[nargs] = strdup(tok->word);
+	if (argv[nargs] == NULL)
+		fatal_error("strdup");
+	argv[nargs + 1] = NULL;
+	return (tail_recursive(tok->next, nargs + 1, argv));
+}
 
-// char	**token_list_to_argv(t_token *tok)
-// {
-// 	char	**argv;
+//tokenの単語を文字列配列追加する
+char	**token_list_to_argv(t_token *tok)
+{
+	char	**argv;
 
-// 	argv = calloc(1, sizeof(char *));
-// 	if (argv == NULL)
-// 		fatal_error("calloc");
-// 	return (tail_recursive(tok, 0, argv));
-// }
+	argv = calloc(1, sizeof(char *));
+	if (argv == NULL)
+		fatal_error("calloc");
+	return (tail_recursive(tok, 0, argv));
+}
