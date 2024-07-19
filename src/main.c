@@ -18,7 +18,6 @@ int interpret(char *line)
     }
     else
     {
-		//TO DO:waitの挙動確認
         wait(0);
     }
     return 0;
@@ -28,7 +27,7 @@ int	main()
 {
 	char	*line;
 
-	// rl_outstream = stderr;
+	rl_outstream = stderr;
 	while(1)
 	{
 		line = readline("minishell$ ");
