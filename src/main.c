@@ -60,9 +60,10 @@ int	main()
 			break ;
 		if(*line)
 		{
-			add_history(line);
+			//add_history(line);
+			
 		}
-		interpret(line, &status);
+		interpret(line);
 		free(line);
 	}
 	exit(status);

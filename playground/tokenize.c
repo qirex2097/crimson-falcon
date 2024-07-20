@@ -19,7 +19,7 @@ struct s_token {
 
 // 新しいトークンを作成する関数
 t_token *new_token(t_token_kind kind, char *word, t_token *next) {
-    t_token *tok = malloc(sizeof(t_token));
+    t_token *tok = calloc(sizeof(t_token), 1);
     tok->kind = kind;
     tok->word = strdup(word);
     tok->next = next;
