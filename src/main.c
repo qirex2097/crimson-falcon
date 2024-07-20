@@ -29,22 +29,21 @@ void	free_argv(char **argv)
 }
 /*--------------*/
 
-int interpret(char *line, int *stat_loc)
+int interpret(char *line)
 {
-    char **argv;
-	t_token *tok;
+    char *argv[] = {line, NULL};
+    pid_t pid = fork();
 
-	tok = tokenize(line);
-	if (tok->kind == TK_EOF)
-		;
-	else
-	{
-		argv = token_list_to_argv(tok);
-		//*stat_loc = exec(argv);
-		free_argv(argv);
-	}
-	free_tok(tok);
-	return (0);
+    if(pid == 0)
+    {
+        execve(line, argv, 0);
+        exit(0);
+    }
+    else
+    {
+        wait(0);
+    }
+    return 0;
 }
 
 int	main()

@@ -6,7 +6,7 @@
 /*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 16:25:04 by kahori            #+#    #+#             */
-/*   Updated: 2024/07/19 16:42:08 by kahori           ###   ########.fr       */
+/*   Updated: 2024/07/20 19:47:18 by kahori           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,19 +38,6 @@ struct						s_token
 	t_token					*next;
 };
 
-//--------------------tokenize.c--------------------
-t_token						*new_token(char *word, t_token_kind kind);
-bool						is_blank(char c);
-bool						consume_blank(char **rest, char *line);
-bool						startswith(const char *s, const char *keyword);
-bool						is_operator(const char *s);
-bool						is_metacharacter(char c);
-bool						is_word(const char *s);
-//t_token						*operator(char **rest, char *line);
-t_token						*word(char **rest, char *line);
-t_token						*tokenize(char *line);
-char						**tail_recursive(t_token *tok, int nargs,
-								char **argv);
-char						**token_list_to_argv(t_token *tok);
+
 
 #endif
