@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cleanup() {
-	rm -f cmp out
+	rm -f cmp out a.out
 }
 
 assert() {
@@ -28,11 +28,25 @@ assert() {
 	fi
 	echo
 }
+# Generate Executable
+cat <<EOF | gcc -xc -o a.out -
+#include <stdio.h>
+int main() { printf("hello from a.out\n"); }
+EOF
 
 # Empty line (EOF)
 assert '/bin/pwd'
 assert '/bin/ls'
 assert '/bin/echo'
+
+# Search command path without args
 assert 'pwd'
+assert 'echo'
+assert 'ls'
+assert './a.out'
+
+## no such command
+assert 'a.out'
+assert 'nosuchfile'
 
 cleanup

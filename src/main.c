@@ -92,11 +92,18 @@ int	main()
 		if(!line)		
 			break;
 		//line:full path
-		if(line[0] != '/')
+		if(strchr(line, '/') == NULL)
 		{
 			full_path = search_path(line);
-			interpret(full_path);
-			free(full_path);
+			if(full_path == NULL)
+			{
+				status = 127;
+			}
+			else
+			{
+				interpret(full_path);
+				free(full_path);
+			}
 		}
 		else
 		{
