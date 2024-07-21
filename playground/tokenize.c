@@ -1,96 +1,130 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <libc.h>
+#include   <stdbool.h>
 #include <ctype.h>
 
-typedef struct s_token t_token;
-enum e_token_kind {
-    TK_WORD,
-    TK_OP,
-    TK_EOF,
-};
-typedef enum e_token_kind t_token_kind;
+// トークンの種類
+typedef enum {
+  TK_RESERVED, // 記号
+  TK_NUM,      // 整数トークン
+  TK_EOF,      // 入力の終わりを表すトークン
+} TokenKind;
 
-struct s_token {
-    char *word;
-    t_token_kind kind;
-    t_token *next;
+typedef struct Token Token;
+
+// トークン型
+struct Token {
+  TokenKind kind; // トークンの型
+  Token *next;    // 次の入力トークン
+  int val;        // kindがTK_NUMの場合、その数値
+  char *str;      // トークン文字列
 };
 
-// 新しいトークンを作成する関数
-t_token *new_token(t_token_kind kind, char *word, t_token *next) {
-    t_token *tok = calloc(sizeof(t_token), 1);
+Token *token;
+
+//tokenは直接触らない
+void	error(char *fmt, ...)
+{
+	va_list ap;
+	va_start(ap,fmt);
+	vfprintf(stderr, fmt, ap);
+	fprintf(stderr, "\n");
+	exit(1);
+}
+
+bool	consume(char op)
+{
+	if(token->kind != TK_RESERVED || token->str[0] != op)
+        return false;
+    token = token->next;
+    return(true);
+}
+
+void    expect (char op)
+{
+    if(token->kind != TK_RESERVED || token -> str[0] != op)
+        error("not %c",op);
+    token=token->next;
+}
+
+int expect_num()
+{
+    if(token->kind != TK_NUM)
+        error("its not num");
+    int val = token -> val;
+    token = token -> next;
+    return val;
+}
+
+bool    at_eof()
+{
+    return(token->kind == TK_EOF);
+}
+
+Token *new_token(TokenKind kind, Token *cur, char *str)
+{
+    Token *tok = calloc(1, sizeof(Token));
     tok->kind = kind;
-    tok->word = strdup(word);
-    tok->next = next;
-    return tok;
+    tok->str = str;
+    cur->next = tok;
+    return(tok);
 }
 
-// 入力文字列をトークン化する関数
-t_token *tokenize(char *input) {
-    t_token head;
+Token *tokenize(char *p)
+{
+    Token   head;
     head.next = NULL;
-    t_token *cur = &head;
+    Token *cur = &head;
 
-    char *p = input;
-    while (*p) {
-        // 空白をスキップ
-        if (isspace(*p)) {
+    while(*p)
+    {
+        if(isspace(*p))
+        {
             p++;
             continue;
         }
-
-        // 演算子
-        if (*p == '|' || *p == '<' || *p == '>') {
-            char op[2] = {*p, '\0'};
-            cur = cur->next = new_token(TK_OP, op, NULL);
-            p++;
+        if(*p == '+' || *p == '-')
+        {
+            cur = new_token(TK_RESERVED,cur,p++);
             continue;
         }
-
-        // 単語
-        if (isalpha(*p) || *p == '_' || *p == '$') {
-            char *start = p;
-            while (isalnum(*p) || *p == '_' || *p == '$' || *p == '.') p++;
-            int len = p - start;
-            char *word = malloc(len + 1);
-            strncpy(word, start, len);
-            word[len] = '\0';
-
-            cur = cur->next = new_token(TK_WORD, word, NULL);
-            free(word);
+        if(isdigit(*p))
+        {
+            cur = new_token(TK_NUM,cur,p);
+            cur->val = strtol(p,&p,10);
             continue;
         }
-
-        fprintf(stderr, "undefined char: %c\n", *p);
-        exit(1);
+        error("Tokenize error");
     }
-
-    cur = cur->next = new_token(TK_EOF, "", NULL);
-    return head.next;
+    new_token(TK_EOF,cur,p);
+    return(head.next);
 }
 
-// トークンリストを表示する関数
-void print_tokens(t_token *tok) {
-    while (tok) {
-        printf("Token: ");
-        switch (tok->kind) {
-            case TK_WORD: printf("WORD"); break;
-            case TK_OP:   printf("OPERATOR"); break;
-            case TK_EOF:  printf("EOF"); break;
+
+int main(int ac, char **av)
+{
+    if(ac != 2)
+    {
+        fprintf(stderr, "invalid arguments\n");
+        return 1;
+    }
+    token = tokenize(av[1]);
+
+    printf(".intel_syntax noprefix\n");
+    printf(".global main\n");
+    printf("main:\n");
+
+    printf("    mov rax, %d\n", expect_num());
+
+    while(!at_eof())
+    {
+        if(consume('+'))
+        {
+            printf("    add rax, %d\n", expect_num());
+            continue;
         }
-        printf(", Value: '%s'\n", tok->word);
-        tok = tok->next;
+        expect('-');
+        printf("    sub rax, %d\n", expect_num());
     }
-}
-
-int main() {
-    char input[] = "echo 'Hello     world' '42Tokyo'";
-    t_token *tokens = tokenize(input);
-    print_tokens(tokens);
-
-    // メモリの解放（本来はちゃんと行うべき）
-    // ...
-
+    printf("    ret\n");
     return 0;
 }

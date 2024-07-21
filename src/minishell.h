@@ -6,7 +6,7 @@
 /*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 16:25:04 by kahori            #+#    #+#             */
-/*   Updated: 2024/07/20 19:47:18 by kahori           ###   ########.fr       */
+/*   Updated: 2024/07/21 08:45:16 by kahori           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,5 +39,10 @@ struct						s_token
 };
 
 
+/*free.c*/
+void	free_tok(t_token *tok);
+void	free_argv(char **argv);
+
+/*main.c*/
 
 #endif
