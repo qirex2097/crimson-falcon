@@ -63,9 +63,11 @@ bool    at_eof()
 Token *new_token(TokenKind kind, Token *cur, char *str)
 {
     Token *tok = calloc(1, sizeof(Token));
+    if(tok == NULL)
+        error("calloc");
     tok->kind = kind;
     tok->str = str;
-    cur->next = tok;
+    //cur->next = tok;
     return(tok);
 }
 
