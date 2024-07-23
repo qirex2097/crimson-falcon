@@ -9,14 +9,22 @@ char    *skip_blank(char *line)
     return current;
 }
 
-char    *skip_word(char *line)
-{
-    char    *p = line;
+char *skip_token(char *line) {
+    char *p = line;
 
-    while(*p != ' ' && *p)
+    if (*p == '\'') {
         p++;
-    return  p;
+        while (*p != '\'' && *p)
+            p++;
+        if (*p == '\'')
+            p++;
+    } else {
+        while (*p != ' ' && *p)
+            p++;
+    }
+    return p;
 }
+
 
 void tokenizer(char *line)
 {
@@ -24,6 +32,7 @@ void tokenizer(char *line)
     char *buff;
     char *buffs[1000];
     int i;
+    int len;
 
     i = 0;
     while(*line)
@@ -31,12 +40,13 @@ void tokenizer(char *line)
         line = skip_blank(line);
         if(*line == '\0')
             break;
-        p = skip_word(line);
-        buff = malloc(sizeof(char)* (p - line + 1));
-        strncpy(buff, line, p-line);
+        p = skip_token(line);
+        len = p - line;
+        buff = malloc(sizeof(char)* (len + 1));
+        strncpy(buff, line, len);
 //        printf("buff:%s\n", buff);
+		buff[len] = '\0';
         line = p;
-        
         buffs[i] = buff;
         i++;
     }
@@ -52,7 +62,7 @@ void tokenizer(char *line)
 
 int main()
 {
-    char *line = "    ls    -l | cat -e";
+    char *line = "    ls    -l | cat -e 'some        text'";
     // printf("$%s$\n", skip_blank(line));
     tokenizer(line);
 }
