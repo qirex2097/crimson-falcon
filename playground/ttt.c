@@ -12,13 +12,25 @@ char    *skip_blank(char *line)
 char *skip_token(char *line) {
     char *p = line;
 
+    //single quote
     if (*p == '\'') {
         p++;
         while (*p != '\'' && *p)
             p++;
         if (*p == '\'')
             p++;
-    } else {
+    }
+    //double quote
+    else if (*p == '"')
+    {
+        p++;
+        while (*p != '"' && *p)
+            p++;
+        if (*p == '"')
+            p++;
+    }
+    else
+    {
         while (*p != ' ' && *p)
             p++;
     }
@@ -62,7 +74,8 @@ void tokenizer(char *line)
 
 int main()
 {
-    char *line = "    ls    -l | cat -e 'some        text'";
+    char *line = "ls       -l | cat -e 'hello       world' \"hello     world\"";
     // printf("$%s$\n", skip_blank(line));
     tokenizer(line);
+    return(0);
 }
