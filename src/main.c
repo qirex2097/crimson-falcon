@@ -72,19 +72,23 @@ char	*search_path(const char *filename)
 
 int interpret(char *line)
 {
+	char *path;
 	char **argv = tokenizer(line);
 	if(argv == NULL)
 	{
 		free(argv);
 		exit (1);
 	}
-	printf("argv[0]:%s\n", argv[0]);
-	char *path = search_path(argv[0]);
-	printf("path:%s\n", path);
-    pid_t pid = fork();
+	// printf("argv[0]:%s\n", argv[0]);
+	// printf("path:%s\n", path);
 
+    pid_t pid = fork();
     if(pid == 0)
     {
+		if(strchr(argv[0], '/') == NULL)
+			path = search_path(argv[0]);
+		else
+			path = strdup(argv[0]);
         execve(path, argv, 0);
         exit(0);
     }
@@ -99,7 +103,7 @@ int	main()
 {
 	char	*line;
 	int	status = 0;
-	char *full_path;
+	//char *full_path;
 
 	rl_outstream = stderr;
 	while(1)
@@ -110,23 +114,7 @@ int	main()
 		//line:full path0
 		if(*line)
 			add_history(line);
-		if(strchr(line, '/') == NULL)
-		{
-			full_path = search_path(line);
-			if(full_path == NULL)
-			{
-				status = 127;
-			}
-			else
-			{
-				interpret(line);
-				free(full_path);
-			}
-		}
-		else
-		{
-			interpret(line);
-		}
+		interpret(line);
 		free(line);
 	}
 	exit(status);

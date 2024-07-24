@@ -6,7 +6,7 @@
 /*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 20:45:20 by kahori            #+#    #+#             */
-/*   Updated: 2024/07/24 22:17:45 by kahori           ###   ########.fr       */
+/*   Updated: 2024/07/24 22:38:15 by kahori           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,6 @@ char    **tokenizer(char *line)
     int i;
     int len;
 
-    printf("line:%s\n", line);
     i = 0;
 
     while(*line)
@@ -84,10 +83,8 @@ char    **tokenizer(char *line)
     argv = malloc(sizeof(char *) * (i + 1));
     while (buffs[i]) {
         argv[i] = buffs[i];
-        write(1, argv[i], strlen(argv[i]));
         i++;
     }
-    write(1, "\n", 1);
     argv[i] = NULL;
     return argv;
 }
