@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/24 21:48:20 by kahori            #+#    #+#             */
-/*   Updated: 2024/07/24 22:05:25 by kahori           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "minishell.h"
 typedef struct s_token	t_token;
 
@@ -20,22 +8,10 @@ typedef struct s_token	t_token;
 // 	char	*path_copy;
 
 // 	path = getenv("PATH");
-//     if(path == NULL)
-//     {
-//         return (NULL);
-//     }
 // 	path_copy = strdup(path);
-//     if(path_copy == NULL)
-//     {
-//         return (NULL);
-//     }
 //     char *path_token = strtok(path_copy, ":");
-//     if(path_token == NULL)
-//     {
-//         free(path_copy);
-//         return (NULL);
-//     }
 // 	char *full_path = malloc(strlen(path_token) + strlen(filename) + 2); //+2 for '/' and '\0'
+
 //     if (!full_path)
 // 	{
 // 		free(path_copy);
@@ -49,13 +25,13 @@ typedef struct s_token	t_token;
 // 		if (access(full_path, X_OK) == 0) 
 // 		{
 // 			free(path_copy);
+// 			printf("full_path:%s\n", full_path);
 // 			return (full_path);
 // 		}
 // 		path_token = strtok(NULL, ":");
 // 	}
-//     free(full_path);
 // 	free(path_copy);
-// 	return (NULL);
+// 	return ("error");
 // }
 
 char	*search_path(const char *filename)
@@ -96,12 +72,20 @@ char	*search_path(const char *filename)
 
 int interpret(char *line)
 {
-    char *argv[] = {line, NULL};
+	char **argv = tokenizer(line);
+	if(argv == NULL)
+	{
+		free(argv);
+		exit (1);
+	}
+	printf("argv[0]:%s\n", argv[0]);
+	char *path = search_path(argv[0]);
+	printf("path:%s\n", path);
     pid_t pid = fork();
 
     if(pid == 0)
     {
-        execve(line, argv, 0);
+        execve(path, argv, 0);
         exit(0);
     }
     else
@@ -123,8 +107,9 @@ int	main()
 		line = readline("minishell$ ");
 		if(!line)		
 			break;
-        if(*line)
-            add_history(line);
+		//line:full path0
+		if(*line)
+			add_history(line);
 		if(strchr(line, '/') == NULL)
 		{
 			full_path = search_path(line);
@@ -134,7 +119,7 @@ int	main()
 			}
 			else
 			{
-				interpret(full_path);
+				interpret(line);
 				free(full_path);
 			}
 		}
