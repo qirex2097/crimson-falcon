@@ -6,7 +6,7 @@
 /*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 20:45:20 by kahori            #+#    #+#             */
-/*   Updated: 2024/07/24 21:17:49 by kahori           ###   ########.fr       */
+/*   Updated: 2024/07/24 21:27:15 by kahori           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,8 +78,8 @@ char    **tokenizer(char *line)
     }
     buffs[i] = NULL;
     char **argv;
-    argv = malloc(sizeof(char *) * (i + 1));
     i = 0;
+    argv = malloc(sizeof(char *) * (i + 1));
     while (buffs[i]) {
         argv[i] = buffs[i];
         i++;
