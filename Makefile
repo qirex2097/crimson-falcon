@@ -6,7 +6,7 @@
 #    By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/18 17:15:58 by shinsaeki         #+#    #+#              #
-#    Updated: 2024/07/18 07:58:02 by kahori           ###   ########.fr        #
+#    Updated: 2024/07/24 20:53:58 by kahori           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,6 +23,9 @@ INCLUDES = -I include
 CFLAGS   = -Wall -Wextra -Werror $(INCLUDES)
 LIBS     = -lreadline
 SRCS     = src/main.c\
+			src/free.c\
+			src/tokenize.c\
+			src/error.c
 
 OBJS_DIR = obj
 SRCS_DIR = src

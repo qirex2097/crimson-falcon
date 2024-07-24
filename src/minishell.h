@@ -6,7 +6,7 @@
 /*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 16:25:04 by kahori            #+#    #+#             */
-/*   Updated: 2024/07/21 08:45:16 by kahori           ###   ########.fr       */
+/*   Updated: 2024/07/24 21:06:19 by kahori           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,11 +38,24 @@ struct						s_token
 	t_token					*next;
 };
 
+/*main.c*/
+char	*search_path(const char *filename);
+int		interpret(char *line);
+
+/*error.c*/
+void	fatal_error(const char *msg);
+void	assert_error(const char *msg);
 
 /*free.c*/
 void	free_tok(t_token *tok);
 void	free_argv(char **argv);
 
-/*main.c*/
+/*tokenize.c*/
+char	*skip_blank(char *line);
+char	*skip_token(char *line);
+char **tokenizer(char *line);
+
+
+
 
 #endif

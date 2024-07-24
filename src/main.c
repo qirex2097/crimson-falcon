@@ -36,12 +36,14 @@ char	*search_path(const char *filename)
 
 int interpret(char *line)
 {
-    char *argv[] = {line, NULL};
+	char **argv = tokenizer(line);
+	//argv == NULL shori
+	char *path = search_path(argv[0]);
     pid_t pid = fork();
 
     if(pid == 0)
     {
-        execve(line, argv, 0);
+        execve(path, argv, 0);
         exit(0);
     }
     else

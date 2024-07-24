@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/minishell",
+            "args": [], // 必要に応じて引数を指定
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "build",
+            "stopOnEntry": false,
+            //"runInTerminal": false
+        }
+    ]
+}
