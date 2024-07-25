@@ -6,7 +6,7 @@
 /*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 16:25:04 by kahori            #+#    #+#             */
-/*   Updated: 2024/07/24 21:06:19 by kahori           ###   ########.fr       */
+/*   Updated: 2024/07/25 19:26:46 by kahori           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,9 +53,6 @@ void	free_argv(char **argv);
 /*tokenize.c*/
 char	*skip_blank(char *line);
 char	*skip_token(char *line);
-char **tokenizer(char *line);
-
-
-
+char	**tokenizer(char *line);
 
 #endif

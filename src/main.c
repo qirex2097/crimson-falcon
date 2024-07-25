@@ -34,6 +34,7 @@ typedef struct s_token	t_token;
 // 	return ("error");
 // }
 
+//TODO search_pathを書き換える！
 char	*search_path(const char *filename)
 {
 	char	path[PATH_MAX];

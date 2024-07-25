@@ -6,7 +6,7 @@
 /*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 20:45:20 by kahori            #+#    #+#             */
-/*   Updated: 2024/07/24 22:38:15 by kahori           ###   ########.fr       */
+/*   Updated: 2024/07/25 19:38:21 by kahori           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,3 +88,17 @@ char    **tokenizer(char *line)
     argv[i] = NULL;
     return argv;
 }
+
+/*TODO expand
+' " を取り除くexpand
+void    expand(char **args);
+*/
+
+/*TODO ¥
+¥の後の空白は空白として扱う
+
+ls MY¥ Documents
+-> 
+ls 
+MY Documents
+*/
