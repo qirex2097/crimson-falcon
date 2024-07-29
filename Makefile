@@ -6,7 +6,7 @@
 #    By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/18 17:15:58 by shinsaeki         #+#    #+#              #
-#    Updated: 2024/07/24 20:53:58 by kahori           ###   ########.fr        #
+#    Updated: 2024/07/29 20:04:34 by kahori           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,7 +25,8 @@ LIBS     = -lreadline
 SRCS     = src/main.c\
 			src/free.c\
 			src/tokenize.c\
-			src/error.c
+			src/error.c\
+			src/libft.c
 
 OBJS_DIR = obj
 SRCS_DIR = src

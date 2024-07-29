@@ -6,7 +6,7 @@
 /*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 16:25:04 by kahori            #+#    #+#             */
-/*   Updated: 2024/07/29 19:20:50 by kahori           ###   ########.fr       */
+/*   Updated: 2024/07/29 19:54:30 by kahori           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,5 +55,7 @@ char	*skip_blank(char *line);
 char	*skip_token(char *line);
 void	expand(char **args);
 char **tokenizer(char *line);
+
+char	*ft_strtrim(char const *s1, char const *set);
 
 #endif

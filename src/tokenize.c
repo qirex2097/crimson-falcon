@@ -6,7 +6,7 @@
 /*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 20:45:20 by kahori            #+#    #+#             */
-/*   Updated: 2024/07/29 19:23:43 by kahori           ###   ########.fr       */
+/*   Updated: 2024/07/29 20:19:33 by kahori           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,8 @@ char    *skip_blank(char *line)
     return current;
 }
 
-char *skip_token(char *line) {
+char *skip_token(char *line) 
+{
     char *p = line;
 
     //single quote
@@ -55,21 +56,20 @@ char *skip_token(char *line) {
 void expand(char **args) 
 {
     int i = 0;
-    while (args[i] != NULL) {
+    while (args[i] != NULL)
+    {
         char *p = args[i];
-        char *buff = malloc(strlen(p) + 1);
-        if (buff == NULL) {
-            perror("malloc");
-            exit(EXIT_FAILURE);
+        char   *buff;
+        if(*p == '\'')
+        {
+            buff = ft_strtrim(p, "'");
         }
-        char *q = buff;
-        while (*p) {
-            if (*p != '\'' && *p != '"') {
-                *q++ = *p;
-            }
-            p++;
+        else if (*p == '"')
+            buff = ft_strtrim(p, "\"");
+        else
+        {
+            buff = strdup(p);
         }
-        *q = '\0';
         free(args[i]);
         args[i] = buff;
         i++;
@@ -101,11 +101,18 @@ char **tokenizer(char *line) {
         }
         strncpy(buff, line, len);
         buff[len] = '\0';
+       // printf("%s\n", buff);
         line = p;
         buffs[i] = buff;
         i++;
     }
     buffs[i] = NULL;
+    i = 0;
+    while(buffs[i])
+    {
+        printf("%s\n", buffs[i]);
+        i++;
+    }
     expand(buffs);
 
     return buffs;
