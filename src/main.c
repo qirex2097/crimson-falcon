@@ -46,9 +46,8 @@ int interpret(char *line)
 		free_argv(argv);
 		exit (1);
 	}
-	// printf("argv[0]:%s\n", argv[0]);
-	// printf("path:%s\n", path);
-
+	
+	expand(argv);
     pid_t pid = fork();
     if(pid == 0)
     {

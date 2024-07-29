@@ -6,7 +6,7 @@
 /*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 20:45:20 by kahori            #+#    #+#             */
-/*   Updated: 2024/07/29 20:19:55 by kahori           ###   ########.fr       */
+/*   Updated: 2024/07/29 20:46:30 by kahori           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,29 @@ char    *skip_blank(char *line)
         current++;
     return current;
 }
+static char *skip_single_quote(char *p)
+{
+    if(*p != '\'')
+        return(p);
+    p++;
+    while(*p != '\'' && *p)
+        p++;
+    if(*p == '\'')
+        p++;
+    return(p);
+}
+
+static char *skip_double_quote(char *p)
+{
+    if(*p != '"')
+        return(p);
+    p++;
+    while(*p != '"' && *p)
+        p++;
+    if(*p == '"')
+        p++;
+    return(p);
+}
 
 char *skip_token(char *line) 
 {
@@ -29,49 +52,50 @@ char *skip_token(char *line)
 
     //single quote
     if (*p == '\'') {
-        p++;
-        while (*p != '\'' && *p)
-            p++;
-        if (*p == '\'')
-            p++;
+        p = skip_single_quote(p);
     }
     //double quote
     else if (*p == '"')
     {
-        p++;
-        while (*p != '"' && *p)
-            p++;
-        if (*p == '"')
-            p++;
+        p = skip_double_quote(p);
     }
     else
     {
         while (*p != ' ' && *p)
-            p++;
+        {
+            if(*p == '\'')
+                p = skip_single_quote(p);
+            else if(*p == '"')
+                p = skip_double_quote(p);
+            else
+                p++;
+        }
     }
     return p;
 }
 
 
-void expand(char **args) 
+void expand(char **buffs) 
 {
     int i = 0;
-    while (args[i] != NULL)
+    while (buffs[i] != NULL)
     {
-        char *p = args[i];
-        char   *buff;
+        char *p = buffs[i];
+        char *buff;
         if(*p == '\'')
         {
             buff = ft_strtrim(p, "'");
         }
         else if (*p == '"')
+        {
             buff = ft_strtrim(p, "\"");
+        }
         else
         {
             buff = strdup(p);
         }
-        free(args[i]);
-        args[i] = buff;
+        free(buffs[i]);
+        buffs[i] = buff;
         i++;
     }
 }
@@ -107,7 +131,6 @@ char **tokenizer(char *line) {
         i++;
     }
     buffs[i] = NULL;
-    expand(buffs);
 
     return buffs;
 }
@@ -123,5 +146,4 @@ void    expand(char **args);
 ls MY¥ Documents
 -> 
 ls 
-MY Documents
 */
