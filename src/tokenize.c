@@ -6,7 +6,7 @@
 /*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 20:45:20 by kahori            #+#    #+#             */
-/*   Updated: 2024/07/29 20:19:33 by kahori           ###   ########.fr       */
+/*   Updated: 2024/07/29 20:19:55 by kahori           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,12 +107,6 @@ char **tokenizer(char *line) {
         i++;
     }
     buffs[i] = NULL;
-    i = 0;
-    while(buffs[i])
-    {
-        printf("%s\n", buffs[i]);
-        i++;
-    }
     expand(buffs);
 
     return buffs;
