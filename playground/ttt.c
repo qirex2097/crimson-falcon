@@ -37,6 +37,15 @@ char *skip_token(char *line) {
     return p;
 }
 
+void    expand(char **args)
+{
+    int i = 0;
+    char *p = *args[i];
+    char *buff;
+    buff = malloc(strlen(p) + 1);
+    //error
+    if
+}
 
 void tokenizer(char *line)
 {
