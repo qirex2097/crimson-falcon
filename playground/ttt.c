@@ -37,14 +37,29 @@ char *skip_token(char *line) {
     return p;
 }
 
-void    expand(char **args)
+
+void expand(char **args) 
 {
     int i = 0;
-    char *p = *args[i];
-    char *buff;
-    buff = malloc(strlen(p) + 1);
-    //error
-    if
+    while (args[i] != NULL) {
+        char *p = args[i];
+        char *buff = malloc(strlen(p) + 1);
+        if (buff == NULL) {
+            perror("malloc");
+            exit(EXIT_FAILURE);
+        }
+        char *q = buff;
+        while (*p) {
+            if (*p != '\'' && *p != '"') {
+                *q++ = *p;
+            }
+            p++;
+        }
+        *q = '\0';
+        free(args[i]);
+        args[i] = buff;
+        i++;
+    }
 }
 
 void tokenizer(char *line)
@@ -65,16 +80,18 @@ void tokenizer(char *line)
         len = p - line;
         buff = malloc(sizeof(char)* (len + 1));
         strncpy(buff, line, len);
-//        printf("buff:%s\n", buff);
 		buff[len] = '\0';
         line = p;
         buffs[i] = buff;
         i++;
     }
     buffs[i] = NULL;
+    expand(buffs);
     i = 0;
-    while (buffs[i]) {
+    while (buffs[i])
+    {
         printf("%s\n", buffs[i]);
+        free(buffs[i]);
         i++;
     }
 }

@@ -1,12 +1,20 @@
 #!/bin/bash
 
+cat <<EOF | gcc -xc -o print_args -
+#include <stdio.h>
+int main(int argc, char *argv[]) {
+	for (int i = 0; argv[i]; i++)
+		printf("argv[%d] = %s\n", i, argv[i]);
+}
+EOF
+
 cleanup() {
-	rm -f cmp out a.out
+	rm -f cmp out a.out print_args
 }
 
 assert() {
     # テストしようとしている内容をprint
-	printf '%-30s:' "\"$1\""
+	printf '%-50s:' "\"$1\""
 
 	# bashの出力をcmpに保存
 	echo -n -e "$1" | bash >cmp 2>&-
@@ -48,5 +56,19 @@ assert './a.out'
 ## no such command
 assert 'a.out'
 assert 'nosuchfile'
+
+# Tokenize
+## unquoted word
+assert 'ls /'
+assert 'echo hello    world     '
+assert 'nosuchfile\n\n'
+
+## single quote
+assert "./print_args 'hello   world' '42Tokyo'"
+assert "echo 'hello   world' '42Tokyo'"
+assert "echo '\"hello   world\"' '42Tokyo'"
+
+## combination
+assert "echo hello'      world'"
 
 cleanup

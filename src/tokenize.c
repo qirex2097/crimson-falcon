@@ -6,7 +6,7 @@
 /*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 20:45:20 by kahori            #+#    #+#             */
-/*   Updated: 2024/07/25 19:38:21 by kahori           ###   ########.fr       */
+/*   Updated: 2024/07/29 19:23:43 by kahori           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,41 +52,63 @@ char *skip_token(char *line) {
 }
 
 
-char    **tokenizer(char *line)
+void expand(char **args) 
 {
+    int i = 0;
+    while (args[i] != NULL) {
+        char *p = args[i];
+        char *buff = malloc(strlen(p) + 1);
+        if (buff == NULL) {
+            perror("malloc");
+            exit(EXIT_FAILURE);
+        }
+        char *q = buff;
+        while (*p) {
+            if (*p != '\'' && *p != '"') {
+                *q++ = *p;
+            }
+            p++;
+        }
+        *q = '\0';
+        free(args[i]);
+        args[i] = buff;
+        i++;
+    }
+}
+
+char **tokenizer(char *line) {
     char *p;
     char *buff;
-    char *buffs[1000];
-    int i;
+    char **buffs = malloc(sizeof(char *) * 1000);
+    int i = 0;
     int len;
 
-    i = 0;
+    if (buffs == NULL) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
 
-    while(*line)
-    {
+    while (*line) {
         line = skip_blank(line);
-        if(*line == '\0')
+        if (*line == '\0')
             break;
         p = skip_token(line);
         len = p - line;
-        buff = malloc(sizeof(char)* (len + 1));
+        buff = malloc(sizeof(char) * (len + 1));
+        if (buff == NULL) {
+            perror("malloc");
+            exit(EXIT_FAILURE);
+        }
         strncpy(buff, line, len);
-//        printf("buff:%s\n", buff);
-		buff[len] = '\0';
+        buff[len] = '\0';
         line = p;
         buffs[i] = buff;
         i++;
     }
     buffs[i] = NULL;
-    char **argv;
-    i = 0;
-    argv = malloc(sizeof(char *) * (i + 1));
-    while (buffs[i]) {
-        argv[i] = buffs[i];
-        i++;
-    }
-    argv[i] = NULL;
-    return argv;
+    expand(buffs);
+
+    return buffs;
 }
 
 /*TODO expand
