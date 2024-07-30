@@ -6,7 +6,7 @@
 /*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 20:45:20 by kahori            #+#    #+#             */
-/*   Updated: 2024/07/29 20:46:30 by kahori           ###   ########.fr       */
+/*   Updated: 2024/07/30 12:30:28 by kahori           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,58 +22,40 @@ char    *skip_blank(char *line)
         current++;
     return current;
 }
-static char *skip_single_quote(char *p)
+
+static char *skip_quate(char *p, char quote)
 {
-    if(*p != '\'')
+    if(*p != quote)
         return(p);
     p++;
-    while(*p != '\'' && *p)
+    while(*p != quote && *p)
         p++;
-    if(*p == '\'')
+    if(*p == quote)
         p++;
     return(p);
 }
 
-static char *skip_double_quote(char *p)
+char *skip_token(char *line)
 {
-    if(*p != '"')
-        return(p);
-    p++;
-    while(*p != '"' && *p)
-        p++;
-    if(*p == '"')
-        p++;
-    return(p);
-}
+    char *p;
 
-char *skip_token(char *line) 
-{
-    char *p = line;
-
-    //single quote
-    if (*p == '\'') {
-        p = skip_single_quote(p);
-    }
-    //double quote
-    else if (*p == '"')
+    p = line;
+    if(*p == '\'' || *p == '"')
     {
-        p = skip_double_quote(p);
+        p = skip_quate(p, *p);
     }
     else
     {
-        while (*p != ' ' && *p)
+        while(*p != ' ' && *p)
         {
-            if(*p == '\'')
-                p = skip_single_quote(p);
-            else if(*p == '"')
-                p = skip_double_quote(p);
+            if(*p == '\'' || *p == '"')
+                p = skip_quate(p, *p);
             else
                 p++;
         }
     }
-    return p;
+    return(p);
 }
-
 
 void expand(char **buffs) 
 {
