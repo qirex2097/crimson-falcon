@@ -71,6 +71,7 @@ assert "echo '\"hello   world\"' '42Tokyo'"
 ## combination
 assert "echo hello'      world'"
 assert "echo hello\nworld"
+assert "echo hello\\nworld"
 assert "echo -e "hello\nworld""
 
 cleanup
