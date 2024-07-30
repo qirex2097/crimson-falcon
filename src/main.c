@@ -44,7 +44,7 @@ int interpret(char *line)
 	if(argv == NULL)
 	{
 		free_argv(argv);
-		exit (1);
+		exit (EXIT_FAILURE);
 	}
 	
 	expand(argv);
@@ -56,7 +56,7 @@ int interpret(char *line)
 		else
 			path = strdup(argv[0]);
         execve(path, argv, 0);
-        exit(0);
+        exit(EXIT_SUCCESS);
     }
     else
     {
@@ -78,7 +78,7 @@ int	main()
 		line = readline("minishell$ ");
 		if(!line)		
 			break;
-		//line:full path0
+		//line:full path
 		if(*line)
 			add_history(line);
 		interpret(line);

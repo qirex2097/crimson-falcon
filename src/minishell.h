@@ -6,7 +6,7 @@
 /*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 16:25:04 by kahori            #+#    #+#             */
-/*   Updated: 2024/07/29 19:54:30 by kahori           ###   ########.fr       */
+/*   Updated: 2024/07/31 08:30:52 by kahori           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,11 @@ void	free_argv(char **argv);
 char	*skip_blank(char *line);
 char	*skip_token(char *line);
 void	expand(char **args);
-char **tokenizer(char *line);
+char    *copy_token(char *start, char *end);
+char	**tokenizer(char *line);
 
+/*libft.c*/
+//後でlibft導入するので削除
 char	*ft_strtrim(char const *s1, char const *set);
 
 #endif

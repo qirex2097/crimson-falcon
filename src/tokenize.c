@@ -6,7 +6,7 @@
 /*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 20:45:20 by kahori            #+#    #+#             */
-/*   Updated: 2024/07/30 13:07:12 by kahori           ###   ########.fr       */
+/*   Updated: 2024/07/31 08:27:39 by kahori           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,9 @@ char *skip_token(char *line)
     {
         while(*p != ' ' && *p)
         {
-            if(*p == '\'' || *p == '"')
+            if(*p == '\\' && *(p + 1) != '\0')
+                p = p + 2;
+            else if(*p == '\'' || *p == '"')
                 p = skip_quate(p, *p);
             else
                 p++;
@@ -82,50 +84,56 @@ void expand(char **buffs)
     }
 }
 
-char **tokenizer(char *line) {
-    char *p;
-    char *buff;
-    char **buffs = malloc(sizeof(char *) * 1000);
-    int i = 0;
-    int len;
+char    *copy_token(char *start, char *end)
+{
+    char    *token;
+    char    *src;
+    char    *dest;
 
-    if (buffs == NULL) {
+    token = malloc(sizeof(char) * (end - start + 1));
+    if(token == NULL)
+    {
         perror("malloc");
         exit(EXIT_FAILURE);
     }
 
-    while (*line) {
+    src = start;
+    dest = token;
+    while(src < end)
+    {
+        if(*src == '\\' && *(src + 1) != '\0')
+            src++;
+        *dest++ = *src++;
+    }
+    *dest = '\0';
+    return(token);
+}
+
+char **tokenizer(char *line)
+{
+    int i;
+    char    *start;
+    char    **tokens;
+    tokens = malloc(sizeof(char *) * 1000);
+    if (tokens == NULL)
+    {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+
+    i = 0;
+    while (*line)
+    {
         line = skip_blank(line);
         if (*line == '\0')
             break;
-        p = skip_token(line);
-        len = p - line;
-        buff = malloc(sizeof(char) * (len + 1));
-        if (buff == NULL) {
-            perror("malloc");
-            exit(EXIT_FAILURE);
-        }
-        strncpy(buff, line, len);
-        buff[len] = '\0';
-       // printf("%s\n", buff);
-        line = p;
-        buffs[i] = buff;
-        i++;
+
+        start = line;
+        line = skip_token(line);
+        //tokenをcopyして配列に格納する
+        tokens[i++] = copy_token(start, line);
     }
-    buffs[i] = NULL;
+    tokens[i] = NULL;
 
-    return buffs;
+    return tokens;
 }
-
-/*TODO expand
-' " を取り除くexpand
-void    expand(char **args);
-*/
-
-/*TODO ¥
-¥の後の空白は空白として扱う
-
-ls MY¥ Documents
--> 
-ls 
-*/ 
