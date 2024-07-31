@@ -40,6 +40,12 @@ char	*ft_strtrim(char const *s1, char const *set)
 
 /*==========================*/
 
+//metacharactor : | & ; ( ) < >
+int is_metachar(char  c)
+{
+    return(c == ';' || c == '<' || c == '>' || c == '&' || c == '(' || c == ')' || c == '|');  
+}
+
 char    *skip_blank(char *line)
 {
     char    *current = line;
@@ -69,13 +75,13 @@ char *skip_token(char *line)
     {
         p = skip_quate(p, *p);
     }
-    else if (*p == ';')
+    else if (is_metachar(*p))
     {
         p++;
     }
     else
     {
-        while (*p != ' ' && *p != ';' && *p) 
+        while (*p != ' ' && !is_metachar(*p) && *p) 
         {
             if (*p == '\\' && *(p + 1) != '\0')
                 p = p + 2;
@@ -159,7 +165,7 @@ char **tokenizer(char *line)
         if (*line == '\0')
             break;
 
-        if (*line == ';')
+        if (is_metachar(*line))
         {
             tokens[i++] = copy_token(line, line + 1);
             line++;
@@ -179,8 +185,9 @@ char **tokenizer(char *line)
 
 int main()
 {
-    char *input = "ls;pwd";
+    char *input = "ls>&<;pwd|cat test.txt";
     char **tokens = tokenizer(input);
+    printf("%s\n",input);
     for (int i = 0; tokens[i] != NULL; i++)
     {
         printf("Token %d: %s\n", i, tokens[i]);
