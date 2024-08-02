@@ -109,6 +109,7 @@ t_node *expr();
 t_node *mul();
 t_node *primary();
 
+//+ - の判定
 t_node *expr()
 {
     t_node *node = mul();
@@ -123,6 +124,7 @@ t_node *expr()
     }
 }
 
+//* / の判定
 t_node *mul()
 {
     t_node *node = primary();
@@ -137,6 +139,7 @@ t_node *mul()
     }
 }
 
+// () numの判定
 t_node *primary()
 {
     if(consume('('))
@@ -148,84 +151,7 @@ t_node *primary()
     return new_node_num(expect_number());
 }
 
-/*TOKENIZE*/
-
-t_token *new_token(TokenKind kind, t_token *cur, char *str, int val)
-{
-    t_token *tok = calloc(1, sizeof(t_token));
-    tok->kind = kind;
-    tok->str = str;
-    tok->val = val;
-    cur->next = tok;
-    return tok;
-}
-
-t_token *tokenize(char *p)
-{
-    t_token head;
-    head.next = NULL;
-    t_token *cur = &head;
-
-    while (*p)
-    {
-        if (isspace(*p))
-        {
-            p++;
-            continue;
-        }
-
-        if (*p == '+' || *p == '-' || *p == '*' || *p == '/' || *p == '(' || *p == ')')
-        {
-            cur = new_token(TK_RESERVED, cur, p++, 0);
-            continue;
-        }
-
-        if (isdigit(*p))
-        {
-            cur = new_token(TK_NUM, cur, p, strtol(p, &p, 10));
-            continue;
-        }
-
-        fprintf(stderr, "Tokenize error: %s\n", p);
-        exit(1);
-    }
-
-    new_token(TK_EOF, cur, p, 0);
-    return head.next;
-}
-
-//debug
-
-int eval(t_node *node)
-{
-    if (node->kind == ND_NUM)
-        return node->val;
-    int lhs = eval(node->lhs);
-    int rhs = eval(node->rhs);
-
-    if (node->kind == ND_ADD)
-        return lhs + rhs;
-    if (node->kind == ND_SUB)
-        return lhs - rhs;
-    if (node->kind == ND_MUL)
-        return lhs * rhs;
-    if (node->kind == ND_DIV)
-        return lhs / rhs;
-
-    fprintf(stderr, "不正なノードの種類です: %d\n", node->kind);
-    exit(1);
-}
-
 int main()
 {
-    char *input = "1+2*3";
-    int result;
-    t_node *node;
-
-    token = tokenize(input);
-    node = expr();
-    result = eval(node);
-    printf("result: %d\n", result);
-
-    return 0;
+    char *tokens[] = {"1", "+", "2", "*", "3"};
 }
