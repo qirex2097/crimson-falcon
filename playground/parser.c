@@ -113,7 +113,7 @@ t_node *primary();
 t_node *expr()
 {
     t_node *node = mul();
-    for(;;)
+    while(1)
     {
         if(consume('+'))
             node = new_node(ND_ADD, node, mul());
@@ -128,7 +128,7 @@ t_node *expr()
 t_node *mul()
 {
     t_node *node = primary();
-    for(;;)
+    while(1)
     {
         if(consume('*'))
             node = new_node(ND_MUL, node, primary());
@@ -151,7 +151,3 @@ t_node *primary()
     return new_node_num(expect_number());
 }
 
-int main()
-{
-    char *tokens[] = {"1", "+", "2", "*", "3"};
-}
