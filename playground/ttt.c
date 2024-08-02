@@ -183,16 +183,16 @@ char **tokenizer(char *line)
     return tokens;
 }
 
-int main()
-{
-    char *input = "ls>&<;pwd|cat test.txt";
-    char **tokens = tokenizer(input);
-    printf("%s\n",input);
-    for (int i = 0; tokens[i] != NULL; i++)
-    {
-        printf("Token %d: %s\n", i, tokens[i]);
-        free(tokens[i]);
-    }
-    free(tokens);
-    return 0;
-}
+// int main()
+// {
+//     char *input = "ls>&<;pwd|cat test.txt";
+//     char **tokens = tokenizer(input);
+//     printf("%s\n",input);
+//     for (int i = 0; tokens[i] != NULL; i++)
+//     {
+//         printf("Token %d: %s\n", i, tokens[i]);
+//         free(tokens[i]);
+//     }
+//     free(tokens);
+//     return 0;
+// }
