@@ -151,3 +151,53 @@ t_node *primary()
     return new_node_num(expect_number());
 }
 
+int evaluate(t_node *node) {
+    if (node->kind == ND_NUM) {
+        return node->val;
+    }
+
+    int lhs_val = evaluate(node->lhs);
+    int rhs_val = evaluate(node->rhs);
+
+    switch (node->kind) {
+        case ND_ADD:
+            return lhs_val + rhs_val;
+        case ND_SUB:
+            return lhs_val - rhs_val;
+        case ND_MUL:
+            return lhs_val * rhs_val;
+        case ND_DIV:
+            if (rhs_val == 0) {
+                fprintf(stderr, "Division by zero error\n");
+                exit(1);
+            }
+            return lhs_val / rhs_val;
+        default:
+            fprintf(stderr, "Unknown node kind\n");
+            exit(1);
+    }
+}
+
+// main関数の実装
+int main() {
+    // 例として "(3 + 5) * 2" を解析して評価する
+    // トークン列を手動で設定
+    t_token tokens[] = {
+        {TK_NUM, &tokens[1], 3, "3"},
+        {TK_RESERVED, &tokens[2], 0, "+"},
+        {TK_NUM, &tokens[3], 9, "9"},
+        {TK_RESERVED, &tokens[4], 0, "*"},
+        {TK_NUM, &tokens[5], 2, "2"},
+        {TK_EOF, NULL, 0, ""}
+    };
+    token = tokens;
+
+    // 式を解析してASTを生成
+    t_node *ast = expr();
+
+    // ASTを評価
+    int result = evaluate(ast);
+    printf("Result: %d\n", result); // 出力: Result: 16
+
+    return 0;
+}

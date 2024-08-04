@@ -6,12 +6,13 @@
 /*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/31 09:28:55 by kahori            #+#    #+#             */
-/*   Updated: 2024/07/31 09:28:56 by kahori           ###   ########.fr       */
+/*   Updated: 2024/08/04 19:52:36 by kahori           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 typedef struct s_token	t_token;
+
 //TODO search_pathを書き換える！
 char	*search_path(const char *filename)
 {

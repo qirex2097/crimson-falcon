@@ -1,5 +1,7 @@
 #include "minishell.h"
 
+
+/*TODO: 後でlibft使うからいらない。*/
 static int	ft_isset(char c, char const *set)
 {
 	while (*set)
