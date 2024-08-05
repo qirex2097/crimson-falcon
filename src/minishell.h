@@ -6,7 +6,7 @@
 /*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 16:25:04 by kahori            #+#    #+#             */
-/*   Updated: 2024/07/31 08:30:52 by kahori           ###   ########.fr       */
+/*   Updated: 2024/08/05 20:36:25 by kahori           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,24 +19,23 @@
 # include <stdbool.h>
 # include <unistd.h>
 
-typedef struct s_token		t_token;
-
-enum						e_token_kind
+typedef enum e_node_kind
 {
-	TK_WORD,
-	TK_RESERVED,
-	TK_OP,
-	TK_EOF,
-};
-typedef enum e_token_kind	t_token_kind;
+	ND_SIMPLE_CMD,
+}	t_node_kind;
 
-// `word` is zero terminated string.
-struct						s_token
+typedef struct s_node
 {
-	char					*word;
-	t_token_kind			kind;
-	t_token					*next;
-};
+	t_node	*next;
+	t_node_kind	kind;
+	char	**args;
+}	t_node;
+
+
+
+/*libft.c*/
+//後でlibft導入するので削除
+char	*ft_strtrim(char const *s1, char const *set);
 
 /*main.c*/
 char	*search_path(const char *filename);
@@ -47,7 +46,7 @@ void	fatal_error(const char *msg);
 void	assert_error(const char *msg);
 
 /*free.c*/
-void	free_tok(t_token *tok);
+// void	free_tok(t_token *tok);
 void	free_argv(char **argv);
 
 /*tokenize.c*/
@@ -57,8 +56,6 @@ void	expand(char **args);
 char    *copy_token(char *start, char *end);
 char	**tokenizer(char *line);
 
-/*libft.c*/
-//後でlibft導入するので削除
-char	*ft_strtrim(char const *s1, char const *set);
+/*parse.c*/
 
 #endif
