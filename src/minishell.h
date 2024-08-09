@@ -22,15 +22,20 @@
 typedef enum e_node_kind
 {
 	ND_SIMPLE_CMD,
+	ND_REDIR_OUT,
 }	t_node_kind;
 
 typedef struct s_node t_node;
 
 struct s_node
 {
-	t_node	*next;
 	t_node_kind	kind;
+	t_node	*next;
+	// CMD
 	char	**args;
+	t_node  *redirects;
+	// REDIR
+	char	*filename;
 };
 
 

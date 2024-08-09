@@ -49,12 +49,14 @@ char	*search_path(const char *filename)
 	return (NULL);
 }
 
-void exec(t_node *node)
+int exec_cmd(t_node *node)
 {
 	char *path;
 	char **argv = node->args;
-    pid_t pid = fork();
+	int wstatus;
+    pid_t pid;
 
+	pid = fork();
     if(pid == 0)
     {
 		if(strchr(argv[0], '/') == NULL)
@@ -62,19 +64,29 @@ void exec(t_node *node)
 		else
 			path = strdup(argv[0]);
         execve(path, argv, 0);
-        exit(EXIT_SUCCESS);
+		fatal_error("execve");
     }
     else
     {
-        wait(0);
+        wait(&wstatus);
+		return (WEXITSTATUS(wstatus));
     }
-	return;
+	
+	return (0);
+}
+
+int exec(t_node *node)
+{
+	int status = 0;
+	status = exec_cmd(node);
+	return (status);
 }
 
 int interpret(char *line)
 {
 	char **tokens;
-	 t_node	*node;
+	int status;
+	t_node	*node;
 	
 	tokens = tokenizer(line);
 	if(tokens == NULL)
@@ -82,16 +94,16 @@ int interpret(char *line)
 	expand(tokens);
 	node = parse(tokens);
 	
-	exec(node);
+	status = exec(node);
 	free_argv(tokens);
-    return 0;
+
+    return status;
 }
 
 int	main()
 {
 	char	*line;
 	int	status = 0;
-	//char *full_path;
 
 	rl_outstream = stderr;
 	while(1)
@@ -99,10 +111,9 @@ int	main()
 		line = readline("minishell$ ");
 		if(!line)		
 			break;
-		//line:full path
 		if(*line)
 			add_history(line);
-		interpret(line);
+		status = interpret(line);
 		free(line);
 	}
 	exit(status);
