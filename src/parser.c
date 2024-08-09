@@ -14,21 +14,44 @@
 
 t_node  *new_node(t_node_kind kind)
 {
-    t_node  *next;
-    t_node  *node = calloc(1, sizeof(t_node));
+    t_node  *node = malloc(sizeof(t_node));
     if(!node)
     {
-        printf("calloc error\n");
-        exit(1);
+        fatal_error("new_node:malloc error\n");
     }
     node->kind = kind;
-    node->next = next;
-    return(node);
+    node->next = NULL;
+    node->args = malloc(sizeof(char*) * 100);
+    if (!node->args) 
+    {
+        fatal_error("new_node:malloc error\n");
+    }
+    node->args[0] = NULL;
+    return (node);
+}
+
+void append_tok(t_node *node, char *token)
+{
+    int i;
+    i = 0;
+    while (node->args[i]) 
+        i++;
+    node->args[i] = strdup(token);
+    node->args[i + 1] = NULL;
+    // node->args のインデックスのチェック
+    
+    return;
 }
 
 t_node  *parse(char **tokens)
 {
+    int i;
     t_node  *node = new_node(ND_SIMPLE_CMD);
-
-    if()
+    i = 0;
+    while (tokens[i])
+    {
+        append_tok(node, tokens[i]);
+        i++;
+    }
+    return (node);
 }

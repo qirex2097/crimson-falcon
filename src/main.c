@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "minishell.h"
-typedef struct s_token	t_token;
 
 //TODO search_pathを書き換える！
 char	*search_path(const char *filename)
@@ -50,17 +49,12 @@ char	*search_path(const char *filename)
 	return (NULL);
 }
 
-int interpret(char *line)
+void exec(t_node *node)
 {
 	char *path;
-	char **argv = tokenizer(line);
-	t_node	*node = parse(argv);
-	
-	if(argv == NULL)
-		exit (EXIT_FAILURE);
-	
-	expand(argv);
+	char **argv = node->args;
     pid_t pid = fork();
+
     if(pid == 0)
     {
 		if(strchr(argv[0], '/') == NULL)
@@ -74,7 +68,22 @@ int interpret(char *line)
     {
         wait(0);
     }
-	free_argv(argv);
+	return;
+}
+
+int interpret(char *line)
+{
+	char **tokens;
+	 t_node	*node;
+	
+	tokens = tokenizer(line);
+	if(tokens == NULL)
+		exit (EXIT_FAILURE);
+	expand(tokens);
+	node = parse(tokens);
+	
+	exec(node);
+	free_argv(tokens);
     return 0;
 }
 
