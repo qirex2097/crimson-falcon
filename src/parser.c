@@ -14,14 +14,13 @@
 
 t_node  *new_node(t_node_kind kind)
 {
-    t_node  *next;
     t_node  *node = malloc(sizeof(t_node));
     if(!node)
     {
         fatal_error("new_node:malloc error\n");
     }
     node->kind = kind;
-    node->next = next;
+    node->next = NULL;
     node->args = malloc(sizeof(char*) * 100);
     if (!node->args) 
     {

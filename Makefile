@@ -26,7 +26,9 @@ SRCS     = src/main.c\
 			src/free.c\
 			src/tokenize.c\
 			src/error.c\
+			src/parser.c \
 			src/libft.c
+
 
 OBJS_DIR = obj
 SRCS_DIR = src
