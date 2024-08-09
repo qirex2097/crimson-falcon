@@ -49,17 +49,11 @@ char	*search_path(const char *filename)
 	return (NULL);
 }
 
-int interpret(char *line)
+void exec(char **argv) 
 {
 	char *path;
-	char **argv = tokenizer(line);
-	// t_node	*node = parse(argv);
-	
-	if(argv == NULL)
-		exit (EXIT_FAILURE);
-	
-	expand(argv);
     pid_t pid = fork();
+
     if(pid == 0)
     {
 		if(strchr(argv[0], '/') == NULL)
@@ -73,6 +67,22 @@ int interpret(char *line)
     {
         wait(0);
     }
+	return;
+}
+
+int interpret(char *line)
+{
+	char **argv;
+	// t_node	*node;
+	
+	argv = tokenizer(line);
+	if(argv == NULL)
+		exit (EXIT_FAILURE);
+	
+	// node = parse(argv);
+	
+	// expand(argv);
+	exec(argv);
 	free_argv(argv);
     return 0;
 }
