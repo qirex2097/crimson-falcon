@@ -24,12 +24,14 @@ typedef enum e_node_kind
 	ND_SIMPLE_CMD,
 }	t_node_kind;
 
-typedef struct s_node
+typedef struct s_node t_node;
+
+struct s_node
 {
 	t_node	*next;
 	t_node_kind	kind;
 	char	**args;
-}	t_node;
+};
 
 
 
@@ -57,5 +59,7 @@ char    *copy_token(char *start, char *end);
 char	**tokenizer(char *line);
 
 /*parse.c*/
+t_node  *parse(char **tokens);
+
 
 #endif

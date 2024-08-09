@@ -29,6 +29,4 @@ t_node  *new_node(t_node_kind kind)
 t_node  *parse(char **tokens)
 {
     t_node  *node = new_node(ND_SIMPLE_CMD);
-
-    if()
 }
