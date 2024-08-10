@@ -91,5 +91,13 @@ assert 'cat <hoge'
 ## Appending Redirected output
 assert 'pwd >>pwd.txt' 'pwd.txt'
 assert 'pwd >>pwd.txt \n pwd >>pwd.txt' 'pwd.txt'
+rm -f pwd.txt
+
+## Here Document
+assert 'cat <<EOF\nhello\nworld\nEOF\nNOPRINT'
+assert 'cat <<EOF<<eof\nhello\nworld\nEOF\neof\nNOPRINT'
+assert 'cat <<EOF\nhello\nworld'
+assert 'cat <<E"O"F\nhello\nworld\nEOF\nNOPRINT'
+
 
 cleanup
