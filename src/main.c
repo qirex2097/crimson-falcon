@@ -81,8 +81,17 @@ int exec_cmd(t_node *node)
 
 int exec(t_node *node)
 {
+	int backup_fd[2] = {-1, -1};
 	int status = 0;
+	if (open_redir_file(node->redirects, backup_fd) < 0) {
+		return -1;
+	}
+	if (do_redirect(node->redirects) < 0) {
+		return -1;
+	}
 	status = exec_cmd(node);
+	close_redirect_files(node->redirects);
+	reset_redirect(backup_fd);
 	return (status);
 }
 
@@ -112,7 +121,7 @@ int	main()
 	rl_outstream = stderr;
 	while(1)
 	{
-		line = readline("minishell$ ");
+		line = readline("m42$ ");
 		if(!line)		
 			break;
 		if(*line)

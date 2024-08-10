@@ -16,18 +16,33 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <limits.h>
+# include <unistd.h>
+# include <stdbool.h>
+# include <sys/wait.h>
+# include <fcntl.h>
 # include <readline/history.h>
 # include <readline/readline.h>
-# include <stdbool.h>
-# include <unistd.h>
 
 typedef enum e_node_kind
 {
 	ND_SIMPLE_CMD,
 	ND_REDIR_OUT,
+	ND_REDIR_IN,
+	ND_REDIR_APPEND,
+	ND_REDIR_HEREDOC,
 }	t_node_kind;
 
 typedef struct s_node t_node;
+typedef struct s_r_node t_r_node;
+
+struct s_r_node
+{
+	t_node_kind kind;
+	t_r_node *next;
+	// REDIR
+	char	*filename;
+	int		fd;
+};
 
 struct s_node
 {
@@ -35,9 +50,7 @@ struct s_node
 	t_node	*next;
 	// CMD
 	char	**args;
-	t_node  *redirects;
-	// REDIR
-	char	*filename;
+	t_r_node  *redirects;
 };
 
 
@@ -68,5 +81,10 @@ char	**tokenizer(char *line);
 /*parse.c*/
 t_node  *parse(char **tokens);
 
+/*redirect.c*/
+int open_redir_file(t_r_node *redir, int *backup_fd);
+int do_redirect(t_r_node *redir);
+void close_redirect_files(t_r_node *redir);
+int reset_redirect(int *backup_fd);
 
 #endif

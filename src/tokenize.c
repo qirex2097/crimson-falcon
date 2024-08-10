@@ -12,8 +12,36 @@
 
 #include "minishell.h"
 
-#include <stdio.h>
-#include <libc.h>
+#define COMMAND_LINE_OPERATORS   {">>", "<<", ">", "<", ";", " ", NULL}
+
+bool is_command_line_operator(char *line)
+{
+    char *operators[] = COMMAND_LINE_OPERATORS;
+    int i;
+    
+    i = 0;
+    while (operators[i]) {
+        if (strncmp(operators[i], line, strlen(operators[i])) == 0) 
+            return (true);
+        i++;
+    }
+    return (false);
+}
+
+char *skip_command_line_operator(char *line)
+{
+    char *operators[] = COMMAND_LINE_OPERATORS;
+    int i;
+
+    i = 0;
+    while (operators[i]) {
+        if (strncmp(operators[i], line, strlen(operators[i])) == 0) 
+            return (line + strlen(operators[i]));
+        i++;
+    }
+
+    return line;
+}
 
 char    *skip_blank(char *line)
 {
@@ -46,7 +74,9 @@ char *skip_token(char *line)
     }
     else
     {
-        while(*p != ' ' && *p)
+        if (is_command_line_operator(p))
+            return skip_command_line_operator(p);
+        while(!is_command_line_operator(p) && *p)
         {
             if(*p == '\\' && *(p + 1) != '\0')
                 p = p + 2;
@@ -93,8 +123,7 @@ char    *copy_token(char *start, char *end)
     token = malloc(sizeof(char) * (end - start + 1));
     if(token == NULL)
     {
-        perror("malloc");
-        exit(EXIT_FAILURE);
+        fatal_error("copy_token");
     }
 
     src = start;
@@ -117,8 +146,7 @@ char **tokenizer(char *line)
     tokens = malloc(sizeof(char *) * 1000);
     if (tokens == NULL)
     {
-        perror("malloc");
-        exit(EXIT_FAILURE);
+        fatal_error("tokenizer");
     }
 
     i = 0;

@@ -27,6 +27,7 @@ SRCS     = src/main.c\
 			src/tokenize.c\
 			src/error.c\
 			src/parser.c \
+			src/redirect.c \
 			src/libft.c
 
 
