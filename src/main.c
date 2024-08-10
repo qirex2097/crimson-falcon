@@ -27,12 +27,16 @@ char	*search_path(const char *filename)
 		//     end
 		bzero(path, PATH_MAX);
 		end = strchr(value, ':');
-		if (end)
+		if (end) {
 			strncpy(path, value, end - value);
-		else
-			strlcpy(path, value, PATH_MAX);
-		strlcat(path, "/", PATH_MAX);
-		strlcat(path, filename, PATH_MAX);
+		} else {
+			strncpy(path, value, PATH_MAX - 1);
+			path[PATH_MAX - 1] = '\0';
+		}
+		strncat(path, "/", PATH_MAX - 1);
+		path[PATH_MAX - 1] = '\0';
+		strncat(path, filename, PATH_MAX - 1);
+		path[PATH_MAX - 1] = '\0';
 		if (access(path, X_OK) == 0)
 		{
 			char	*dup;
