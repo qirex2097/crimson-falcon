@@ -29,6 +29,15 @@ typedef enum e_node_kind
 }	t_node_kind;
 
 typedef struct s_node t_node;
+typedef struct s_r_node t_r_node;
+
+struct s_r_node
+{
+	t_node_kind kind;
+	t_r_node *next;
+	// REDIR
+	char	*filename;
+};
 
 struct s_node
 {
@@ -36,9 +45,7 @@ struct s_node
 	t_node	*next;
 	// CMD
 	char	**args;
-	t_node  *redirects;
-	// REDIR
-	char	*filename;
+	t_r_node  *redirects;
 };
 
 
@@ -70,8 +77,8 @@ char	**tokenizer(char *line);
 t_node  *parse(char **tokens);
 
 /*redirect.c*/
-void open_redir_file(t_node *redir);
-void do_redirect(t_node *redir);
-void reset_redirect(t_node *redir);
+void open_redir_file(t_r_node *redir);
+void do_redirect(t_r_node *redir);
+void reset_redirect(t_r_node *redir);
 
 #endif
