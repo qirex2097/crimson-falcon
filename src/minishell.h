@@ -18,6 +18,7 @@
 # include <limits.h>
 # include <unistd.h>
 # include <stdbool.h>
+# include <string.h>
 # include <sys/wait.h>
 # include <fcntl.h>
 # include <readline/history.h>
@@ -30,6 +31,7 @@ typedef enum e_node_kind
 	ND_REDIR_IN,
 	ND_REDIR_APPEND,
 	ND_REDIR_HEREDOC,
+	ND_PIPELINE,
 }	t_node_kind;
 
 typedef struct s_node t_node;

@@ -12,7 +12,7 @@
 
 #include "minishell.h"
 
-#define COMMAND_LINE_OPERATORS   {">>", "<<", ">", "<", ";", " ", NULL}
+#define COMMAND_LINE_OPERATORS   {">>", "<<", ">", "<", ";", "|"," ", NULL}
 
 bool is_command_line_operator(char *line)
 {
@@ -87,31 +87,6 @@ char *skip_token(char *line)
         }
     }
     return(p);
-}
-
-void expand(char **buffs) 
-{
-    int i = 0;
-    while (buffs[i] != NULL)
-    {
-        char *p = buffs[i];
-        char *buff;
-        if(*p == '\'')
-        {
-            buff = ft_strtrim(p, "'");
-        }
-        else if (*p == '"')
-        {
-            buff = ft_strtrim(p, "\"");
-        }
-        else
-        {
-            buff = strdup(p);
-        }
-        free(buffs[i]);
-        buffs[i] = buff;
-        i++;
-    }
 }
 
 char    *copy_token(char *start, char *end)
