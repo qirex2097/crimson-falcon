@@ -26,6 +26,8 @@ typedef enum e_node_kind
 {
 	ND_SIMPLE_CMD,
 	ND_REDIR_OUT,
+	ND_REDIR_IN,
+	ND_REDIR_APPEND,
 }	t_node_kind;
 
 typedef struct s_node t_node;

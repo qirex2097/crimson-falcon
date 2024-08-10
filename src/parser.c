@@ -29,12 +29,13 @@ t_node  *new_node(t_node_kind kind)
     return (node);
 }
 
-t_r_node *new_r_node(t_node_kind kind)
+t_r_node *new_r_node(t_node_kind kind, char* filename)
 {
     t_r_node *node = malloc(sizeof(t_r_node));
     if (node == NULL)
         fatal_error("new_r_node: malloc error");
     node->kind = kind;
+    node->filename = strdup(filename);
     node->next = NULL;
     return (node);
 }
@@ -67,24 +68,26 @@ void append_tok(t_node *node, char *token)
     return;
 }
 
-t_r_node *redirect_out(char *token)
-{
-    t_r_node *node;
-    node = new_r_node(ND_REDIR_OUT);
-    node->filename = strdup(token);
-    return (node);
-}
-
 int append_command_element(t_node *node, char **tokens)
 {
     t_r_node *redirect_node;
     
     if (strcmp(">", tokens[0]) == 0) {
         // tokens[1]がファイル名として有効か調べる。ダメならエラー
-        redirect_node = redirect_out(tokens[1]);
+        redirect_node = new_r_node(ND_REDIR_OUT, tokens[1]);
         append_redirect_node(node, redirect_node);
         return 2;
-    } else {
+    } else if (strcmp("<", tokens[0]) == 0) {
+        // tokens[1]がファイル名として有効か調べる。ダメならエラー
+        redirect_node = new_r_node(ND_REDIR_IN, tokens[1]);
+        append_redirect_node(node, redirect_node);
+        return 2;
+    } else if (strcmp(">>", tokens[0]) == 0) {
+        // tokens[1]がファイル名として有効か調べる。ダメならエラー
+        redirect_node = new_r_node(ND_REDIR_APPEND, tokens[1]);
+        append_redirect_node(node, redirect_node);
+        return 2;
+     } else {
         append_tok(node, tokens[0]);
         return 1;
     }
