@@ -74,4 +74,22 @@ assert "echo hello\nworld"
 assert "echo hello\\nworld"
 assert "echo -e "hello\nworld""
 
+# Redirect
+## Redirecting output
+assert 'echo hello >hello.txt' 'hello.txt'
+assert 'echo hello >f1>f2>f3' 'f1' 'f2' 'f3'
+
+## Redirecting input
+assert 'cat <Makefile'
+echo hello >f1
+echo world >f2
+echo 42Tokyo >f3
+assert 'cat <f1<f2<f3'
+rm -f f1 f2 f3
+assert 'cat <hoge'
+
+## Appending Redirected output
+assert 'pwd >>pwd.txt' 'pwd.txt'
+assert 'pwd >>pwd.txt \n pwd >>pwd.txt' 'pwd.txt'
+
 cleanup

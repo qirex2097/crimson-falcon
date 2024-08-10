@@ -19,6 +19,7 @@
 # include <unistd.h>
 # include <stdbool.h>
 # include <sys/wait.h>
+# include <fcntl.h>
 # include <readline/history.h>
 # include <readline/readline.h>
 
@@ -39,6 +40,7 @@ struct s_r_node
 	t_r_node *next;
 	// REDIR
 	char	*filename;
+	int		fd;
 };
 
 struct s_node
@@ -79,8 +81,8 @@ char	**tokenizer(char *line);
 t_node  *parse(char **tokens);
 
 /*redirect.c*/
-void open_redir_file(t_r_node *redir);
-void do_redirect(t_r_node *redir);
-void reset_redirect(t_r_node *redir);
+int open_redir_file(t_r_node *redir, int *backup_fd);
+int do_redirect(t_r_node *redir);
+int reset_redirect(int *backup_fd);
 
 #endif

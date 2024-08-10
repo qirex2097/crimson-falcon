@@ -1,0 +1,17 @@
+Makefile
+README.md
+minishell
+obj
+playground
+src
+test.sh
+ttt
+total 104
+-rw-r--r--   1 masaru  staff   2107 Aug 10 10:37 Makefile
+-rw-r--r--   1 masaru  staff     22 Aug 10 06:39 README.md
+-rwxr-xr-x   1 masaru  staff  35960 Aug 10 17:41 minishell
+drwxr-xr-x   9 masaru  staff    288 Aug 10 17:41 obj
+drwxr-xr-x  14 masaru  staff    448 Aug 10 16:48 playground
+drwxr-xr-x  10 masaru  staff    320 Aug 10 10:30 src
+-rwxr-xr-x   1 masaru  staff   1606 Aug 10 06:39 test.sh
+-rw-r--r--   1 masaru  staff     60 Aug 10 17:34 ttt

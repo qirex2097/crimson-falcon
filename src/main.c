@@ -81,11 +81,16 @@ int exec_cmd(t_node *node)
 
 int exec(t_node *node)
 {
+	int backup_fd[2] = {-1, -1};
 	int status = 0;
-	open_redir_file(node->redirects);
-	do_redirect(node->redirects);
+	if (open_redir_file(node->redirects, backup_fd) < 0) {
+		return -1;
+	}
+	if (do_redirect(node->redirects) < 0) {
+		return -1;
+	}
 	status = exec_cmd(node);
-	reset_redirect(node->redirects);
+	reset_redirect(backup_fd);
 	return (status);
 }
 

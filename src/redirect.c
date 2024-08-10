@@ -1,27 +1,82 @@
 #include "minishell.h"
 
-void open_redir_file(t_r_node *redir) 
+int open_redir_file(t_r_node *redir, int *backup_fd) 
 {
-    if (redir == NULL) return;
-    if (redir->kind == ND_REDIR_OUT)
-        printf("%s(%d): >%s\n", __FILE__, __LINE__, redir->filename);
-    if (redir->kind == ND_REDIR_IN)
-        printf("%s(%d): <%s\n", __FILE__, __LINE__, redir->filename);
-    if (redir->kind == ND_REDIR_APPEND)
-        printf("%s(%d): >>%s\n", __FILE__, __LINE__, redir->filename);
-    open_redir_file(redir->next);
+    int status = 0;
+
+    if (redir == NULL) return 0;
+    if (redir->kind == ND_REDIR_OUT) {
+       redir->fd = open(redir->filename, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+        if (redir->fd < 0) {
+            return -1;//ファイルオープンエラー
+        }
+        if (backup_fd[1] < 0) {
+            backup_fd[1] = dup(STDOUT_FILENO);
+            if (backup_fd[1] < 0) {
+                return -1;
+            }
+        }
+    } else if (redir->kind == ND_REDIR_IN) {
+        redir->fd = open(redir->filename, O_RDONLY);
+        if (redir->fd < 0) {
+            perror("open_redir_file");
+            return -1;//ファイルオープンエラー
+        }
+        if (backup_fd[0] < 0) {
+            backup_fd[0] = dup(STDIN_FILENO);
+            if (backup_fd[0] < 0) {
+                return -1;
+            }
+        }
+    } else if (redir->kind == ND_REDIR_APPEND) {
+        redir->fd = open(redir->filename, O_CREAT | O_WRONLY | O_APPEND, 0644);
+        if (redir->fd < 0) {
+            return -1;//ファイルオープンエラー
+        }
+        if (backup_fd[1] < 0) {
+            backup_fd[1] = dup(STDOUT_FILENO);
+            if (backup_fd[1] < 0) {
+                return -1;
+            }
+        }
+    }
+    status = open_redir_file(redir->next, backup_fd);
+    if (status < 0 && redir->fd >= 0) {
+        close(redir->fd);
+        redir->fd = -1;
+    }
+    return (status);
 }
 
-void do_redirect(t_r_node *redir)
+int do_redirect(t_r_node *redir)
 {
-    if (redir == NULL) return;
-    printf("%s(%d): %s\n", __FILE__, __LINE__, redir->filename);
-    do_redirect(redir->next);
+    if (redir == NULL) return 0;
+
+    if (redir->kind == ND_REDIR_OUT || redir->kind == ND_REDIR_APPEND) {
+        if (dup2(redir->fd, STDOUT_FILENO) < 0) {
+            return -1;
+        }
+    } else if (redir->kind == ND_REDIR_IN) {
+        if (dup2(redir->fd, STDIN_FILENO) < 0) {
+            return -1;
+        }
+    }
+    return do_redirect(redir->next);
 }
 
-void reset_redirect(t_r_node *redir)
+int reset_redirect(int backup_fd[2])
 {
-    if (redir == NULL) return;
-    reset_redirect(redir->next);
-    printf("%s(%d): %s\n", __FILE__, __LINE__, redir->filename);
+    if (backup_fd[1] >= 0) {
+        if (dup2(backup_fd[1], STDOUT_FILENO) < 0) {
+            return -1;
+        }
+        close(backup_fd[1]);
+    }
+    if (backup_fd[0] >= 0) {
+        if (dup2(backup_fd[0], STDIN_FILENO) < 0) {
+            return -1;
+        }
+        close(backup_fd[0]);
+    }
+    return 0;
 }

@@ -36,6 +36,7 @@ t_r_node *new_r_node(t_node_kind kind, char* filename)
         fatal_error("new_r_node: malloc error");
     node->kind = kind;
     node->filename = strdup(filename);
+    node->fd = -1;
     node->next = NULL;
     return (node);
 }
