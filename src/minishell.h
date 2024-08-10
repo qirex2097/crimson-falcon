@@ -16,10 +16,11 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <limits.h>
+# include <unistd.h>
+# include <stdbool.h>
+# include <sys/wait.h>
 # include <readline/history.h>
 # include <readline/readline.h>
-# include <stdbool.h>
-# include <unistd.h>
 
 typedef enum e_node_kind
 {
@@ -68,5 +69,9 @@ char	**tokenizer(char *line);
 /*parse.c*/
 t_node  *parse(char **tokens);
 
+/*redirect.c*/
+void open_redir_file(t_node *redir);
+void do_redirect(t_node *redir);
+void reset_redirect(t_node *redir);
 
 #endif
