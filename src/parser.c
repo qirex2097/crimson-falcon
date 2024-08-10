@@ -77,18 +77,23 @@ int append_command_element(t_node *node, char **tokens)
         // tokens[1]がファイル名として有効か調べる。ダメならエラー
         redirect_node = new_r_node(ND_REDIR_OUT, tokens[1]);
         append_redirect_node(node, redirect_node);
-        return 2;
+        return 2;// トークンを２つ(tokens[0],[1])使用した
     } else if (strcmp("<", tokens[0]) == 0) {
         // tokens[1]がファイル名として有効か調べる。ダメならエラー
         redirect_node = new_r_node(ND_REDIR_IN, tokens[1]);
         append_redirect_node(node, redirect_node);
-        return 2;
+        return 2;// トークンを２つ(tokens[0],[1])使用した
     } else if (strcmp(">>", tokens[0]) == 0) {
         // tokens[1]がファイル名として有効か調べる。ダメならエラー
         redirect_node = new_r_node(ND_REDIR_APPEND, tokens[1]);
         append_redirect_node(node, redirect_node);
-        return 2;
-     } else {
+        return 2;// トークンを２つ(tokens[0],[1])使用した
+    } else if (strcmp("<<", tokens[0]) == 0) {
+        // tokens[1]がファイル名として有効か調べる。ダメならエラー
+        redirect_node = new_r_node(ND_REDIR_HEREDOC, tokens[1]);
+        append_redirect_node(node, redirect_node);
+        return 2;// トークンを２つ(tokens[0],[1])使用した
+    } else {
         append_tok(node, tokens[0]);
         return 1;
     }

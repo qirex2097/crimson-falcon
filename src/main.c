@@ -90,6 +90,7 @@ int exec(t_node *node)
 		return -1;
 	}
 	status = exec_cmd(node);
+	close_redirect_files(node->redirects);
 	reset_redirect(backup_fd);
 	return (status);
 }

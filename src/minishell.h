@@ -29,6 +29,7 @@ typedef enum e_node_kind
 	ND_REDIR_OUT,
 	ND_REDIR_IN,
 	ND_REDIR_APPEND,
+	ND_REDIR_HEREDOC,
 }	t_node_kind;
 
 typedef struct s_node t_node;
@@ -83,6 +84,7 @@ t_node  *parse(char **tokens);
 /*redirect.c*/
 int open_redir_file(t_r_node *redir, int *backup_fd);
 int do_redirect(t_r_node *redir);
+void close_redirect_files(t_r_node *redir);
 int reset_redirect(int *backup_fd);
 
 #endif
