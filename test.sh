@@ -99,5 +99,7 @@ assert 'cat <<EOF<<eof\nhello\nworld\nEOF\neof\nNOPRINT'
 assert 'cat <<EOF\nhello\nworld'
 assert 'cat <<E"O"F\nhello\nworld\nEOF\nNOPRINT'
 
+# delimiter
+assert 'ls; pwd'
 
 cleanup

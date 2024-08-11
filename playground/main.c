@@ -12,18 +12,31 @@
 
 #include "minishell.h"
 
+void
+print_argv(char **argv)
+{
+	int i;
+	i = 0;
+	while (argv[i])
+	{
+		printf("%s\n", argv[i]);
+		i++;
+	}
+}
+
 int main(int argc, char **argv)
 {
-	char *line = "ls -l | grep c";
+	char *line = "ls -l >ttt.txt | grep c";
 	char **tokens;
+	t_node *node;
 	int i;
 	
 	tokens = tokenizer(line);
-	i = 0;
-	while (tokens[i])
-	{
-		printf("%s\n", tokens[i]);
-		i++;
+	print_argv(tokens);
+	node = parse(tokens);
+	while (node) {
+		print_argv(node->args);
+		node = node->next;
 	}
 	return 0;
 }

@@ -79,7 +79,7 @@ int exec_cmd(t_node *node)
 	return (0);
 }
 
-int exec(t_node *node)
+int exec_node(t_node *node)
 {
 	int backup_fd[2] = {-1, -1};
 	int status = 0;
@@ -95,6 +95,17 @@ int exec(t_node *node)
 	return (status);
 }
 
+int exec(t_node *node)
+{
+	int status;
+	while (node)
+	{
+		status = exec_node(node);
+		node = node->next;
+	}
+	return (status);
+}
+
 int interpret(char *line)
 {
 	char **tokens;
@@ -106,7 +117,6 @@ int interpret(char *line)
 		exit (EXIT_FAILURE);
 	expand(tokens);
 	node = parse(tokens);
-	
 	status = exec(node);
 	free_argv(tokens);
 

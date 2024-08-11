@@ -99,14 +99,53 @@ int append_command_element(t_node *node, char **tokens)
     }
 }
 
-t_node  *parse(char **tokens)
+t_node *parse_cmd(char **tokens)
 {
     int i;
     t_node  *node = new_node(ND_SIMPLE_CMD);
     i = 0;
-    while (tokens[i])
+    while (tokens[i] && strncmp(tokens[i], ";", 1) != 0)
     {
         i += append_command_element(node, &tokens[i]);
     }
     return (node);
 }
+
+int skip_delimiter(char **tokens)
+{
+    int i = 0;
+    while (strncmp(";", tokens[i], 1) == 0) i++;// デリミタを飛ばす
+    
+    return i;
+}
+
+
+t_node  *parse(char **tokens)
+{
+    t_node head;
+    t_node *p;
+    int table[100];
+    int i, j, k;
+    
+    i = 0;
+    j = skip_delimiter(&tokens[0]); // 先頭のデリミタを飛ばす
+    table[i++] = j;
+    while (tokens[j]) {
+        k = skip_delimiter(&tokens[j]);
+        if (k > 0)
+            table[i++] = j + k;
+        j = j + k + 1;
+    }
+    table[i] = -1;
+    
+    i = 0;
+    p = &head;
+    while (table[i] >= 0)
+    {
+        p->next = parse_cmd(&tokens[table[i]]);
+        p = p->next;
+        i++;
+    }
+    
+    return head.next;
+}    
