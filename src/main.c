@@ -53,7 +53,7 @@ char	*search_path(const char *filename)
 	return (NULL);
 }
 
-int exec_cmd(t_node *node)
+int exec_cmd(t_cmd *node)
 {
 	char *path;
 	char **argv = node->args;
@@ -79,7 +79,7 @@ int exec_cmd(t_node *node)
 	return (0);
 }
 
-int exec_node(t_node *node)
+int exec_node(t_cmd *node)
 {
 	int backup_fd[2] = {-1, -1};
 	int status = 0;
@@ -100,7 +100,7 @@ int exec(t_node *node)
 	int status;
 	while (node)
 	{
-		status = exec_node(node);
+		status = exec_node(&node->command);
 		node = node->next;
 	}
 	return (status);

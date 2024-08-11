@@ -25,7 +25,7 @@ int create_heredoc(const char* delimiter)
     return (pfd[0]);
 }
 
-int open_redir_file(t_r_node *redir, int *backup_fd) 
+int open_redir_file(t_redirect *redir, int *backup_fd) 
 {
     int status = 0;
 
@@ -84,7 +84,7 @@ int open_redir_file(t_r_node *redir, int *backup_fd)
     return (status);
 }
 
-int do_redirect(t_r_node *redir)
+int do_redirect(t_redirect *redir)
 {
     if (redir == NULL) return 0;
 
@@ -100,7 +100,7 @@ int do_redirect(t_r_node *redir)
     return do_redirect(redir->next);
 }
 
-void close_redirect_files(t_r_node *redir)
+void close_redirect_files(t_redirect *redir)
 {
     if (redir == NULL) return;
     

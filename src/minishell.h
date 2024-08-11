@@ -34,13 +34,14 @@ typedef enum e_node_kind
 	ND_PIPELINE,
 }	t_node_kind;
 
+typedef struct s_cmd t_cmd;
+typedef struct s_redirect t_redirect;
 typedef struct s_node t_node;
-typedef struct s_r_node t_r_node;
 
-struct s_r_node
+struct s_redirect
 {
 	t_node_kind kind;
-	t_r_node *next;
+	t_redirect *next;
 	// REDIR
 	char	*filename;
 	int		fd;
@@ -48,15 +49,21 @@ struct s_r_node
 
 # define TOKEN_MAX	100
 
-struct s_node
+struct s_cmd
 {
 	t_node_kind	kind;
-	t_node	*next;
+	t_cmd	*next;
 	// CMD
 	char	**args;
-	t_r_node  *redirects;
+	t_redirect  *redirects;
 };
 
+struct s_node
+{
+	t_node_kind kind;
+	t_node *next;
+	t_cmd command;
+};
 
 
 /*libft.c*/
@@ -86,9 +93,9 @@ char	**tokenizer(char *line);
 t_node  *parse(char **tokens);
 
 /*redirect.c*/
-int open_redir_file(t_r_node *redir, int *backup_fd);
-int do_redirect(t_r_node *redir);
-void close_redirect_files(t_r_node *redir);
+int open_redir_file(t_redirect *redir, int *backup_fd);
+int do_redirect(t_redirect *redir);
+void close_redirect_files(t_redirect *redir);
 int reset_redirect(int *backup_fd);
 
 #endif

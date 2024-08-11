@@ -12,24 +12,30 @@
 
 #include "minishell.h"
 
-t_node  *new_node(t_node_kind kind)
+void initialize_cmd(t_cmd *cmd)
 {
-    t_node  *node = malloc(sizeof(t_node));
-    if(node == NULL)
+    cmd->args = malloc(sizeof(char*) * TOKEN_MAX);
+    if (cmd->args == NULL) 
+        fatal_error("malloc error");
+    cmd->args[0] = NULL;
+    cmd->redirects = NULL;
+    return;
+}
+
+t_node *new_node(t_node_kind kind)
+{
+    t_node *node = malloc(sizeof(t_node));
+    if (node == NULL)
         fatal_error("malloc error");
     node->kind = kind;
     node->next = NULL;
-    node->args = malloc(sizeof(char*) * TOKEN_MAX);
-    if (node->args == NULL) 
-        fatal_error("malloc error");
-    node->args[0] = NULL;
-    node->redirects = NULL;
+    initialize_cmd(&node->command);
     return (node);
 }
 
-t_r_node *new_r_node(t_node_kind kind, char* filename)
+t_redirect *new_redirect(t_node_kind kind, char* filename)
 {
-    t_r_node *node = malloc(sizeof(t_r_node));
+    t_redirect *node = malloc(sizeof(t_redirect));
     if (node == NULL)
         fatal_error("malloc error");
     node->kind = kind;
@@ -39,9 +45,9 @@ t_r_node *new_r_node(t_node_kind kind, char* filename)
     return (node);
 }
 
-void append_redirect_node(t_node *node, t_r_node *child_node)
+void append_redirect_node(t_cmd *node, t_redirect *child_node)
 {
-    t_r_node *p;
+    t_redirect *p;
 
     if (node->redirects == NULL)
     {
@@ -54,7 +60,7 @@ void append_redirect_node(t_node *node, t_r_node *child_node)
     }
 }
 
-void append_tok(t_node *node, char *token)
+void append_tok(t_cmd *node, char *token)
 {
     int i;
     i = 0;
@@ -66,28 +72,28 @@ void append_tok(t_node *node, char *token)
     return;
 }
 
-int append_command_element(t_node *node, char **tokens)
+int append_command_element(t_cmd *node, char **tokens)
 {
-    t_r_node *redirect_node;
+    t_redirect *redirect_node;
     
     if (strcmp(">", tokens[0]) == 0) {
         // tokens[1]がファイル名として有効か調べる。ダメならエラー
-        redirect_node = new_r_node(ND_REDIR_OUT, tokens[1]);
+        redirect_node = new_redirect(ND_REDIR_OUT, tokens[1]);
         append_redirect_node(node, redirect_node);
         return 2;// トークンを２つ(tokens[0],[1])使用した
     } else if (strcmp("<", tokens[0]) == 0) {
         // tokens[1]がファイル名として有効か調べる。ダメならエラー
-        redirect_node = new_r_node(ND_REDIR_IN, tokens[1]);
+        redirect_node = new_redirect(ND_REDIR_IN, tokens[1]);
         append_redirect_node(node, redirect_node);
         return 2;// トークンを２つ(tokens[0],[1])使用した
     } else if (strcmp(">>", tokens[0]) == 0) {
         // tokens[1]がファイル名として有効か調べる。ダメならエラー
-        redirect_node = new_r_node(ND_REDIR_APPEND, tokens[1]);
+        redirect_node = new_redirect(ND_REDIR_APPEND, tokens[1]);
         append_redirect_node(node, redirect_node);
         return 2;// トークンを２つ(tokens[0],[1])使用した
     } else if (strcmp("<<", tokens[0]) == 0) {
         // tokens[1]がファイル名として有効か調べる。ダメならエラー
-        redirect_node = new_r_node(ND_REDIR_HEREDOC, tokens[1]);
+        redirect_node = new_redirect(ND_REDIR_HEREDOC, tokens[1]);
         append_redirect_node(node, redirect_node);
         return 2;// トークンを２つ(tokens[0],[1])使用した
     } else {
@@ -103,7 +109,7 @@ t_node *parse_cmd(char **tokens)
     i = 0;
     while (tokens[i] && strncmp(tokens[i], ";", 1) != 0)
     {
-        i += append_command_element(node, &tokens[i]);
+        i += append_command_element(&node->command, &tokens[i]);
     }
     return (node);
 }
