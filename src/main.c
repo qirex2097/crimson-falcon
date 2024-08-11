@@ -79,19 +79,25 @@ int exec_cmd(t_cmd *node)
 	return (0);
 }
 
-int exec_node(t_cmd *node)
+int exec_node(t_cmd *cmd)
 {
 	int backup_fd[2] = {-1, -1};
 	int status = 0;
-	if (open_redir_file(node->redirects, backup_fd) < 0) {
-		return -1;
+
+	while (cmd) {
+		backup_fd[0] = -1;
+		backup_fd[1] = -1;
+		if (open_redir_file(cmd->redirects, backup_fd) < 0) {
+			return -1;
+		}
+		if (do_redirect(cmd->redirects) < 0) {
+			return -1;
+		}
+		status = exec_cmd(cmd);
+		close_redirect_files(cmd->redirects);
+		reset_redirect(backup_fd);
+		cmd = cmd->consumer;//次はパイプの右側のコマンド
 	}
-	if (do_redirect(node->redirects) < 0) {
-		return -1;
-	}
-	status = exec_cmd(node);
-	close_redirect_files(node->redirects);
-	reset_redirect(backup_fd);
 	return (status);
 }
 

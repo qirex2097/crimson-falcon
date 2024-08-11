@@ -19,7 +19,18 @@ void initialize_cmd(t_cmd *cmd)
         fatal_error("malloc error");
     cmd->args[0] = NULL;
     cmd->redirects = NULL;
+    cmd->producer = NULL;
+    cmd->consumer = NULL;
     return;
+}
+
+t_cmd *new_cmd()
+{
+    t_cmd *cmd = malloc(sizeof(t_cmd));
+    if (cmd == NULL)
+        fatal_error("malloc error");
+    initialize_cmd(cmd);
+    return cmd;
 }
 
 t_node *new_node(t_node_kind kind)
@@ -106,10 +117,20 @@ t_node *parse_cmd(char **tokens)
 {
     int i;
     t_node  *node = new_node(ND_SIMPLE_CMD);
+    t_cmd *cmd = &node->command;
+
     i = 0;
     while (tokens[i] && strncmp(tokens[i], ";", 1) != 0)
     {
-        i += append_command_element(&node->command, &tokens[i]);
+        if (strncmp(tokens[i], "|", 1) == 0)
+        {
+            cmd->consumer = new_cmd();
+            cmd->consumer->producer = cmd;
+            cmd = cmd->consumer;
+            i++;
+        } else {
+            i += append_command_element(cmd, &tokens[i]);
+        }
     }
     return (node);
 }
@@ -122,24 +143,31 @@ int skip_delimiter(char **tokens)
     return i;
 }
 
-t_node  *parse(char **tokens)
+void find_delimiter_position(char **tokens, int table[], int table_size)
 {
-    t_node head;
-    t_node *p;
-    int table[100];
     int i, j, k;
-    
+
     i = 0;
     j = skip_delimiter(&tokens[0]); // 先頭のデリミタを飛ばす
     table[i++] = j;
-    while (tokens[j]) {
+    while (tokens[j] && i < table_size - 1) {
         k = skip_delimiter(&tokens[j]);
         if (k > 0)
             table[i++] = j + k;
         j = j + k + 1;
     }
     table[i] = -1;
+ }
+
+t_node  *parse(char **tokens)
+{
+    t_node head;
+    t_node *p;
+    int table[100];
+    int i;
     
+    find_delimiter_position(tokens, table, 100);//tableにコマンドの先頭位置が入る（デリミタの次のトークン）
+   
     i = 0;
     p = &head;
     while (table[i] >= 0)

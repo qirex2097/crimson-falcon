@@ -52,10 +52,12 @@ struct s_redirect
 struct s_cmd
 {
 	t_node_kind	kind;
-	t_cmd	*next;
 	// CMD
 	char	**args;
 	t_redirect  *redirects;
+	// PIPE
+	t_cmd *producer;
+	t_cmd *consumer;
 };
 
 struct s_node
