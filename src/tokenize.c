@@ -118,7 +118,7 @@ char **tokenizer(char *line)
     int i;
     char    *start;
     char    **tokens;
-    tokens = malloc(sizeof(char *) * 1000);
+    tokens = malloc(sizeof(char *) * 200);
     if (tokens == NULL)
     {
         fatal_error("tokenizer");

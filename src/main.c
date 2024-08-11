@@ -59,10 +59,20 @@ int exec_cmd(t_cmd *node)
 	char **argv = node->args;
 	int wstatus;
     pid_t pid;
+	int pfd[2];
 
+	if (node->consumer) {
+		if (pipe(pfd) < 0)
+			fatal_error("pipe");
+	}
 	pid = fork();
     if(pid == 0)
     {
+		if (node->consumer) {
+			close(pfd[0]);
+			dup2(pfd[1], STDOUT_FILENO);
+			close(pfd[1]);
+		}
 		if(strchr(argv[0], '/') == NULL)
 			path = search_path(argv[0]);
 		else
@@ -72,6 +82,11 @@ int exec_cmd(t_cmd *node)
     }
     else
     {
+		if (node->consumer) {
+			close(pfd[1]);
+			dup2(pfd[0], STDIN_FILENO);
+			close(pfd[0]);
+		}
         wait(&wstatus);
 		return (WEXITSTATUS(wstatus));
     }
@@ -125,6 +140,7 @@ int interpret(char *line)
 	node = parse(tokens);
 	status = exec(node);
 	free_argv(tokens);
+	free_node(node);
 
     return status;
 }
@@ -139,8 +155,8 @@ int	main()
 	{
 		line = readline("m42$ ");
 		if(!line)		
-			break;
-		if(*line)
+			break; 
+		if(*line) 
 			add_history(line);
 		status = interpret(line);
 		free(line);

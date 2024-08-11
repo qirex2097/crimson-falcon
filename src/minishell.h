@@ -56,7 +56,6 @@ struct s_cmd
 	char	**args;
 	t_redirect  *redirects;
 	// PIPE
-	t_cmd *producer;
 	t_cmd *consumer;
 };
 
@@ -83,6 +82,7 @@ void	assert_error(const char *msg);
 /*free.c*/
 // void	free_tok(t_token *tok);
 void	free_argv(char **argv);
+void free_node(t_node *node);
 
 /*tokenize.c*/
 char	*skip_blank(char *line);

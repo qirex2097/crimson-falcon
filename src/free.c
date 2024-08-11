@@ -26,4 +26,37 @@ void	free_argv(char **argv)
 	}
 	free(argv);
 }
+
+void free_redirect(t_redirect *redir)
+{
+	if (redir->next)
+	{
+		free_redirect(redir->next);
+		free(redir->next);
+	}
+	free(redir->filename);
+}
+
+void free_cmd(t_cmd *cmd)
+{
+	if (cmd->consumer) {
+		free_cmd(cmd->consumer);
+		free(cmd->consumer);
+	}
+	if (cmd->redirects)
+	{
+		free_redirect(cmd->redirects);
+		free(cmd->redirects);
+	}
+	free_argv(cmd->args);
+}
+
+void free_node(t_node *node)
+{
+	if (node->next) {
+		free_node(node->next);
+		free(node->next);
+	}
+	free_cmd(&node->command);
+}
 /*--------------*/

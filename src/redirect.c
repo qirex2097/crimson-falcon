@@ -92,10 +92,12 @@ int do_redirect(t_redirect *redir)
         if (dup2(redir->fd, STDOUT_FILENO) < 0) {
             return -1;
         }
+        close(redir->fd);
     } else if (redir->kind == ND_REDIR_IN || redir->kind == ND_REDIR_HEREDOC) {
         if (dup2(redir->fd, STDIN_FILENO) < 0) {
             return -1;
         }
+        close(redir->fd);
     }
     return do_redirect(redir->next);
 }

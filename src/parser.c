@@ -19,7 +19,6 @@ void initialize_cmd(t_cmd *cmd)
         fatal_error("malloc error");
     cmd->args[0] = NULL;
     cmd->redirects = NULL;
-    cmd->producer = NULL;
     cmd->consumer = NULL;
     return;
 }
@@ -125,7 +124,6 @@ t_node *parse_cmd(char **tokens)
         if (strncmp(tokens[i], "|", 1) == 0)
         {
             cmd->consumer = new_cmd();
-            cmd->consumer->producer = cmd;
             cmd = cmd->consumer;
             i++;
         } else {
