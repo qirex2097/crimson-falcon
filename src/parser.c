@@ -19,7 +19,11 @@ void initialize_cmd(t_cmd *cmd)
         fatal_error("malloc error");
     cmd->args[0] = NULL;
     cmd->redirects = NULL;
-    cmd->consumer = NULL;
+    cmd->next = NULL;
+    cmd->inpipe[0] = STDIN_FILENO;
+    cmd->inpipe[1] = -1;
+    cmd->outpipe[0] = -1;
+    cmd->outpipe[1] = STDOUT_FILENO;
     return;
 }
 
@@ -82,39 +86,41 @@ void append_tok(t_cmd *node, char *token)
     return;
 }
 
+bool is_word(char *token)
+{
+    return (!is_command_line_operator(token));
+}
+
 int append_command_element(t_cmd *node, char **tokens)
 {
     t_redirect *redirect_node;
     
-    if (strcmp(">", tokens[0]) == 0) {
-        // tokens[1]がファイル名として有効か調べる。ダメならエラー
+    if (strcmp(">", tokens[0]) == 0 && is_word(tokens[1])) {
         redirect_node = new_redirect(ND_REDIR_OUT, tokens[1]);
         append_redirect_node(node, redirect_node);
         return 2;// トークンを２つ(tokens[0],[1])使用した
-    } else if (strcmp("<", tokens[0]) == 0) {
-        // tokens[1]がファイル名として有効か調べる。ダメならエラー
+    } else if (strcmp("<", tokens[0]) == 0 && is_word(tokens[1])) {
         redirect_node = new_redirect(ND_REDIR_IN, tokens[1]);
         append_redirect_node(node, redirect_node);
         return 2;// トークンを２つ(tokens[0],[1])使用した
-    } else if (strcmp(">>", tokens[0]) == 0) {
-        // tokens[1]がファイル名として有効か調べる。ダメならエラー
+    } else if (strcmp(">>", tokens[0]) == 0 && is_word(tokens[1])) {
         redirect_node = new_redirect(ND_REDIR_APPEND, tokens[1]);
         append_redirect_node(node, redirect_node);
         return 2;// トークンを２つ(tokens[0],[1])使用した
-    } else if (strcmp("<<", tokens[0]) == 0) {
-        // tokens[1]がファイル名として有効か調べる。ダメならエラー
+    } else if (strcmp("<<", tokens[0]) == 0 && is_word(tokens[1])) {
         redirect_node = new_redirect(ND_REDIR_HEREDOC, tokens[1]);
         append_redirect_node(node, redirect_node);
         return 2;// トークンを２つ(tokens[0],[1])使用した
-    } else {
+    } else if (is_word(tokens[0])) {
         append_tok(node, tokens[0]);
         return 1;
     }
+    return -1;
 }
 
 t_node *parse_cmd(char **tokens)
 {
-    int i;
+    int i, j;
     t_node  *node = new_node(ND_SIMPLE_CMD);
     t_cmd *cmd = &node->command;
 
@@ -123,11 +129,17 @@ t_node *parse_cmd(char **tokens)
     {
         if (strncmp(tokens[i], "|", 1) == 0)
         {
-            cmd->consumer = new_cmd();
-            cmd = cmd->consumer;
+            cmd->next = new_cmd();
+            cmd = cmd->next;
             i++;
         } else {
-            i += append_command_element(cmd, &tokens[i]);
+            j = append_command_element(cmd, &tokens[i]);
+            if (j < 0) {
+                perror("parse error");
+                free_node(node);
+                return (NULL);
+            }
+            i += j;
         }
     }
     return (node);
@@ -136,7 +148,8 @@ t_node *parse_cmd(char **tokens)
 int skip_delimiter(char **tokens)
 {
     int i = 0;
-    while (strncmp(";", tokens[i], 1) == 0) i++;// デリミタを飛ばす
+    while (tokens[i] && strncmp(";", tokens[i], 1) == 0) 
+        i++;// デリミタを飛ばす
     
     return i;
 }
@@ -150,7 +163,7 @@ void find_delimiter_position(char **tokens, int table[], int table_size)
     table[i++] = j;
     while (tokens[j] && i < table_size - 1) {
         k = skip_delimiter(&tokens[j]);
-        if (k > 0)
+        if (k > 0 && tokens[j + k] != NULL)
             table[i++] = j + k;
         j = j + k + 1;
     }
@@ -171,9 +184,13 @@ t_node  *parse(char **tokens)
     while (table[i] >= 0)
     {
         p->next = parse_cmd(&tokens[table[i]]);
+        if (p->next == NULL) {
+            free_node(head.next);
+            return NULL;
+        }
         p = p->next;
         i++;
     }
     
     return head.next;
-}    
+}

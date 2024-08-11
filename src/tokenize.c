@@ -125,7 +125,7 @@ char **tokenizer(char *line)
     }
 
     i = 0;
-    while (*line)
+    while (*line && i < 200 - 1)
     {
         line = skip_blank(line);
         if (*line == '\0')

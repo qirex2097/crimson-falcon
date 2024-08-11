@@ -102,4 +102,8 @@ assert 'cat <<E"O"F\nhello\nworld\nEOF\nNOPRINT'
 # delimiter
 assert 'ls; pwd'
 
+# Pipe
+assert 'cat Makefile | grep minishell'
+assert 'cat | cat | ls\n\n'
+
 cleanup

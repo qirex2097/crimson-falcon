@@ -25,7 +25,7 @@ int create_heredoc(const char* delimiter)
     return (pfd[0]);
 }
 
-int open_redir_file(t_redirect *redir, int *backup_fd) 
+int open_redir_file(t_redirect *redir)
 {
     int status = 0;
 
@@ -35,48 +35,24 @@ int open_redir_file(t_redirect *redir, int *backup_fd)
         if (redir->fd < 0) {
             return -1;//ファイルオープンエラー
         }
-        if (backup_fd[1] < 0) {
-            backup_fd[1] = dup(STDOUT_FILENO);
-            if (backup_fd[1] < 0) {
-                return -1;
-            }
-        }
     } else if (redir->kind == ND_REDIR_IN) {
         redir->fd = open(redir->filename, O_RDONLY);
         if (redir->fd < 0) {
             perror("open_redir_file");
             return -1;//ファイルオープンエラー
         }
-        if (backup_fd[0] < 0) {
-            backup_fd[0] = dup(STDIN_FILENO);
-            if (backup_fd[0] < 0) {
-                return -1;
-            }
-        }
     } else if (redir->kind == ND_REDIR_APPEND) {
         redir->fd = open(redir->filename, O_CREAT | O_WRONLY | O_APPEND, 0644);
         if (redir->fd < 0) {
             return -1;//ファイルオープンエラー
-        }
-        if (backup_fd[1] < 0) {
-            backup_fd[1] = dup(STDOUT_FILENO);
-            if (backup_fd[1] < 0) {
-                return -1;
-            }
         }
     } else if (redir->kind == ND_REDIR_HEREDOC) {
         redir->fd = create_heredoc(redir->filename);
         if (redir->fd < 0) {
             return -1;//
         }
-        if (backup_fd[0] < 0) {
-            backup_fd[0] = dup(STDIN_FILENO);
-            if (backup_fd[0] < 0) {
-                return -1;
-            }
-        }
     }
-    status = open_redir_file(redir->next, backup_fd);
+    status = open_redir_file(redir->next);
     if (status < 0 && redir->fd >= 0) {
         close(redir->fd);
         redir->fd = -1;

@@ -59,19 +59,19 @@ int exec_cmd(t_cmd *node)
 	char **argv = node->args;
 	int wstatus;
     pid_t pid;
-	int pfd[2];
 
-	if (node->consumer) {
-		if (pipe(pfd) < 0)
-			fatal_error("pipe");
-	}
+	prepare_pipe(node);
 	pid = fork();
+	if (pid < 0)
+		fatal_error("fork");
     if(pid == 0)
     {
-		if (node->consumer) {
-			close(pfd[0]);
-			dup2(pfd[1], STDOUT_FILENO);
-			close(pfd[1]);
+		prepare_pipe_child(node);
+		if (open_redir_file(node->redirects) < 0) {
+			return -1;
+		}
+		if (do_redirect(node->redirects) < 0) {
+			return -1;
 		}
 		if(strchr(argv[0], '/') == NULL)
 			path = search_path(argv[0]);
@@ -82,11 +82,7 @@ int exec_cmd(t_cmd *node)
     }
     else
     {
-		if (node->consumer) {
-			close(pfd[1]);
-			dup2(pfd[0], STDIN_FILENO);
-			close(pfd[0]);
-		}
+		prepare_pipe_parent(node);
         wait(&wstatus);
 		return (WEXITSTATUS(wstatus));
     }
@@ -94,34 +90,19 @@ int exec_cmd(t_cmd *node)
 	return (0);
 }
 
-int exec_node(t_cmd *cmd)
-{
-	int backup_fd[2] = {-1, -1};
-	int status = 0;
-
-	while (cmd) {
-		backup_fd[0] = -1;
-		backup_fd[1] = -1;
-		if (open_redir_file(cmd->redirects, backup_fd) < 0) {
-			return -1;
-		}
-		if (do_redirect(cmd->redirects) < 0) {
-			return -1;
-		}
-		status = exec_cmd(cmd);
-		close_redirect_files(cmd->redirects);
-		reset_redirect(backup_fd);
-		cmd = cmd->consumer;//次はパイプの右側のコマンド
-	}
-	return (status);
-}
-
 int exec(t_node *node)
 {
-	int status;
+	t_cmd *cmd;
+	int status = 0;
+
 	while (node)
 	{
-		status = exec_node(&node->command);
+		cmd = &node->command;
+		while (cmd)
+		{
+			status = exec_cmd(cmd);
+			cmd = cmd->next;
+		}
 		node = node->next;
 	}
 	return (status);
@@ -140,7 +121,8 @@ int interpret(char *line)
 	node = parse(tokens);
 	status = exec(node);
 	free_argv(tokens);
-	free_node(node);
+	if (node)
+		free_node(node);
 
     return status;
 }
@@ -157,8 +139,10 @@ int	main()
 		if(!line)		
 			break; 
 		if(*line) 
+		{
 			add_history(line);
-		status = interpret(line);
+			status = interpret(line);
+		}
 		free(line);
 	}
 	exit(status);

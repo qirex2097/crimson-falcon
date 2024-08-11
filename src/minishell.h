@@ -56,7 +56,9 @@ struct s_cmd
 	char	**args;
 	t_redirect  *redirects;
 	// PIPE
-	t_cmd *consumer;
+	t_cmd *next;
+	int inpipe[2];
+	int outpipe[2];
 };
 
 struct s_node
@@ -85,19 +87,23 @@ void	free_argv(char **argv);
 void free_node(t_node *node);
 
 /*tokenize.c*/
-char	*skip_blank(char *line);
-char	*skip_token(char *line);
 void	expand(char **args);
-char    *copy_token(char *start, char *end);
 char	**tokenizer(char *line);
+bool is_command_line_operator(char *line);
 
 /*parse.c*/
 t_node  *parse(char **tokens);
 
 /*redirect.c*/
-int open_redir_file(t_redirect *redir, int *backup_fd);
+int open_redir_file(t_redirect *redir);
 int do_redirect(t_redirect *redir);
 void close_redirect_files(t_redirect *redir);
 int reset_redirect(int *backup_fd);
+
+/*pipe.c*/
+void	prepare_pipe(t_cmd *node);
+void	prepare_pipe_child(t_cmd *node);
+void	prepare_pipe_parent(t_cmd *node);
+
 
 #endif
