@@ -46,6 +46,8 @@ struct s_r_node
 	int		fd;
 };
 
+# define TOKEN_MAX	100
+
 struct s_node
 {
 	t_node_kind	kind;

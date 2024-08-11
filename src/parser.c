@@ -16,14 +16,12 @@ t_node  *new_node(t_node_kind kind)
 {
     t_node  *node = malloc(sizeof(t_node));
     if(node == NULL)
-        fatal_error("new_node:malloc error\n");
+        fatal_error("malloc error");
     node->kind = kind;
     node->next = NULL;
-    node->args = malloc(sizeof(char*) * 100);
-    if (!node->args) 
-    {
-        fatal_error("new_node:malloc error\n");
-    }
+    node->args = malloc(sizeof(char*) * TOKEN_MAX);
+    if (node->args == NULL) 
+        fatal_error("malloc error");
     node->args[0] = NULL;
     node->redirects = NULL;
     return (node);
@@ -33,7 +31,7 @@ t_r_node *new_r_node(t_node_kind kind, char* filename)
 {
     t_r_node *node = malloc(sizeof(t_r_node));
     if (node == NULL)
-        fatal_error("new_r_node: malloc error");
+        fatal_error("malloc error");
     node->kind = kind;
     node->filename = strdup(filename);
     node->fd = -1;
@@ -60,11 +58,10 @@ void append_tok(t_node *node, char *token)
 {
     int i;
     i = 0;
-    while (node->args[i]) 
+    while (node->args[i] && i < TOKEN_MAX - 1) // node->args のインデックスのチェック
         i++;
     node->args[i] = strdup(token);
     node->args[i + 1] = NULL;
-    // node->args のインデックスのチェック
     
     return;
 }
@@ -118,7 +115,6 @@ int skip_delimiter(char **tokens)
     
     return i;
 }
-
 
 t_node  *parse(char **tokens)
 {
