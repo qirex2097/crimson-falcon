@@ -119,9 +119,12 @@ int interpret(char *line)
 	int status;
 	t_node	*node;
 	
-	tokens = tokenizer(line);
-	if(tokens == NULL)
-		exit (EXIT_FAILURE);
+	tokens = tokenizer(line);//トークンに分割
+	if (tokens[0] == NULL) 
+	{
+		return(0);
+	}
+	add_history(line);//トークンがなければ履歴に登録しない
 	expand(tokens);
 	node = parse(tokens);
 	status = exec(node);
@@ -129,7 +132,7 @@ int interpret(char *line)
 	if (node)
 		free_node(node);
 
-    return status;
+    return(status);
 }
 
 int	main()
@@ -145,7 +148,6 @@ int	main()
 			break; 
 		if(*line) 
 		{
-			add_history(line);
 			status = interpret(line);
 		}
 		free(line);
