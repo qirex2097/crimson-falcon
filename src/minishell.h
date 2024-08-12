@@ -96,9 +96,6 @@ t_node  *parse(char **tokens);
 
 /*redirect.c*/
 int open_redir_file(t_redirect *redir);
-int do_redirect(t_redirect *redir);
-void close_redirect_files(t_redirect *redir);
-int reset_redirect(int *backup_fd);
 
 /*pipe.c*/
 void	prepare_pipe(t_cmd *node);

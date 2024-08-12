@@ -28,80 +28,40 @@ int create_heredoc(const char* delimiter)
 int open_redir_file(t_redirect *redir)
 {
     int status = 0;
+    int target_fd;
 
     if (redir == NULL) return 0;
+
     if (redir->kind == ND_REDIR_OUT) {
-       redir->fd = open(redir->filename, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-        if (redir->fd < 0) {
-            return -1;//ファイルオープンエラー
-        }
+        redir->fd = open(redir->filename, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+        target_fd = STDOUT_FILENO;
     } else if (redir->kind == ND_REDIR_IN) {
         redir->fd = open(redir->filename, O_RDONLY);
-        if (redir->fd < 0) {
-            perror("open_redir_file");
-            return -1;//ファイルオープンエラー
-        }
+        target_fd = STDIN_FILENO;
     } else if (redir->kind == ND_REDIR_APPEND) {
         redir->fd = open(redir->filename, O_CREAT | O_WRONLY | O_APPEND, 0644);
-        if (redir->fd < 0) {
-            return -1;//ファイルオープンエラー
-        }
+        target_fd = STDOUT_FILENO;
     } else if (redir->kind == ND_REDIR_HEREDOC) {
         redir->fd = create_heredoc(redir->filename);
-        if (redir->fd < 0) {
-            return -1;//
-        }
+        target_fd = STDIN_FILENO;
+    } else {
+        return -1;//Unknown redirection type
     }
-    status = open_redir_file(redir->next);
-    if (status < 0 && redir->fd >= 0) {
-        close(redir->fd);
-        redir->fd = -1;
-    }
-    return (status);
-}
-
-int do_redirect(t_redirect *redir)
-{
-    if (redir == NULL) return 0;
-
-    if (redir->kind == ND_REDIR_OUT || redir->kind == ND_REDIR_APPEND) {
-        if (dup2(redir->fd, STDOUT_FILENO) < 0) {
-            return -1;
-        }
-        close(redir->fd);
-    } else if (redir->kind == ND_REDIR_IN || redir->kind == ND_REDIR_HEREDOC) {
-        if (dup2(redir->fd, STDIN_FILENO) < 0) {
-            return -1;
-        }
-        close(redir->fd);
-    }
-    return do_redirect(redir->next);
-}
-
-void close_redirect_files(t_redirect *redir)
-{
-    if (redir == NULL) return;
     
-    if (redir->fd >= 0)
+    if (redir->fd < 0)
     {
+        perror("open");
+        return -1;//File Open Error
+    }
+    
+    if (dup2(redir->fd, target_fd) < 0)
+    {
+        perror("dup2");
         close(redir->fd);
+        return -1;//Dup2 Error
     }
-    close_redirect_files(redir->next);
-}
+    close(redir->fd);
 
-int reset_redirect(int *backup_fd)
-{
-    if (backup_fd[1] >= 0) {
-        if (dup2(backup_fd[1], STDOUT_FILENO) < 0) {
-            return -1;
-        }
-        close(backup_fd[1]);
-    }
-    if (backup_fd[0] >= 0) {
-        if (dup2(backup_fd[0], STDIN_FILENO) < 0) {
-            return -1;
-        }
-        close(backup_fd[0]);
-    }
-    return 0;
+    status = open_redir_file(redir->next);
+    return (status);
 }

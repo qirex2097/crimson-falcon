@@ -70,9 +70,6 @@ int exec_cmd(t_cmd *node)
 		if (open_redir_file(node->redirects) < 0) {
 			return -1;
 		}
-		if (do_redirect(node->redirects) < 0) {
-			return -1;
-		}
 		if(strchr(argv[0], '/') == NULL)
 			path = search_path(argv[0]);
 		else
