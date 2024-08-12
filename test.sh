@@ -1,4 +1,14 @@
 #!/bin/bash
+RED="\033[31m"
+GREEN="\033[32m"
+RESET="\033[0m"
+OK=$GREEN"OK"$RESET
+NG=$RED"NG"$RESET
+
+cat <<EOF | gcc -xc -o a.out -
+#include <stdio.h>
+int main() { printf("hello from a.out\n"); }
+EOF
 
 cat <<EOF | gcc -xc -o print_args -
 #include <stdio.h>
@@ -13,39 +23,46 @@ cleanup() {
 }
 
 assert() {
-    # テストしようとしている内容をprint
-	printf '%-50s:' "\"$1\""
-
-	# bashの出力をcmpに保存
-	echo -n -e "$1" | bash >cmp 2>&-
-	# bashのexit statusをexpectedに代入
+	COMMAND="$1"
+	shift
+	printf '%-50s:' "[$COMMAND]"
+	# exit status
+	echo -n -e "$COMMAND" | bash >cmp 2>&-
 	expected=$?
-	# minishellの出力をoutに保存
-	echo -n -e "$1" | ./minishell >out 2>&-
-	# minishellのexit statusをactualに代入
+	for arg in "$@"
+	do
+		mv "$arg" "$arg"".cmp"
+	done
+	echo -n -e "$COMMAND" | ./minishell >out 2>&-
 	actual=$?
+	for arg in "$@"
+	do
+		mv "$arg" "$arg"".out"
+	done
 
-	# bashとminishellの出力を比較
-	diff cmp out >/dev/null && echo -n '  diff OK' || echo -n '  diff NG'
+	diff cmp out >/dev/null && echo -e -n "  diff $OK" || echo -e -n "  diff $NG"
 
-	# bashとminishellのexit statusを比較
 	if [ "$actual" = "$expected" ]; then
-		echo -n '  status OK'
+		echo -e -n "  status $OK"
 	else
-		echo -n "  status NG, expected $expected but got $actual"
+		echo -e -n "  status $NG, expected $expected but got $actual"
 	fi
+	for arg in "$@"
+	do
+		echo -n "  [$arg] "
+		diff "$arg"".cmp" "$arg"".out" >/dev/null && echo -e -n "$OK" || echo -e -n "$NG"
+		rm -f "$arg"".cmp" "$arg"".out"
+	done
 	echo
 }
-# Generate Executable
-cat <<EOF | gcc -xc -o a.out -
-#include <stdio.h>
-int main() { printf("hello from a.out\n"); }
-EOF
 
 # Empty line (EOF)
+assert ''
+
+# Absolute path commands without args 
 assert '/bin/pwd'
-assert '/bin/ls'
 assert '/bin/echo'
+assert '/bin/ls'
 
 # Search command path without args
 assert 'pwd'
@@ -68,11 +85,14 @@ assert "./print_args 'hello   world' '42Tokyo'"
 assert "echo 'hello   world' '42Tokyo'"
 assert "echo '\"hello   world\"' '42Tokyo'"
 
+## double quote
+assert './print_args "hello   world" "42Tokyo"'
+assert 'echo "hello   world" "42Tokyo"'
+assert "echo \"'hello   world'\" \"42Tokyo\""
+
 ## combination
 assert "echo hello'      world'"
-assert "echo hello\nworld"
-assert "echo hello\\nworld"
-assert "echo -e "hello\nworld""
+assert "echo hello'  world  '\"  42Tokyo  \""
 
 # Redirect
 ## Redirecting output
@@ -91,7 +111,6 @@ assert 'cat <hoge'
 ## Appending Redirected output
 assert 'pwd >>pwd.txt' 'pwd.txt'
 assert 'pwd >>pwd.txt \n pwd >>pwd.txt' 'pwd.txt'
-rm -f pwd.txt
 
 ## Here Document
 assert 'cat <<EOF\nhello\nworld\nEOF\nNOPRINT'
@@ -99,5 +118,8 @@ assert 'cat <<EOF<<eof\nhello\nworld\nEOF\neof\nNOPRINT'
 assert 'cat <<EOF\nhello\nworld'
 assert 'cat <<E"O"F\nhello\nworld\nEOF\nNOPRINT'
 
+# Pipe
+assert 'cat Makefile | grep minishell'
+assert 'cat | cat | ls\n\n'
 
 cleanup

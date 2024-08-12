@@ -18,6 +18,7 @@
 # include <limits.h>
 # include <unistd.h>
 # include <stdbool.h>
+# include <string.h>
 # include <sys/wait.h>
 # include <fcntl.h>
 # include <readline/history.h>
@@ -30,29 +31,42 @@ typedef enum e_node_kind
 	ND_REDIR_IN,
 	ND_REDIR_APPEND,
 	ND_REDIR_HEREDOC,
+	ND_PIPELINE,
 }	t_node_kind;
 
+typedef struct s_cmd t_cmd;
+typedef struct s_redirect t_redirect;
 typedef struct s_node t_node;
-typedef struct s_r_node t_r_node;
 
-struct s_r_node
+struct s_redirect
 {
 	t_node_kind kind;
-	t_r_node *next;
+	t_redirect *next;
 	// REDIR
 	char	*filename;
 	int		fd;
 };
 
-struct s_node
+# define TOKEN_MAX	100
+
+struct s_cmd
 {
 	t_node_kind	kind;
-	t_node	*next;
 	// CMD
 	char	**args;
-	t_r_node  *redirects;
+	t_redirect  *redirects;
+	// PIPE
+	t_cmd *next;
+	int inpipe[2];
+	int outpipe[2];
 };
 
+struct s_node
+{
+	t_node_kind kind;
+	t_node *next;
+	t_cmd command;
+};
 
 
 /*libft.c*/
@@ -66,25 +80,29 @@ int		interpret(char *line);
 /*error.c*/
 void	fatal_error(const char *msg);
 void	assert_error(const char *msg);
+void	err_exit(const char *location, const char *msg, int status);
+void	xperror(const char *location);
 
 /*free.c*/
 // void	free_tok(t_token *tok);
 void	free_argv(char **argv);
+void free_node(t_node *node);
 
 /*tokenize.c*/
-char	*skip_blank(char *line);
-char	*skip_token(char *line);
 void	expand(char **args);
-char    *copy_token(char *start, char *end);
 char	**tokenizer(char *line);
+bool is_command_line_operator(char *line);
 
 /*parse.c*/
 t_node  *parse(char **tokens);
 
 /*redirect.c*/
-int open_redir_file(t_r_node *redir, int *backup_fd);
-int do_redirect(t_r_node *redir);
-void close_redirect_files(t_r_node *redir);
-int reset_redirect(int *backup_fd);
+int open_redir_file(t_redirect *redir);
+
+/*pipe.c*/
+void	prepare_pipe(t_cmd *node);
+void	prepare_pipe_child(t_cmd *node);
+void	prepare_pipe_parent(t_cmd *node);
+
 
 #endif

@@ -53,25 +53,41 @@ char	*search_path(const char *filename)
 	return (NULL);
 }
 
-int exec_cmd(t_node *node)
+void validate_access(const char *path, const char *filename)
+{
+	if (path == NULL)
+		err_exit(filename, "command not found", 127);
+	if (access(path, F_OK) < 0)
+		err_exit(filename, "command not found", 127);
+}
+int exec_cmd(t_cmd *node)
 {
 	char *path;
 	char **argv = node->args;
 	int wstatus;
     pid_t pid;
 
+	prepare_pipe(node);
 	pid = fork();
+	if (pid < 0)
+		fatal_error("fork");
     if(pid == 0)
     {
+		prepare_pipe_child(node);
+		if (open_redir_file(node->redirects) < 0) {
+			exit(1);//リダイレクトのファイルがオープンできない時は子プロセス終了
+		}
 		if(strchr(argv[0], '/') == NULL)
 			path = search_path(argv[0]);
 		else
 			path = strdup(argv[0]);
+		validate_access(path, argv[0]);//コマンドがない時は子プロセス終了
         execve(path, argv, 0);
-		fatal_error("execve");
+		fatal_error("execve");//ここには来ない。
     }
     else
     {
+		prepare_pipe_parent(node);
         wait(&wstatus);
 		return (WEXITSTATUS(wstatus));
     }
@@ -81,17 +97,19 @@ int exec_cmd(t_node *node)
 
 int exec(t_node *node)
 {
-	int backup_fd[2] = {-1, -1};
+	t_cmd *cmd;
 	int status = 0;
-	if (open_redir_file(node->redirects, backup_fd) < 0) {
-		return -1;
+
+	while (node)
+	{
+		cmd = &node->command;
+		while (cmd)
+		{
+			status = exec_cmd(cmd);
+			cmd = cmd->next;
+		}
+		node = node->next;
 	}
-	if (do_redirect(node->redirects) < 0) {
-		return -1;
-	}
-	status = exec_cmd(node);
-	close_redirect_files(node->redirects);
-	reset_redirect(backup_fd);
 	return (status);
 }
 
@@ -101,16 +119,20 @@ int interpret(char *line)
 	int status;
 	t_node	*node;
 	
-	tokens = tokenizer(line);
-	if(tokens == NULL)
-		exit (EXIT_FAILURE);
+	tokens = tokenizer(line);//トークンに分割
+	if (tokens[0] == NULL) 
+	{
+		return(0);
+	}
+	add_history(line);//トークンがなければ履歴に登録しない
 	expand(tokens);
 	node = parse(tokens);
-	
 	status = exec(node);
 	free_argv(tokens);
+	if (node)
+		free_node(node);
 
-    return status;
+    return(status);
 }
 
 int	main()
@@ -123,10 +145,11 @@ int	main()
 	{
 		line = readline("m42$ ");
 		if(!line)		
-			break;
-		if(*line)
-			add_history(line);
-		status = interpret(line);
+			break; 
+		if(*line) 
+		{
+			status = interpret(line);
+		}
 		free(line);
 	}
 	exit(status);

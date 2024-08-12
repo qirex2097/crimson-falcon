@@ -12,28 +12,46 @@
 
 #include "minishell.h"
 
-t_node  *new_node(t_node_kind kind)
+void initialize_cmd(t_cmd *cmd)
 {
-    t_node  *node = malloc(sizeof(t_node));
-    if(node == NULL)
-        fatal_error("new_node:malloc error\n");
+    cmd->args = malloc(sizeof(char*) * TOKEN_MAX);
+    if (cmd->args == NULL) 
+        fatal_error("malloc error");
+    cmd->args[0] = NULL;
+    cmd->redirects = NULL;
+    cmd->next = NULL;
+    cmd->inpipe[0] = STDIN_FILENO;
+    cmd->inpipe[1] = -1;
+    cmd->outpipe[0] = -1;
+    cmd->outpipe[1] = STDOUT_FILENO;
+    return;
+}
+
+t_cmd *new_cmd()
+{
+    t_cmd *cmd = malloc(sizeof(t_cmd));
+    if (cmd == NULL)
+        fatal_error("malloc error");
+    initialize_cmd(cmd);
+    return cmd;
+}
+
+t_node *new_node(t_node_kind kind)
+{
+    t_node *node = malloc(sizeof(t_node));
+    if (node == NULL)
+        fatal_error("malloc error");
     node->kind = kind;
     node->next = NULL;
-    node->args = malloc(sizeof(char*) * 100);
-    if (!node->args) 
-    {
-        fatal_error("new_node:malloc error\n");
-    }
-    node->args[0] = NULL;
-    node->redirects = NULL;
+    initialize_cmd(&node->command);
     return (node);
 }
 
-t_r_node *new_r_node(t_node_kind kind, char* filename)
+t_redirect *new_redirect(t_node_kind kind, char* filename)
 {
-    t_r_node *node = malloc(sizeof(t_r_node));
+    t_redirect *node = malloc(sizeof(t_redirect));
     if (node == NULL)
-        fatal_error("new_r_node: malloc error");
+        fatal_error("malloc error");
     node->kind = kind;
     node->filename = strdup(filename);
     node->fd = -1;
@@ -41,9 +59,9 @@ t_r_node *new_r_node(t_node_kind kind, char* filename)
     return (node);
 }
 
-void append_redirect_node(t_node *node, t_r_node *child_node)
+void append_redirect_node(t_cmd *node, t_redirect *child_node)
 {
-    t_r_node *p;
+    t_redirect *p;
 
     if (node->redirects == NULL)
     {
@@ -56,57 +74,123 @@ void append_redirect_node(t_node *node, t_r_node *child_node)
     }
 }
 
-void append_tok(t_node *node, char *token)
+void append_tok(t_cmd *node, char *token)
 {
     int i;
     i = 0;
-    while (node->args[i]) 
+    while (node->args[i] && i < TOKEN_MAX - 1) // node->args のインデックスのチェック
         i++;
     node->args[i] = strdup(token);
     node->args[i + 1] = NULL;
-    // node->args のインデックスのチェック
     
     return;
 }
 
-int append_command_element(t_node *node, char **tokens)
+bool is_word(char *token)
 {
-    t_r_node *redirect_node;
+    return (!is_command_line_operator(token));
+}
+
+int append_command_element(t_cmd *node, char **tokens)
+{
+    t_redirect *redirect_node;
     
-    if (strcmp(">", tokens[0]) == 0) {
-        // tokens[1]がファイル名として有効か調べる。ダメならエラー
-        redirect_node = new_r_node(ND_REDIR_OUT, tokens[1]);
+    if (strcmp(">", tokens[0]) == 0 && is_word(tokens[1])) {
+        redirect_node = new_redirect(ND_REDIR_OUT, tokens[1]);
         append_redirect_node(node, redirect_node);
         return 2;// トークンを２つ(tokens[0],[1])使用した
-    } else if (strcmp("<", tokens[0]) == 0) {
-        // tokens[1]がファイル名として有効か調べる。ダメならエラー
-        redirect_node = new_r_node(ND_REDIR_IN, tokens[1]);
+    } else if (strcmp("<", tokens[0]) == 0 && is_word(tokens[1])) {
+        redirect_node = new_redirect(ND_REDIR_IN, tokens[1]);
         append_redirect_node(node, redirect_node);
         return 2;// トークンを２つ(tokens[0],[1])使用した
-    } else if (strcmp(">>", tokens[0]) == 0) {
-        // tokens[1]がファイル名として有効か調べる。ダメならエラー
-        redirect_node = new_r_node(ND_REDIR_APPEND, tokens[1]);
+    } else if (strcmp(">>", tokens[0]) == 0 && is_word(tokens[1])) {
+        redirect_node = new_redirect(ND_REDIR_APPEND, tokens[1]);
         append_redirect_node(node, redirect_node);
         return 2;// トークンを２つ(tokens[0],[1])使用した
-    } else if (strcmp("<<", tokens[0]) == 0) {
-        // tokens[1]がファイル名として有効か調べる。ダメならエラー
-        redirect_node = new_r_node(ND_REDIR_HEREDOC, tokens[1]);
+    } else if (strcmp("<<", tokens[0]) == 0 && is_word(tokens[1])) {
+        redirect_node = new_redirect(ND_REDIR_HEREDOC, tokens[1]);
         append_redirect_node(node, redirect_node);
         return 2;// トークンを２つ(tokens[0],[1])使用した
-    } else {
+    } else if (is_word(tokens[0])) {
         append_tok(node, tokens[0]);
         return 1;
     }
+    return -1;
 }
+
+t_node *parse_cmd(char **tokens)
+{
+    int i, j;
+    t_node  *node = new_node(ND_SIMPLE_CMD);
+    t_cmd *cmd = &node->command;
+
+    i = 0;
+    while (tokens[i] && strncmp(tokens[i], ";", 1) != 0)
+    {
+        if (strncmp(tokens[i], "|", 1) == 0)
+        {
+            cmd->next = new_cmd();
+            cmd = cmd->next;
+            i++;
+        } else {
+            j = append_command_element(cmd, &tokens[i]);
+            if (j < 0) {
+                perror("parse error");
+                free_node(node);
+                return (NULL);
+            }
+            i += j;
+        }
+    }
+    return (node);
+}
+
+int skip_delimiter(char **tokens)
+{
+    int i = 0;
+    while (tokens[i] && strncmp(";", tokens[i], 1) == 0) 
+        i++;// デリミタを飛ばす
+    
+    return i;
+}
+
+void find_delimiter_position(char **tokens, int table[], int table_size)
+{
+    int i, j, k;
+
+    i = 0;
+    j = skip_delimiter(&tokens[0]); // 先頭のデリミタを飛ばす
+    table[i++] = j;
+    while (tokens[j] && i < table_size - 1) {
+        k = skip_delimiter(&tokens[j]);
+        if (k > 0 && tokens[j + k] != NULL)
+            table[i++] = j + k;
+        j = j + k + 1;
+    }
+    table[i] = -1;
+ }
 
 t_node  *parse(char **tokens)
 {
+    t_node head;
+    t_node *p;
+    int table[100];
     int i;
-    t_node  *node = new_node(ND_SIMPLE_CMD);
+    
+    find_delimiter_position(tokens, table, 100);//tableにコマンドの先頭位置が入る（デリミタの次のトークン）
+   
     i = 0;
-    while (tokens[i])
+    p = &head;
+    while (table[i] >= 0)
     {
-        i += append_command_element(node, &tokens[i]);
+        p->next = parse_cmd(&tokens[table[i]]);
+        if (p->next == NULL) {
+            free_node(head.next);
+            return NULL;
+        }
+        p = p->next;
+        i++;
     }
-    return (node);
+    
+    return head.next;
 }

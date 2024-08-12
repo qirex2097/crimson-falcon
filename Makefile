@@ -25,9 +25,11 @@ LIBS     = -lreadline
 SRCS     = src/main.c\
 			src/free.c\
 			src/tokenize.c\
+			src/expand.c \
 			src/error.c\
 			src/parser.c \
 			src/redirect.c \
+			src/pipe.c\
 			src/libft.c
 
 
