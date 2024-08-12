@@ -80,6 +80,8 @@ int		interpret(char *line);
 /*error.c*/
 void	fatal_error(const char *msg);
 void	assert_error(const char *msg);
+void	err_exit(const char *location, const char *msg, int status);
+void	xperror(const char *location);
 
 /*free.c*/
 // void	free_tok(t_token *tok);

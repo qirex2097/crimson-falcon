@@ -50,7 +50,7 @@ int open_redir_file(t_redirect *redir)
     
     if (redir->fd < 0)
     {
-        perror("open");
+        xperror(redir->filename);
         return -1;//File Open Error
     }
     

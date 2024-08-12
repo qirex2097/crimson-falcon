@@ -53,6 +53,13 @@ char	*search_path(const char *filename)
 	return (NULL);
 }
 
+void validate_access(const char *path, const char *filename)
+{
+	if (path == NULL)
+		err_exit(filename, "command not found", 127);
+	if (access(path, F_OK) < 0)
+		err_exit(filename, "command not found", 127);
+}
 int exec_cmd(t_cmd *node)
 {
 	char *path;
@@ -68,14 +75,15 @@ int exec_cmd(t_cmd *node)
     {
 		prepare_pipe_child(node);
 		if (open_redir_file(node->redirects) < 0) {
-			return -1;
+			exit(1);//リダイレクトのファイルがオープンできない時は子プロセス終了
 		}
 		if(strchr(argv[0], '/') == NULL)
 			path = search_path(argv[0]);
 		else
 			path = strdup(argv[0]);
+		validate_access(path, argv[0]);//コマンドがない時は子プロセス終了
         execve(path, argv, 0);
-		fatal_error("execve");
+		fatal_error("execve");//ここには来ない。
     }
     else
     {
