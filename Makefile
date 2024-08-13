@@ -29,6 +29,7 @@ SRCS     = src/main.c\
 			src/error.c\
 			src/parser.c \
 			src/redirect.c \
+			src/builtin.c \
 			src/libft.c
 
 
@@ -58,7 +59,7 @@ all: $(NAME)
 $(NAME): $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o  $@ $(LIBS)
 
-$(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c
+$(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c src/minishell.h
 	mkdir -p $(OBJS_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
