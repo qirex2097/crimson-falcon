@@ -61,7 +61,7 @@ void validate_access(const char *path, const char *filename)
 		err_exit(filename, "command not found", 127);
 }
 
-int exec_cmd(t_cmd *cmd, int prev_fd)
+int exec_cmd(t_cmd *cmd, int prev_fd, int *pfd)
 {
 	char *path;
 	char **argv = cmd->args;
@@ -78,9 +78,9 @@ int exec_cmd(t_cmd *cmd, int prev_fd)
 			close(prev_fd);
 		}
 		if (cmd->next) {	//パイプの書き込み側を設定する
-			close(cmd->pfd[0]);
-			dup2(cmd->pfd[1], STDOUT_FILENO);
-			close(cmd->pfd[1]);
+			close(pfd[0]);
+			dup2(pfd[1], STDOUT_FILENO);
+			close(pfd[1]);
 		}
 		if (open_redir_file(cmd->redirects) < 0) {
 			exit(1);//リダイレクトのファイルがオープンできない時は子プロセス終了
@@ -99,7 +99,7 @@ int exec_cmd(t_cmd *cmd, int prev_fd)
 			close(prev_fd);	//使わないパイプはクローズする
 		}
 		if (cmd->next) {
-			close(cmd->pfd[1]);
+			close(pfd[1]);
 		}
 
         wait(&wstatus);
@@ -114,6 +114,7 @@ int exec(t_node *node)
 	t_cmd *cmd;
 	int status = 0;
 	int prev_fd;
+	int pfd[2];
 
 	while (node)
 	{
@@ -123,15 +124,15 @@ int exec(t_node *node)
 		{
 			if (cmd->next)
 			{
-				if (pipe(cmd->pfd) < 0) 	// パイプの次のコマンドがあればパイプを作る
+				if (pipe(pfd) < 0) 	// パイプの次のコマンドがあればパイプを作る
 				{
 					fatal_error("pipe");
 				}
 			}
-			status = exec_cmd(cmd, prev_fd);
+			status = exec_cmd(cmd, prev_fd, pfd);
 			if (cmd->next)
 			{
-				prev_fd = cmd->pfd[0];	//パイプの読み出し側を更新
+				prev_fd = pfd[0];	//パイプの読み出し側を更新
 			}
 			cmd = cmd->next;
 		}

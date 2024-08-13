@@ -57,9 +57,6 @@ struct s_cmd
 	t_redirect  *redirects;
 	// PIPE
 	t_cmd *next;
-	int inpipe[2];
-	int outpipe[2];
-	int pfd[2];
 };
 
 struct s_node
@@ -99,11 +96,5 @@ t_node  *parse(char **tokens);
 
 /*redirect.c*/
 int open_redir_file(t_redirect *redir);
-
-/*pipe.c*/
-void	prepare_pipe(t_cmd *node);
-void	prepare_pipe_child(t_cmd *node);
-void	prepare_pipe_parent(t_cmd *node);
-
 
 #endif

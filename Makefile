@@ -29,7 +29,6 @@ SRCS     = src/main.c\
 			src/error.c\
 			src/parser.c \
 			src/redirect.c \
-			src/pipe.c\
 			src/libft.c
 
 

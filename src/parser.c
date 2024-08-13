@@ -20,12 +20,6 @@ void initialize_cmd(t_cmd *cmd)
     cmd->args[0] = NULL;
     cmd->redirects = NULL;
     cmd->next = NULL;
-    cmd->inpipe[0] = STDIN_FILENO;
-    cmd->inpipe[1] = -1;
-    cmd->outpipe[0] = -1;
-    cmd->outpipe[1] = STDOUT_FILENO;
-    cmd->pfd[0] = -1;
-    cmd->pfd[1] = -1;
     return;
 }
 
