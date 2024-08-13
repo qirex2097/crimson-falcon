@@ -60,33 +60,29 @@ void validate_access(const char *path, const char *filename)
 	if (access(path, F_OK) < 0)
 		err_exit(filename, "command not found", 127);
 }
-int exec_cmd(t_cmd *node, int *prev_fd)
+
+int exec_cmd(t_cmd *cmd, int prev_fd)
 {
 	char *path;
-	char **argv = node->args;
+	char **argv = cmd->args;
 	int wstatus;
     pid_t pid;
 
-	if (node->next) {	// パイプの次のコマンドがあればパイプを作る
-		if (pipe(node->pfd) < 0) {
-			fatal_error("pipe");
-		}
-	}
 	pid = fork();
 	if (pid < 0)
 		fatal_error("fork");
     if(pid == 0)
     {
-		if (*prev_fd != -1) {	//パイプの読み出し側が設定されていたら
-			dup2(*prev_fd, STDIN_FILENO);
-			close(*prev_fd);
+		if (prev_fd != -1) {	//パイプの読み出し側が設定されていたら
+			dup2(prev_fd, STDIN_FILENO);
+			close(prev_fd);
 		}
-		if (node->next != NULL) {	//パイプの書き込み側を設定する
-			close(node->pfd[0]);
-			dup2(node->pfd[1], STDOUT_FILENO);
-			close(node->pfd[1]);
+		if (cmd->next) {	//パイプの書き込み側を設定する
+			close(cmd->pfd[0]);
+			dup2(cmd->pfd[1], STDOUT_FILENO);
+			close(cmd->pfd[1]);
 		}
-		if (open_redir_file(node->redirects) < 0) {
+		if (open_redir_file(cmd->redirects) < 0) {
 			exit(1);//リダイレクトのファイルがオープンできない時は子プロセス終了
 		}
 		if(strchr(argv[0], '/') == NULL)
@@ -99,12 +95,11 @@ int exec_cmd(t_cmd *node, int *prev_fd)
     }
     else
     {
-		if (*prev_fd != -1) {
-			close(*prev_fd);
+		if (prev_fd != -1) {
+			close(prev_fd);	//使わないパイプはクローズする
 		}
-		if (node->next != NULL) {
-			close(node->pfd[1]);
-			*prev_fd = node->pfd[0];	//パイプの読み出し側を更新
+		if (cmd->next) {
+			close(cmd->pfd[1]);
 		}
 
         wait(&wstatus);
@@ -126,7 +121,18 @@ int exec(t_node *node)
 		cmd = &node->command;
 		while (cmd)
 		{
-			status = exec_cmd(cmd, &prev_fd);
+			if (cmd->next)
+			{
+				if (pipe(cmd->pfd) < 0) 	// パイプの次のコマンドがあればパイプを作る
+				{
+					fatal_error("pipe");
+				}
+			}
+			status = exec_cmd(cmd, prev_fd);
+			if (cmd->next)
+			{
+				prev_fd = cmd->pfd[0];	//パイプの読み出し側を更新
+			}
 			cmd = cmd->next;
 		}
 		node = node->next;
