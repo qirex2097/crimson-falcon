@@ -59,6 +59,7 @@ struct s_cmd
 	t_cmd *next;
 	int inpipe[2];
 	int outpipe[2];
+	int pfd[2];
 };
 
 struct s_node
