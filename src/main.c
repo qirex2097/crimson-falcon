@@ -73,6 +73,7 @@ int exec_cmd(t_cmd *cmd, int prev_fd, int *pfd)
 		fatal_error("fork");
     if(pid == 0)
     {
+		reset_signal();
 		if (prev_fd != -1) {	//パイプの読み出し側が設定されていたら
 			dup2(prev_fd, STDIN_FILENO);
 			close(prev_fd);
@@ -92,7 +93,7 @@ int exec_cmd(t_cmd *cmd, int prev_fd, int *pfd)
 		validate_access(path, argv[0]);//コマンドがない時は子プロセス終了
 		execve(path, argv, 0);
 		fatal_error("execve");//ここには来ない。
-   }
+    }
     else
     {
 		if (prev_fd != -1) {
@@ -101,9 +102,8 @@ int exec_cmd(t_cmd *cmd, int prev_fd, int *pfd)
 		if (cmd->next) {
 			close(pfd[1]);
 		}
-
         wait(&wstatus);
-		return (WEXITSTATUS(wstatus));
+		return(wstatus);
     }
 	
 	return (0);
@@ -125,7 +125,9 @@ int exec(t_node *node)
 			if (is_builtin(cmd->args))
 			{
 				status = exec_builtin_command(cmd->args);
-			} else {
+			} 
+			else 
+			{
 				if (cmd->next)
 				{
 					if (pipe(pfd) < 0) 	// パイプの次のコマンドがあればパイプを作る
@@ -139,11 +141,19 @@ int exec(t_node *node)
 					prev_fd = pfd[0];	//パイプの読み出し側を更新
 				}
 			}
+			if (!WIFEXITED(status))
+			{
+				if (cmd->next)
+				{
+					close(prev_fd);
+				}
+				break;//子プロセスの戻り値が0以外の場合はパイプの処理を中断する
+			}
 			cmd = cmd->next;
 		}
 		node = node->next;
 	}
-	return (status);
+	return(WEXITSTATUS(status));
 }
 
 int interpret(char *line)
@@ -174,6 +184,7 @@ int	main()
 	int	status = 0;
 
 	rl_outstream = stderr;
+	setup_signal();
 	while(1)
 	{
 		line = readline("m42$ ");

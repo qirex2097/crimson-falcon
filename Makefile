@@ -18,10 +18,11 @@ NAME     = minishell
 
 CC       = cc
 RM		= rm -rf
+RLDIR    = $(shell brew --prefix readline)
 
-INCLUDES = -I include
+INCLUDES = -I include -I$(RLDIR)/include
 CFLAGS   = -Wall -Wextra -Werror $(INCLUDES)
-LIBS     = -lreadline
+LIBS     = -lreadline -L$(RLDIR)/lib
 SRCS     = src/main.c\
 			src/free.c\
 			src/tokenize.c\
@@ -30,6 +31,7 @@ SRCS     = src/main.c\
 			src/parser.c \
 			src/redirect.c \
 			src/builtin.c \
+			src/signal.c\
 			src/libft.c
 
 
