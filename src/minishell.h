@@ -107,5 +107,8 @@ int exec_builtin_command(char **argv);
 void setup_signal(void);
 void reset_signal(void);
 
+/* exec.c */
+int exec(t_node *node);
+
 
 #endif
