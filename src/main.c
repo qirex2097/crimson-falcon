@@ -90,9 +90,9 @@ int exec_cmd(t_cmd *cmd, int prev_fd, int *pfd)
 		else
 			path = strdup(argv[0]);
 		validate_access(path, argv[0]);//コマンドがない時は子プロセス終了
-        execve(path, argv, 0);
+		execve(path, argv, 0);
 		fatal_error("execve");//ここには来ない。
-    }
+   }
     else
     {
 		if (prev_fd != -1) {
@@ -122,17 +122,22 @@ int exec(t_node *node)
 		cmd = &node->command;
 		while (cmd)
 		{
-			if (cmd->next)
+			if (is_builtin(cmd->args))
 			{
-				if (pipe(pfd) < 0) 	// パイプの次のコマンドがあればパイプを作る
+				status = exec_builtin_command(cmd->args);
+			} else {
+				if (cmd->next)
 				{
-					fatal_error("pipe");
+					if (pipe(pfd) < 0) 	// パイプの次のコマンドがあればパイプを作る
+					{
+						fatal_error("pipe");
+					}
 				}
-			}
-			status = exec_cmd(cmd, prev_fd, pfd);
-			if (cmd->next)
-			{
-				prev_fd = pfd[0];	//パイプの読み出し側を更新
+				status = exec_cmd(cmd, prev_fd, pfd);
+				if (cmd->next)
+				{
+					prev_fd = pfd[0];	//パイプの読み出し側を更新
+				}
 			}
 			cmd = cmd->next;
 		}

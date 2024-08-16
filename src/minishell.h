@@ -97,4 +97,8 @@ t_node  *parse(char **tokens);
 /*redirect.c*/
 int open_redir_file(t_redirect *redir);
 
+/*builtin.c*/
+int is_builtin(char **argv);
+int exec_builtin_command(char **argv);
+
 #endif
