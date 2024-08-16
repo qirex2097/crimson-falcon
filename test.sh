@@ -122,4 +122,13 @@ assert 'cat <<E"O"F\nhello\nworld\nEOF\nNOPRINT'
 assert 'cat Makefile | grep minishell'
 assert 'cat | cat | ls\n\n'
 
+## echo
+assert 'echo'
+assert 'echo hello'
+assert 'echo hello "    " world'
+assert 'echo -n'
+assert 'echo -n hello'
+assert 'echo -n hello world'
+assert 'echo hello -n'
+
 cleanup
