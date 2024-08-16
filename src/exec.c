@@ -56,6 +56,35 @@ int exec_cmd(t_cmd *cmd, int prev_fd, int *pfd)
 	int wstatus;
     pid_t pid;
 
+    if (is_builtin(cmd->args))
+    {
+        int original_stdin = -1;
+        int original_stdout = -1;
+
+        if (prev_fd != -1) {
+            original_stdin = dup(STDIN_FILENO);
+            dup2(prev_fd, STDIN_FILENO);
+            close(prev_fd);
+        }
+        if (cmd->next) {
+            original_stdout = dup(STDOUT_FILENO);
+            dup2(pfd[1], STDOUT_FILENO);
+            close(pfd[1]);
+        }
+		if (open_redir_file(cmd->redirects) < 0) {
+			return(1);//リダイレクトのファイルがオープンできない時は子プロセス終了
+		}
+        wstatus = exec_builtin_command(cmd->args);
+        // 標準入力と標準出力を戻す
+        if (original_stdin != -1) {
+            dup2(original_stdin, STDIN_FILENO);
+        }
+        if (original_stdout != -1) {
+            dup2(original_stdout, STDOUT_FILENO);
+        }
+        return(wstatus);
+    } 
+
 	pid = fork();
 	if (pid < 0)
 		fatal_error("fork");
@@ -110,25 +139,18 @@ int exec(t_node *node)
 		cmd = &node->command;
 		while (cmd)
 		{
-			if (is_builtin(cmd->args))
-			{
-				status = exec_builtin_command(cmd->args);
-			} 
-			else 
-			{
-				if (cmd->next)
-				{
-					if (pipe(pfd) < 0) 	// パイプの次のコマンドがあればパイプを作る
-					{
-						fatal_error("pipe");
-					}
-				}
-				status = exec_cmd(cmd, prev_fd, pfd);
-				if (cmd->next)
-				{
-					prev_fd = pfd[0];	//パイプの読み出し側を更新
-				}
-			}
+            if (cmd->next)
+            {
+                if (pipe(pfd) < 0) 	// パイプの次のコマンドがあればパイプを作る
+                {
+                    fatal_error("pipe");
+                }
+            }
+            status = exec_cmd(cmd, prev_fd, pfd);
+            if (cmd->next)
+            {
+                prev_fd = pfd[0];	//パイプの読み出し側を更新
+            }
 			if (!WIFEXITED(status))
 			{
 				if (cmd->next)

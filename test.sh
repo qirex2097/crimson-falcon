@@ -130,5 +130,6 @@ assert 'echo -n'
 assert 'echo -n hello'
 assert 'echo -n hello world'
 assert 'echo hello -n'
+assert 'echo HELLO | wc'
 
 cleanup
