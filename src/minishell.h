@@ -24,6 +24,8 @@
 # include <readline/history.h>
 # include <readline/readline.h>
 
+extern bool readline_interrupted;
+
 typedef enum e_node_kind
 {
 	ND_SIMPLE_CMD,
@@ -100,5 +102,10 @@ int open_redir_file(t_redirect *redir);
 /*builtin.c*/
 int is_builtin(char **argv);
 int exec_builtin_command(char **argv);
+
+/*signal.c*/
+void setup_signal(void);
+void reset_signal(void);
+
 
 #endif

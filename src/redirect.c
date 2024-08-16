@@ -1,5 +1,7 @@
 #include "minishell.h"
 
+bool readline_interrupted = false;
+
 int create_heredoc(const char* delimiter)
 {
     char *line;
@@ -7,11 +9,17 @@ int create_heredoc(const char* delimiter)
     
     if (pipe(pfd) < 0)
         fatal_error("pipe");
+    readline_interrupted = false;
     while (1)
     {
         line = readline("> ");
         if (line == NULL)
             break;
+        if (readline_interrupted)
+        {
+            free(line);
+            break;
+        }
         if (strcmp(line, delimiter) == 0)
         {
             free(line);
@@ -22,6 +30,11 @@ int create_heredoc(const char* delimiter)
         free(line);
     }
     close(pfd[1]);
+    if (readline_interrupted)
+    {
+        close(pfd[0]);
+        return -1;
+    }
     return (pfd[0]);
 }
 
