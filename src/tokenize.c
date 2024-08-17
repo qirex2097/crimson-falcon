@@ -113,19 +113,46 @@ char    *copy_token(char *start, char *end)
     return(token);
 }
 
-char **tokenizer(char *line)
+t_token *append_token(char *start, char *end)
 {
-    int i;
-    char    *start;
-    char    **tokens;
-    tokens = malloc(sizeof(char *) * 200);
-    if (tokens == NULL)
+    t_token *p;
+    
+    p = (t_token *)malloc(sizeof(t_token));
+    if (p == NULL) 
     {
-        fatal_error("tokenizer");
+        fatal_error("malloc");
+        return(NULL);
     }
+    p->token = copy_token(start, end); //トークンの文字列をコピーする
+    if (is_command_line_operator(p->token))
+        p->kind = TOKEN_OPERATOR;
+    else
+        p->kind = TOKEN_WORD;
+    p->next = NULL;
+    return(p);
+}
 
-    i = 0;
-    while (*line && i < 200 - 1)
+void free_tokens(t_token *tokens)
+{
+    if (tokens->next == NULL)
+    {
+        free(tokens->token);
+        free(tokens);
+    }
+    else
+    {
+        free_tokens(tokens->next);
+    }
+}
+
+t_token *tokenizer(char *line)
+{
+    char    *start;
+    t_token head;
+    t_token *p;
+
+    p = &head;
+    while (*line)
     {
         line = skip_blank(line);
         if (*line == '\0')
@@ -133,10 +160,19 @@ char **tokenizer(char *line)
 
         start = line;
         line = skip_token(line);
-        //tokenをcopyして配列に格納する
-        tokens[i++] = copy_token(start, line);
+        p->next = append_token(start, line); //tokenをcopyして格納する
+        p = p->next;
     }
-    tokens[i] = NULL;
 
-    return tokens;
+    return head.next;
+}
+
+bool is_word(t_token *token)
+{
+    return(token->kind == TOKEN_WORD);
+}
+
+bool is_operator(t_token *token)
+{
+    return(token->kind == TOKEN_OPERATOR);
 }

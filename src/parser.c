@@ -12,6 +12,8 @@
 
 #include "minishell.h"
 
+#define TOKEN_MAX 200
+
 void initialize_cmd(t_cmd *cmd)
 {
     cmd->args = malloc(sizeof(char*) * TOKEN_MAX);
@@ -82,7 +84,7 @@ void append_tok(t_cmd *node, char *token)
     return;
 }
 
-bool is_word(char *token)
+bool is_word2(char *token)
 {
     return (!is_command_line_operator(token));
 }
@@ -91,23 +93,23 @@ int append_command_element(t_cmd *node, char **tokens)
 {
     t_redirect *redirect_node;
     
-    if (strcmp(">", tokens[0]) == 0 && is_word(tokens[1])) {
+    if (strcmp(">", tokens[0]) == 0 && is_word2(tokens[1])) {
         redirect_node = new_redirect(ND_REDIR_OUT, tokens[1]);
         append_redirect_node(node, redirect_node);
         return 2;// トークンを２つ(tokens[0],[1])使用した
-    } else if (strcmp("<", tokens[0]) == 0 && is_word(tokens[1])) {
+    } else if (strcmp("<", tokens[0]) == 0 && is_word2(tokens[1])) {
         redirect_node = new_redirect(ND_REDIR_IN, tokens[1]);
         append_redirect_node(node, redirect_node);
         return 2;// トークンを２つ(tokens[0],[1])使用した
-    } else if (strcmp(">>", tokens[0]) == 0 && is_word(tokens[1])) {
+    } else if (strcmp(">>", tokens[0]) == 0 && is_word2(tokens[1])) {
         redirect_node = new_redirect(ND_REDIR_APPEND, tokens[1]);
         append_redirect_node(node, redirect_node);
         return 2;// トークンを２つ(tokens[0],[1])使用した
-    } else if (strcmp("<<", tokens[0]) == 0 && is_word(tokens[1])) {
+    } else if (strcmp("<<", tokens[0]) == 0 && is_word2(tokens[1])) {
         redirect_node = new_redirect(ND_REDIR_HEREDOC, tokens[1]);
         append_redirect_node(node, redirect_node);
         return 2;// トークンを２つ(tokens[0],[1])使用した
-    } else if (is_word(tokens[0])) {
+    } else if (is_word2(tokens[0])) {
         append_tok(node, tokens[0]);
         return 1;
     }

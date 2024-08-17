@@ -49,8 +49,6 @@ struct s_redirect
 	int		fd;
 };
 
-# define TOKEN_MAX	100
-
 struct s_cmd
 {
 	t_node_kind	kind;
@@ -68,6 +66,17 @@ struct s_node
 	t_cmd command;
 };
 
+typedef enum {
+	TOKEN_WORD,
+	TOKEN_OPERATOR,
+} e_token_kind;
+
+typedef struct s_token t_token;
+struct s_token {
+	e_token_kind kind;
+	char *token;
+	t_token *next;
+};
 
 /*libft.c*/
 //後でlibft導入するので削除
@@ -89,9 +98,14 @@ void	free_argv(char **argv);
 void free_node(t_node *node);
 
 /*tokenize.c*/
-void	expand(char **args);
-char	**tokenizer(char *line);
+t_token	*tokenizer(char *line);
 bool is_command_line_operator(char *line);
+void free_tokens(t_token *tokens);
+bool is_word(t_token *token);
+bool is_operator(t_token *token);
+
+/* expand.c */
+void	expand(t_token *tokens);
 
 /*parse.c*/
 t_node  *parse(char **tokens);
