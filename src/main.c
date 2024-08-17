@@ -24,6 +24,53 @@ void print_tokens(t_token *p)
 	}
 }
 
+void print_cmd(t_cmd *cmd)
+{
+	int i, j;
+	t_redirect *redir;
+	i = 0;
+	while(cmd)
+	{
+		printf("print_cmd:i=%d\n", i);
+		j = 0;
+		while (cmd->args[j])
+		{
+			printf("%s", cmd->args[j]);
+			if (cmd->args[j+1]) printf(",");
+			j++;
+		}
+		printf("\n");
+		redir = cmd->redirects;
+		while (redir)
+		{
+			if (redir->kind == ND_REDIR_OUT) {
+				printf(">%s\n", redir->filename);
+			} else if (redir->kind == ND_REDIR_IN) {
+				printf("<%s\n", redir->filename);
+			} else if (redir->kind == ND_REDIR_APPEND) {
+				printf(">>%s\n", redir->filename);
+			} else if (redir->kind == ND_REDIR_HEREDOC) {
+				printf("<<%s\n", redir->filename);
+			}
+			redir = redir->next;
+		}
+		i++;
+		cmd = cmd->next;
+	}
+}
+
+void print_node(t_node *node)
+{
+	int i = 0;
+	while(node)
+	{
+		printf("----- print_noode:i=%d\n", i);
+		print_cmd(&node->command);
+		node = node->next;
+		i++;
+	}
+}
+
 int interpret(char *line)
 {
 	t_token *tokens;
@@ -36,15 +83,10 @@ int interpret(char *line)
 		return(0);
 	}
 	add_history(line);//トークンがなければ履歴に登録しない
-	print_tokens(tokens);
-	printf("expand\n");
 	expand(tokens);
-	// node = parse(tokens);
-	// status = exec(node);
-	print_tokens(tokens);
+	node = parse(tokens);
+	status = exec(node);
 	free_tokens(tokens);
-	node = NULL;//debug
-	status = 0;//debug
 	if (node)
 		free_node(node);
 

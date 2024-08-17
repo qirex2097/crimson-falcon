@@ -125,7 +125,12 @@ t_token *append_token(char *start, char *end)
     }
     p->token = copy_token(start, end); //トークンの文字列をコピーする
     if (is_command_line_operator(p->token))
-        p->kind = TOKEN_OPERATOR;
+    {
+        if (strncmp(p->token, ";", 1) == 0)
+            p->kind = TOKEN_DELIMITER;
+        else
+            p->kind = TOKEN_OPERATOR;
+    }
     else
         p->kind = TOKEN_WORD;
     p->next = NULL;
@@ -169,10 +174,20 @@ t_token *tokenizer(char *line)
 
 bool is_word(t_token *token)
 {
-    return(token->kind == TOKEN_WORD);
+    return(token && token->kind == TOKEN_WORD);
 }
 
 bool is_operator(t_token *token)
 {
-    return(token->kind == TOKEN_OPERATOR);
+    return(token && token->kind == TOKEN_OPERATOR);
+}
+
+bool is_delimiter(t_token *token)
+{
+    return(token && token->kind == TOKEN_DELIMITER);
+}
+
+bool is_pipe(t_token *token)
+{
+    return(token && token->kind == TOKEN_OPERATOR && strncmp(token->token, "|", 1) == 0);
 }

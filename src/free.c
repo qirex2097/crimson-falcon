@@ -12,7 +12,7 @@
 
 #include    "minishell.h"
 
-void	free_argv(char **argv)
+void	free_args(char **argv)
 {
 	int	i;
 
@@ -48,7 +48,7 @@ void free_cmd(t_cmd *cmd)
 		free_redirect(cmd->redirects);
 		free(cmd->redirects);
 	}
-	free_argv(cmd->args);
+	free_args(cmd->args);
 }
 
 void free_node(t_node *node)

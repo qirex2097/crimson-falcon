@@ -71,124 +71,135 @@ void append_redirect_node(t_cmd *node, t_redirect *child_node)
         p->next = child_node;
     }
 }
+t_token *append_redirect_element(t_cmd *node, t_token *tokens)
+{
+    t_redirect *redirect_node;
+    
+    if (strcmp(">", tokens->token) == 0 && is_word(tokens->next)) {
+        redirect_node = new_redirect(ND_REDIR_OUT, tokens->next->token);
+        append_redirect_node(node, redirect_node);
+        return tokens->next->next;
+    } else if (strcmp("<", tokens->token) == 0 && is_word(tokens->next)) {
+        redirect_node = new_redirect(ND_REDIR_IN, tokens->next->token);
+        append_redirect_node(node, redirect_node);
+        return tokens->next->next;
+    } else if (strcmp(">>", tokens->token) == 0 && is_word(tokens->next)) {
+        redirect_node = new_redirect(ND_REDIR_APPEND, tokens->next->token);
+        append_redirect_node(node, redirect_node);
+        return tokens->next->next;
+    } else if (strcmp("<<", tokens->token) == 0 && is_word(tokens->next)) {
+        redirect_node = new_redirect(ND_REDIR_HEREDOC, tokens->next->token);
+        append_redirect_node(node, redirect_node);
+        return tokens->next->next;
+    }
+    
+    perror("parse error");
+    return NULL;
+}
 
-void append_tok(t_cmd *node, char *token)
+t_token* append_args_element(t_cmd *node, t_token *token)
 {
     int i;
     i = 0;
     while (node->args[i] && i < TOKEN_MAX - 1) // node->args のインデックスのチェック
         i++;
-    node->args[i] = strdup(token);
+    node->args[i] = strdup(token->token);
     node->args[i + 1] = NULL;
     
+    return(token->next);
+}
+
+t_node *parse_cmd(t_token *tokens)
+{
+    t_token *pt;
+    t_node *node;
+    t_cmd *cmd;
+    
+    pt = tokens;
+    if (!is_word(pt))
+    {
+        perror("parse error");
+        return NULL;
+    }
+    
+    node = new_node(ND_SIMPLE_CMD);
+    cmd = &node->command;
+    while(pt && !is_delimiter(pt))
+    {
+        if (is_pipe(pt)) {
+            if (pt->next == NULL || !is_word(pt->next))
+            {
+                perror("parse error");
+                free_node(node);
+                return NULL;
+            }
+            cmd->next = new_cmd();
+            cmd = cmd->next;
+            pt = pt->next;
+        } else if (is_word(pt)) {
+            pt = append_args_element(cmd, pt);
+        } else {
+            pt = append_redirect_element(cmd, pt);
+        }
+    }
+    
+    return node;
+}
+
+t_token *skip_delimiter(t_token *tokens)
+{
+    t_token *pt = tokens;
+    while (is_delimiter(pt))
+        pt = pt->next;
+    return(pt);
+}
+
+void split_command_line(t_token *tokens, t_token **table, int table_max)
+{
+    int i;
+    t_token *pt;
+    
+    pt = skip_delimiter(tokens);
+    i = 0;
+    table[i] = pt;
+    i++;
+    while(pt && i < table_max - 1)
+    {
+        while(pt && !is_delimiter(pt))
+        {
+            pt = pt->next;
+        }
+        pt = skip_delimiter(pt);
+        table[i] = pt;
+        i++;
+    }
+    table[i] = NULL;
     return;
 }
 
-bool is_word2(char *token)
-{
-    return (!is_command_line_operator(token));
-}
-
-int append_command_element(t_cmd *node, char **tokens)
-{
-    t_redirect *redirect_node;
-    
-    if (strcmp(">", tokens[0]) == 0 && is_word2(tokens[1])) {
-        redirect_node = new_redirect(ND_REDIR_OUT, tokens[1]);
-        append_redirect_node(node, redirect_node);
-        return 2;// トークンを２つ(tokens[0],[1])使用した
-    } else if (strcmp("<", tokens[0]) == 0 && is_word2(tokens[1])) {
-        redirect_node = new_redirect(ND_REDIR_IN, tokens[1]);
-        append_redirect_node(node, redirect_node);
-        return 2;// トークンを２つ(tokens[0],[1])使用した
-    } else if (strcmp(">>", tokens[0]) == 0 && is_word2(tokens[1])) {
-        redirect_node = new_redirect(ND_REDIR_APPEND, tokens[1]);
-        append_redirect_node(node, redirect_node);
-        return 2;// トークンを２つ(tokens[0],[1])使用した
-    } else if (strcmp("<<", tokens[0]) == 0 && is_word2(tokens[1])) {
-        redirect_node = new_redirect(ND_REDIR_HEREDOC, tokens[1]);
-        append_redirect_node(node, redirect_node);
-        return 2;// トークンを２つ(tokens[0],[1])使用した
-    } else if (is_word2(tokens[0])) {
-        append_tok(node, tokens[0]);
-        return 1;
-    }
-    return -1;
-}
-
-t_node *parse_cmd(char **tokens)
-{
-    int i, j;
-    t_node  *node = new_node(ND_SIMPLE_CMD);
-    t_cmd *cmd = &node->command;
-
-    i = 0;
-    while (tokens[i] && strncmp(tokens[i], ";", 1) != 0)
-    {
-        if (strncmp(tokens[i], "|", 1) == 0)
-        {
-            cmd->next = new_cmd();
-            cmd = cmd->next;
-            i++;
-        } else {
-            j = append_command_element(cmd, &tokens[i]);
-            if (j < 0) {
-                perror("parse error");
-                free_node(node);
-                return (NULL);
-            }
-            i += j;
-        }
-    }
-    return (node);
-}
-
-int skip_delimiter(char **tokens)
-{
-    int i = 0;
-    while (tokens[i] && strncmp(";", tokens[i], 1) == 0) 
-        i++;// デリミタを飛ばす
-    
-    return i;
-}
-
-void find_delimiter_position(char **tokens, int table[], int table_size)
-{
-    int i, j, k;
-
-    i = 0;
-    j = skip_delimiter(&tokens[0]); // 先頭のデリミタを飛ばす
-    table[i++] = j;
-    while (tokens[j] && i < table_size - 1) {
-        k = skip_delimiter(&tokens[j]);
-        if (k > 0 && tokens[j + k] != NULL)
-            table[i++] = j + k;
-        j = j + k + 1;
-    }
-    table[i] = -1;
- }
-
-t_node  *parse(char **tokens)
+t_node *parse(t_token *tokens)
 {
     t_node head;
     t_node *p;
-    int table[100];
+    t_token *pt_table[100];
     int i;
-    
-    find_delimiter_position(tokens, table, 100);//tableにコマンドの先頭位置が入る（デリミタの次のトークン）
-   
-    i = 0;
+
+    split_command_line(tokens, pt_table, 100);
+
+    head.next = NULL;
     p = &head;
-    while (table[i] >= 0)
+    i = 0;
+    while(pt_table[i])
     {
-        p->next = parse_cmd(&tokens[table[i]]);
-        if (p->next == NULL) {
+        p->next = parse_cmd(pt_table[i]);
+        if (p->next == NULL)
+        {
             free_node(head.next);
             return NULL;
         }
         p = p->next;
         i++;
     }
-    
+
     return head.next;
 }
