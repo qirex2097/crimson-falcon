@@ -14,10 +14,19 @@
 
 void print_tokens(t_token *p)
 {
+	int i;
 	while (p)
 	{
-		if (is_word(p))
-			printf("w:>%s<\n", p->token);
+		if (is_word(p)) {
+			write(STDERR_FILENO, "w:>", 3);
+			i = 0;
+			while (p->token[i])
+			{
+				write(STDERR_FILENO, &p->token[i], 1);
+				i++;
+			}
+			write(STDERR_FILENO, "<\n", 2);
+		}
 		else if (is_operator(p))
 			printf("o:%s\n", p->token);
 		p = p->next;

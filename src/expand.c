@@ -1,29 +1,44 @@
 #include "minishell.h"
 
+void remove_quotes(char *line)
+{
+    int i, j;
+    bool in_single_quotes;
+    bool in_double_quotes;
+
+    i = j = 0;
+    in_single_quotes = false;
+    in_double_quotes = false;
+    while(line[i])
+    {
+        if (line[i] == '\'' && !in_double_quotes)
+        {
+            in_single_quotes = !in_single_quotes;
+        }
+        else if (line[i] == '"' && !in_single_quotes)
+        {
+            in_double_quotes = !in_double_quotes;
+        }
+        else if ((!in_single_quotes && !in_double_quotes) ||
+                 (in_single_quotes && line[i] != '\'') ||
+                 (in_double_quotes && line[i] != '"'))
+        {
+            line[j++] = line[i];
+        }
+        i++;
+    }
+    line[j] = '\0';
+}
+
 void expand(t_token *tokens)
 {
-    t_token *q;
+    t_token *pt;
 
-    q = tokens;
-    while (q)
+    pt = tokens;
+    while (pt)
     {
-        char *p = q->token;
-        char *buff;
-        if(*p == '\'')
-        {
-            buff = ft_strtrim(p, "'");
-        }
-        else if (*p == '"')
-        {
-            buff = ft_strtrim(p, "\"");
-        }
-        else
-        {
-            buff = strdup(p);
-        }
-        free(q->token);
-        q->token = buff;
-        q = q->next;
+        remove_quotes(pt->token);
+        pt = pt->next;
     }
 }
 
