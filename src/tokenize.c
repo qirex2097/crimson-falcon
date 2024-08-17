@@ -51,7 +51,7 @@ char    *skip_blank(char *line)
     return current;
 }
 
-static char *skip_quate(char *p, char quote)
+char *skip_quate(char *p, char quote)
 {
     if(*p != quote)
         return(p);
@@ -60,6 +60,11 @@ static char *skip_quate(char *p, char quote)
         p++;
     if(*p == quote)
         p++;
+    else
+    {
+        perror("unclosed quate");
+        return(NULL);
+    }
     return(p);
 }
 
@@ -76,7 +81,7 @@ char *skip_token(char *line)
     {
         if (is_command_line_operator(p))
             return skip_command_line_operator(p);
-        while(!is_command_line_operator(p) && *p)
+        while(p && !is_command_line_operator(p) && *p)
         {
             if(*p == '\\' && *(p + 1) != '\0')
                 p = p + 2;
@@ -153,24 +158,31 @@ void free_tokens(t_token *tokens)
 t_token *tokenizer(char *line)
 {
     char    *start;
+    char    *curr;
     t_token head;
     t_token *p;
 
     head.next = NULL;
     p = &head;
-    while (*line)
+    curr = line;
+    while (*curr)
     {
-        line = skip_blank(line);
-        if (*line == '\0')
+        curr = skip_blank(curr);
+        if (*curr == '\0')
             break;
 
-        start = line;
-        line = skip_token(line);
-        p->next = append_token(start, line); //tokenをcopyして格納する
+        start = curr;
+        curr = skip_token(curr);
+        if (curr == NULL)//',"を閉じていない場合
+        {
+            free_tokens(head.next);
+            return(NULL);
+        }
+        p->next = append_token(start, curr); //tokenをcopyして格納する
         p = p->next;
     }
 
-    return head.next;
+    return(head.next);
 }
 
 bool is_word(t_token *token)
