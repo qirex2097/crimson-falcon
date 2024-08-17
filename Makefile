@@ -32,6 +32,7 @@ SRCS     = src/main.c\
 			src/redirect.c \
 			src/builtin.c \
 			src/signal.c\
+			src/exec.c \
 			src/libft.c
 
 
