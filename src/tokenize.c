@@ -156,6 +156,7 @@ t_token *tokenizer(char *line)
     t_token head;
     t_token *p;
 
+    head.next = NULL;
     p = &head;
     while (*line)
     {
