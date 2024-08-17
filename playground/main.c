@@ -10,33 +10,17 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include <stdio.h>
 
-void
-print_argv(char **argv)
-{
-	int i;
-	i = 0;
-	while (argv[i])
-	{
-		printf("%s\n", argv[i]);
-		i++;
-	}
-}
 
 int main(int argc, char **argv)
 {
-	char *line = "ls -l >ttt.txt | grep c";
-	char **tokens;
-	t_node *node;
 	int i;
-	
-	tokens = tokenizer(line);
-	print_argv(tokens);
-	node = parse(tokens);
-	while (node) {
-		print_argv(node->args);
-		node = node->next;
+	i = 0;
+	while (i < argc)
+	{
+		printf("%s\n", argv[i]);
+		i++;
 	}
 	return 0;
 }

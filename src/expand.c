@@ -1,11 +1,13 @@
 #include "minishell.h"
 
-void expand(char **buffs) 
+void expand(t_token *tokens)
 {
-    int i = 0;
-    while (buffs[i] != NULL)
+    t_token *q;
+
+    q = tokens;
+    while (q)
     {
-        char *p = buffs[i];
+        char *p = q->token;
         char *buff;
         if(*p == '\'')
         {
@@ -19,9 +21,9 @@ void expand(char **buffs)
         {
             buff = strdup(p);
         }
-        free(buffs[i]);
-        buffs[i] = buff;
-        i++;
+        free(q->token);
+        q->token = buff;
+        q = q->next;
     }
 }
 

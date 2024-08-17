@@ -12,14 +12,73 @@
 
 #include "minishell.h"
 
+void print_tokens(t_token *p)
+{
+	while (p)
+	{
+		if (is_word(p))
+			printf("w:>%s<\n", p->token);
+		else if (is_operator(p))
+			printf("o:%s\n", p->token);
+		p = p->next;
+	}
+}
+
+void print_cmd(t_cmd *cmd)
+{
+	int i, j;
+	t_redirect *redir;
+	i = 0;
+	while(cmd)
+	{
+		printf("print_cmd:i=%d\n", i);
+		j = 0;
+		while (cmd->args[j])
+		{
+			printf("%s", cmd->args[j]);
+			if (cmd->args[j+1]) printf(",");
+			j++;
+		}
+		printf("\n");
+		redir = cmd->redirects;
+		while (redir)
+		{
+			if (redir->kind == ND_REDIR_OUT) {
+				printf(">%s\n", redir->filename);
+			} else if (redir->kind == ND_REDIR_IN) {
+				printf("<%s\n", redir->filename);
+			} else if (redir->kind == ND_REDIR_APPEND) {
+				printf(">>%s\n", redir->filename);
+			} else if (redir->kind == ND_REDIR_HEREDOC) {
+				printf("<<%s\n", redir->filename);
+			}
+			redir = redir->next;
+		}
+		i++;
+		cmd = cmd->next;
+	}
+}
+
+void print_node(t_node *node)
+{
+	int i = 0;
+	while(node)
+	{
+		printf("----- print_noode:i=%d\n", i);
+		print_cmd(&node->command);
+		node = node->next;
+		i++;
+	}
+}
+
 int interpret(char *line)
 {
-	char **tokens;
+	t_token *tokens;
 	int status;
 	t_node	*node;
 	
 	tokens = tokenizer(line);//トークンに分割
-	if (tokens[0] == NULL) 
+	if (tokens == NULL) 
 	{
 		return(0);
 	}
@@ -27,7 +86,7 @@ int interpret(char *line)
 	expand(tokens);
 	node = parse(tokens);
 	status = exec(node);
-	free_argv(tokens);
+	free_tokens(tokens);
 	if (node)
 		free_node(node);
 

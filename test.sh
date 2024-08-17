@@ -84,6 +84,7 @@ assert 'nosuchfile\n\n'
 assert "./print_args 'hello   world' '42Tokyo'"
 assert "echo 'hello   world' '42Tokyo'"
 assert "echo '\"hello   world\"' '42Tokyo'"
+assert "echo \'world"
 
 ## double quote
 assert './print_args "hello   world" "42Tokyo"'

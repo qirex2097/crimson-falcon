@@ -14,32 +14,47 @@
 
 #define ERROR_PREFIX "minshell: "
 
-static void perror_prefix(void)
+size_t ft_strlen(const char *s) { return strlen(s); }//後で差し替え
+
+void print_to_stderr(const char **args)
 {
-	dprintf(STDERR_FILENO, "%s", ERROR_PREFIX);
+	int i;
+	i = 0;
+	while(args[i])
+	{
+		write(STDERR_FILENO, args[i], ft_strlen(args[i]));
+		i++;
+	}
 }
 
 void	fatal_error(const char *msg)
 {
-	dprintf(STDERR_FILENO, "Fatal Error: %s\n", msg);
+	const char *args[] = {"Fatal Error: ", "", "\n", NULL};
+	args[1] = msg;
+	print_to_stderr(args);
 	exit(1);
 }
 
 void	assert_error(const char *msg)
 {
-	dprintf(STDERR_FILENO, "Assert Error: %s\n", msg);
+	const char *args[] = {"Assert Error: ", "", "\n", NULL};
+	args[1] = msg;
+	print_to_stderr(args);
 	exit(255);
 }
 
 void err_exit(const char *location, const char *msg, int status)
 {
-	perror_prefix();
-	dprintf(STDERR_FILENO, "%s: %s\n", location, msg);
+	const char *args[] = {ERROR_PREFIX, "", ": ", "", "\n", NULL};
+	args[1] = location;
+	args[3] = msg;
+	print_to_stderr(args);
 	exit(status);
 }
 
-void xperror(const char *location)
+void xperror(const char *msg)
 {
-	perror_prefix();
-	perror(location);
+	const char *args[] = {ERROR_PREFIX, "", "\n", NULL};
+	args[1] = msg;
+	print_to_stderr(args);
 }
