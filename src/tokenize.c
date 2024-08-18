@@ -71,7 +71,6 @@ char *skip_quate(char *p, char quote)
 char *skip_token(char *line)
 {
     char *p;
-    bool is_escaped;//前の文字がバックスラッシュか
 
     p = line;
     if(*p == '\'' || *p == '"')
@@ -85,20 +84,18 @@ char *skip_token(char *line)
         while(p && !is_command_line_operator(p) && *p)
         {
             if(*p == '\\') {
-                is_escaped = true;
                 if(*p == '\\' && *(p + 1) == '\0') {//バックスラッシュで終了した場合はエラー
                     xperror("unexpected EOF while looking for matching `\\'");
                     return(NULL);
                 }
-                p++;
+                p += 2;
             }
             else
             {
-                if(!is_escaped && (*p == '\'' || *p == '"'))
+                if(*p == '\'' || *p == '"')
                     p = skip_quate(p, *p);
                 else
                     p++;
-                is_escaped = false;
             }
         }
     }
