@@ -83,15 +83,20 @@ char *skip_token(char *line)
             return skip_command_line_operator(p);
         while(p && !is_command_line_operator(p) && *p)
         {
-            if(*p == '\\' && *(p + 1) == '\0') {//バックスラッシュで終了した場合はエラー
-                xperror("unexpected EOF while looking for matching '\\'");
-                return(NULL);
-            } else if(*p == '\\' && *(p + 1) != '\0')
-                p = p + 2;
-            else if(*p == '\'' || *p == '"')
-                p = skip_quate(p, *p);
+            if(*p == '\\') {
+                if(*p == '\\' && *(p + 1) == '\0') {//バックスラッシュで終了した場合はエラー
+                    xperror("unexpected EOF while looking for matching `\\'");
+                    return(NULL);
+                }
+                p += 2;
+            }
             else
-                p++;
+            {
+                if(*p == '\'' || *p == '"')
+                    p = skip_quate(p, *p);
+                else
+                    p++;
+            }
         }
     }
     return(p);
