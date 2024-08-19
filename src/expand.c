@@ -33,15 +33,56 @@ int get_env_variable_name_end(char *line)
     return(i);
 }
 
-char *remove_quotes(char *line)
+int set_env_var_value(char *new_line, char *line, int length)
+{
+    char env_var_name[LINE_MAX];
+    char *env_var_value;
+
+    strncpy(env_var_name, line, length - 1);
+    env_var_name[length - 1] = '\0';
+    env_var_value = getenv(env_var_name);
+    if (env_var_value != NULL)
+    {
+        strncpy(new_line, env_var_value, strlen(env_var_value));
+        return strlen(env_var_value);
+    }
+    return(0);
+}
+
+void replace_env_variable(char *new_line, char *line, int *pi, int *pj, int status)
+{
+    int end;
+    char *num_str;
+
+    if (line[1] == '?')
+    {
+        num_str = ft_itoa(status);
+        strncpy(&new_line[*pj], num_str, strlen(num_str));//ステータスをitoaしてからコピーする
+        *pj += strlen(num_str);
+        (*pi)++;
+        free(num_str);
+    }
+    else
+    {
+        end = get_env_variable_name_end(&line[*pi]);//環境変数名の最後の位置
+        if (end > 0)
+        {
+            *pj += set_env_var_value(&new_line[*pj], &line[*pi + 1], end);
+            *pi = *pi + end - 1;
+        }
+        else
+        {
+            new_line[(*pj)++] = line[*pi];
+        }
+    }
+}
+
+char *remove_quotes(char *line, int status)
 {
     char *new_line;
     int i, j;
     bool in_single_quotes;
     bool in_double_quotes;
-    int end;
-    char *env_var_name;
-    char *env_var_value;
 
     new_line = (char*)malloc(LINE_MAX * sizeof(char));
 
@@ -64,36 +105,11 @@ char *remove_quotes(char *line)
         }
         else if ((!in_single_quotes && !in_double_quotes) && line[i] == '\\')//バックスラッシュの処理
         {
-            i++;
-            new_line[j++] = line[i];
-        }
-        else if (line[i] == '$' && line[i + 1] == '?')//環境変数の処理
-        {
-            strncpy(&new_line[j], "100", 3);//ステータスをitoaしてからコピーする
-            j += 3;
-            i++;
+            new_line[j++] = line[++i]; //バックスラッシュの後の文字を入れる
         }
         else if (line[i] == '$')//環境変数の処理
         {
-            end = get_env_variable_name_end(&line[i]);//環境変数名の最後の位置
-            if (end > 0)
-            {
-                env_var_name = (char *)malloc((end + 1) * sizeof(char));
-                strncpy(env_var_name, &line[i+1], end - 1);
-                env_var_name[end] = '\0';
-                env_var_value = getenv(env_var_name);
-                if (env_var_value != NULL)
-                {
-                    strncpy(&new_line[j], env_var_value, strlen(env_var_value));
-                    j += strlen(env_var_value);
-                }
-                free(env_var_name);
-                i = i + end - 1;
-            }
-            else
-            {
-                new_line[j++] = line[i];
-            }
+            replace_env_variable(new_line, line, &i, &j, status);
         }
         else if ((!in_single_quotes && !in_double_quotes) ||
                  (in_double_quotes && line[i] != '"'))
@@ -103,11 +119,11 @@ char *remove_quotes(char *line)
         i++;
     }
     new_line[j] = '\0';
-    
+
     return(new_line);
 }
 
-void expand(t_token *tokens)
+void expand(t_token *tokens, int status)
 {
     t_token *pt;
     char *new_token;
@@ -115,15 +131,14 @@ void expand(t_token *tokens)
     pt = tokens;
     while (pt)
     {
-        if (strchr(pt->token, '\'') != NULL || 
-            strchr(pt->token, '"') != NULL || 
-            strchr(pt->token, '\\') != NULL || 
+        if (strchr(pt->token, '\'') != NULL ||
+            strchr(pt->token, '"') != NULL ||
+            strchr(pt->token, '\\') != NULL ||
             strchr(pt->token, '$')) {
-            new_token = remove_quotes(pt->token);
+            new_token = remove_quotes(pt->token, status);
             free(pt->token);
             pt->token = new_token;
         }
         pt = pt->next;
     }
 }
-

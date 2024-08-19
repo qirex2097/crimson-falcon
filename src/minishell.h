@@ -82,10 +82,9 @@ struct s_token {
 /*libft.c*/
 //後でlibft導入するので削除
 char	*ft_strtrim(char const *s1, char const *set);
+char *ft_itoa(int i);
 
 /*main.c*/
-char	*search_path(const char *filename);
-int		interpret(char *line);
 
 /*error.c*/
 void	fatal_error(const char *msg);
@@ -106,7 +105,7 @@ bool is_delimiter(t_token *token);
 bool is_pipe(t_token *token);
 
 /* expand.c */
-void	expand(t_token *tokens);
+void	expand(t_token *tokens, int prev_status);
 
 /*parse.c*/
 t_node  *parse(t_token *tokens);
@@ -123,6 +122,7 @@ void setup_signal(void);
 void reset_signal(void);
 
 /* exec.c */
+char	*search_path(const char *filename);
 int exec(t_node *node);
 
 

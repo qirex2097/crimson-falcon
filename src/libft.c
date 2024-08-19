@@ -37,3 +37,26 @@ char	*ft_strtrim(char const *s1, char const *set)
 	result[i] = '\0';
 	return ((char *)result);
 }
+
+char *ft_itoa(int num)//i=0-255の範囲でよい
+{
+    int i;
+    char *buff;
+
+    buff = (char*)malloc(20);
+    if (buff == NULL)
+        return(NULL);
+    i = 0;
+    if (num / 100 > 0) {
+        buff[i] = '0' + (num % 1000) / 100;
+        i++;
+    }
+    if (num / 10 > 0) {
+        buff[i] = '0' + (num % 100) /10;
+        i++;
+    }
+    buff[i] = '0' + (num % 10);
+    i++;
+    buff[i] = '\0';
+    return(buff);
+}

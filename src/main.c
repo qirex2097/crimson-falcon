@@ -12,6 +12,9 @@
 
 #include "minishell.h"
 
+#define PROMPT  "minishell$ "
+
+//----- ここからデバッグ用
 void print_tokens(t_token *p)
 {
 	int i;
@@ -79,22 +82,23 @@ void print_node(t_node *node)
 		i++;
 	}
 }
+//----- ここまでデバッグ用
 
-int interpret(char *line)
+int interpret(char *line, int prev_status)
 {
 	t_token *tokens;
 	int status;
 	t_node	*node;
-	
+
 	tokens = tokenizer(line);//トークンに分割
 	// printf("%s$\n", line);
 	// print_tokens(tokens);
-	if (tokens == NULL) 
+	if (tokens == NULL)
 	{
 		return(0);
 	}
 	add_history(line);//トークンがなければ履歴に登録しない
-	expand(tokens);
+	expand(tokens, prev_status);
 	node = parse(tokens);
 	status = exec(node);
 	free_tokens(tokens);
@@ -113,12 +117,12 @@ int	main()
 	setup_signal();
 	while(1)
 	{
-		line = readline("m42$ ");
-		if(!line)		
-			break; 
-		if(*line) 
+		line = readline(PROMPT);
+		if(!line)
+			break;
+		if(*line)
 		{
-			status = interpret(line);
+			status = interpret(line, status);
 		}
 		free(line);
 	}
