@@ -87,6 +87,8 @@ int interpret(char *line)
 	t_node	*node;
 	
 	tokens = tokenizer(line);//トークンに分割
+	// printf("%s$\n", line);
+	// print_tokens(tokens);
 	if (tokens == NULL) 
 	{
 		return(0);

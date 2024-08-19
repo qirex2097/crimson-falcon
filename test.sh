@@ -133,4 +133,10 @@ assert 'echo -n hello world'
 assert 'echo hello -n'
 assert 'echo HELLO | wc'
 
+## enviroment variable
+assert 'echo $HOME'
+assert 'echo "$HOME"'
+assert "echo '\$HOME'"
+assert 'echo "This is $XXX!"'
+
 cleanup

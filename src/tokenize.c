@@ -118,8 +118,6 @@ char    *copy_token(char *start, char *end)
     dest = token;
     while(src < end)
     {
-        if(*src == '\\' && *(src + 1) != '\0')
-            src++;
         *dest++ = *src++;
     }
     *dest = '\0';
