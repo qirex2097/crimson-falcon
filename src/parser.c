@@ -71,6 +71,20 @@ void append_redirect_node(t_cmd *node, t_redirect *child_node)
         p->next = child_node;
     }
 }
+void append_heredoc_node(t_cmd *node, t_redirect *child_node)
+{
+    t_redirect *p;
+
+    if (node->heredoc == NULL)
+    {
+        node->heredoc = child_node;
+    } else {
+        p = node->heredoc;
+        while (p->next)
+            p = p->next;
+        p->next = child_node;
+    }
+}
 t_token *append_redirect_element(t_cmd *node, t_token *tokens)
 {
     t_redirect *redirect_node;
@@ -89,7 +103,8 @@ t_token *append_redirect_element(t_cmd *node, t_token *tokens)
         return tokens->next->next;
     } else if (strcmp("<<", tokens->token) == 0 && is_word(tokens->next)) {
         redirect_node = new_redirect(ND_REDIR_HEREDOC, tokens->next->token);
-        append_redirect_node(node, redirect_node);
+        // append_redirect_node(node, redirect_node);
+        append_heredoc_node(node, redirect_node);
         return tokens->next->next;
     }
     
