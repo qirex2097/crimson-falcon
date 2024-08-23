@@ -3,11 +3,12 @@
 static int builtin_dummy(char **argv);
 static int builtin_cd(char **argv);
 static int builtin_echo(char **argv);
+static int builtin_env(char **argv);
 
 
 // 下の２つにコマンド名と呼び出す関数を登録する
-#define BUILTIN_LIST {"", "cd", "echo", NULL, }
-#define BUILTIN_FUNC {builtin_dummy, builtin_cd, builtin_echo, NULL, }
+#define BUILTIN_LIST {"", "cd", "echo", "env", NULL, }
+#define BUILTIN_FUNC {builtin_dummy, builtin_cd, builtin_echo, builtin_env, NULL, }
 
 int is_builtin(char **argv)
 {
@@ -98,5 +99,19 @@ int builtin_echo(char **argv)
     }
     if(print_newline == true)
         write(1, "\n", 1);
+    return(0);
+}
+
+int builtin_env(char **argv)
+{
+    t_env *env;
+
+    (void)argv;
+    env = g_env_root;
+	while (env)
+	{
+		printf("%s=%s\n", env->key, env->value);
+		env = env->next;
+	}
     return(0);
 }
