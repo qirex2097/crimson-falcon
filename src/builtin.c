@@ -3,11 +3,13 @@
 static int builtin_dummy(char **argv);
 static int builtin_cd(char **argv);
 static int builtin_echo(char **argv);
+static int builtin_env(char **argv);
+static int builtin_pwd(char **argv);
 
 
 // 下の２つにコマンド名と呼び出す関数を登録する
-#define BUILTIN_LIST {"", "cd", "echo", NULL, }
-#define BUILTIN_FUNC {builtin_dummy, builtin_cd, builtin_echo, NULL, }
+#define BUILTIN_LIST {"", "cd", "echo", "env", "pwd", NULL, }
+#define BUILTIN_FUNC {builtin_dummy, builtin_cd, builtin_echo, builtin_env, builtin_pwd, NULL, }
 
 int is_builtin(char **argv)
 {
@@ -46,16 +48,23 @@ int builtin_dummy(char **argv)
 
 int builtin_cd(char **argv)
 {
+    char buff[PATH_MAX];
+    
     if (argv[1] == NULL)
     {
-        chdir(getenv("HOME"));
+        chdir(ms_getenv("HOME"));
     }
     else
     {
         if (chdir(argv[1]) == -1)
         {
-            perror("cd");
+            perror("minishell: cd");
         }
+        if (getcwd(buff, PATH_MAX) == 0)
+        {
+            perror("minishell: cd");
+        }
+        ms_setenv("PWD", buff, 1);
     }
     return(0);
 }
@@ -98,5 +107,33 @@ int builtin_echo(char **argv)
     }
     if(print_newline == true)
         write(1, "\n", 1);
+    return(0);
+}
+
+int builtin_env(char **argv)
+{
+    t_env *env;
+
+    (void)argv;
+    env = g_env_root;
+	while (env)
+	{
+		printf("%s=%s\n", env->key, env->value);
+		env = env->next;
+	}
+    return(0);
+}
+
+int builtin_pwd(char **argv)
+{
+    char buff[PATH_MAX];
+    (void)argv;
+    
+    if (getcwd(buff, PATH_MAX) == NULL)
+    {
+        perror("minishell: pwd");
+        return(-1);
+    }
+    printf("%s\n", buff);
     return(0);
 }

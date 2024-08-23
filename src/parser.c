@@ -131,9 +131,9 @@ t_node *parse_cmd(t_token *tokens)
     t_cmd *cmd;
     
     pt = tokens;
-    if (!is_word(pt))
+    if (is_pipe(pt))
     {
-        perror("parse error");
+        xperror("syntax error near unexpected token `|'");
         return NULL;
     }
     

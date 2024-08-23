@@ -33,6 +33,7 @@ SRCS     = src/main.c\
 			src/builtin.c \
 			src/signal.c\
 			src/exec.c \
+			src/environ.c\
 			src/libft.c
 
 

@@ -82,6 +82,17 @@ void print_node(t_node *node)
 		i++;
 	}
 }
+
+void print_env(t_env *env)
+{
+	int i = 0;
+	while (env)
+	{
+		printf("%d:%s=%s\n", i, env->key, env->value);
+		env = env->next;
+		i++;
+	}
+}
 //----- ここまでデバッグ用
 
 int interpret(char *line, int prev_status)
@@ -91,8 +102,6 @@ int interpret(char *line, int prev_status)
 	t_node	*node;
 
 	tokens = tokenizer(line);//トークンに分割
-	// printf("%s$\n", line);
-	// print_tokens(tokens);
 	if (tokens == NULL)
 	{
 		return(0);
@@ -108,6 +117,10 @@ int interpret(char *line, int prev_status)
     return(status);
 }
 
+// グローバル変数
+t_env *g_env_root = NULL;
+bool readline_interrupted = false;
+
 int	main()
 {
 	char	*line;
@@ -115,6 +128,9 @@ int	main()
 
 	rl_outstream = stderr;
 	setup_signal();
+	g_env_root = initialize_env();
+	if (g_env_root == NULL)
+		exit(1);
 	while(1)
 	{
 		line = readline(PROMPT);
@@ -126,5 +142,6 @@ int	main()
 		}
 		free(line);
 	}
+	cleanup_env(g_env_root);
 	exit(status);
 }

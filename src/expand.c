@@ -36,11 +36,11 @@ int get_env_variable_name_end(char *line)
 int set_env_var_value(char *new_line, char *line, int length)
 {
     char env_var_name[LINE_MAX];
-    char *env_var_value;
+    const char *env_var_value;
 
     strncpy(env_var_name, line, length - 1);
     env_var_name[length - 1] = '\0';
-    env_var_value = getenv(env_var_name);
+    env_var_value = ms_getenv(env_var_name);
     if (env_var_value != NULL)
     {
         strncpy(new_line, env_var_value, strlen(env_var_value));

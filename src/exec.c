@@ -108,6 +108,11 @@ int exec_cmd(t_cmd *cmd, int prev_fd, int *pfd)
 {
 	int wstatus;
     pid_t pid;
+	
+	if (cmd->args[0] == NULL)
+	{
+		return 0;
+	}
 
     if (is_builtin(cmd->args))
     {

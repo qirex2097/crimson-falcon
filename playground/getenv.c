@@ -3,8 +3,13 @@
 
 int main(int argc, char **argv)
 {
-    char *value;
-    value = getenv("PATH");
-    printf("%s=%s\n", "PATH", value);
+    extern char **environ;
+    int i;
+    i = 0;
+    while (environ[i])
+    {
+        printf("%s\n", environ[i]);
+        i++;
+    }
     return 0;
 }
