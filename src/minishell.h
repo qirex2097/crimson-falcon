@@ -55,6 +55,7 @@ struct s_cmd
 	// CMD
 	char	**args;
 	t_redirect  *redirects;
+	t_redirect  *heredoc;
 	// PIPE
 	t_cmd *next;
 };
@@ -111,7 +112,7 @@ void	expand(t_token *tokens, int prev_status);
 t_node  *parse(t_token *tokens);
 
 /*redirect.c*/
-int open_redir_file(t_redirect *redir);
+int open_redir_file(t_redirect *redir, t_redirect *heredoc);
 
 /*builtin.c*/
 int is_builtin(char **argv);
