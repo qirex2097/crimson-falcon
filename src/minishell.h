@@ -139,6 +139,7 @@ t_env *initialize_env();
 void cleanup_env(t_env *env_root);
 char **create_env_array(t_env *env_root);
 const char *ms_getenv(const char *key);
+int ms_setenv(const char *key, const char *value, int overwrite);
 
 
 #endif

@@ -32,8 +32,8 @@ t_env *initialize_env()
     extern char **environ;
     int i;
     char *equals;
-    char *key;
-    char *value;
+    char key[1024];
+    char value[1024];
 
     i = 0;
     head.next = NULL;
@@ -42,8 +42,9 @@ t_env *initialize_env()
         equals = strchr(environ[i], '=');
         if (equals)
         {
-            key = ft_strndup(environ[i], equals - environ[i]);
-            value = ft_strndup(equals + 1, strlen(equals + 1));
+            strncpy(key, environ[i], equals - environ[i]);
+            key[equals - environ[i]] = '\0';
+            strncpy(value, equals + 1, strlen(equals + 1) + 1);
             new_env = new_env_var(key, value);
             new_env->next = head.next;
             head.next = new_env;
@@ -111,4 +112,34 @@ const char *ms_getenv(const char *key)
         env = env->next;
     }
     return(NULL);
+}
+
+int ms_setenv(const char *key, const char *value, int overwrite)
+{
+    t_env *env;
+    t_env *new_env;
+    
+    env = g_env_root;
+    while(env)
+    {
+        env = env->next;
+        if (strcmp(env->key, key) == 0)
+        {
+            if (overwrite != 0)
+            {
+                free(env->value);
+                env->value = strdup(value);
+            }
+            return(0);
+        }
+    }
+    new_env = new_env_var(key, value);
+    if (new_env == NULL)
+    {
+        fatal_error("malloc");
+        return(-1);
+    }
+    new_env->next = g_env_root;
+    g_env_root = new_env;
+    return(0);
 }
