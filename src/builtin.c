@@ -5,11 +5,12 @@ static int builtin_cd(char **argv);
 static int builtin_echo(char **argv);
 static int builtin_env(char **argv);
 static int builtin_pwd(char **argv);
+static int builtin_export(char **argv);
 
 
 // 下の２つにコマンド名と呼び出す関数を登録する
-#define BUILTIN_LIST {"", "cd", "echo", "env", "pwd", NULL, }
-#define BUILTIN_FUNC {builtin_dummy, builtin_cd, builtin_echo, builtin_env, builtin_pwd, NULL, }
+#define BUILTIN_LIST {"", "cd", "echo", "env", "pwd", "export", NULL, }
+#define BUILTIN_FUNC {builtin_dummy, builtin_cd, builtin_echo, builtin_env, builtin_pwd, builtin_export, NULL, }
 
 int is_builtin(char **argv)
 {
@@ -135,5 +136,11 @@ int builtin_pwd(char **argv)
         return(-1);
     }
     printf("%s\n", buff);
+    return(0);
+}
+
+int builtin_export(char **argv)
+{
+    (void)argv;
     return(0);
 }
