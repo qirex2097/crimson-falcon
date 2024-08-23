@@ -1,7 +1,5 @@
 #include "minishell.h"
 
-bool readline_interrupted = false;
-
 void heredoc_loop(const char *delimiter, int fd)
 {
     char *line;

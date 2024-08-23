@@ -24,7 +24,6 @@
 # include <readline/history.h>
 # include <readline/readline.h>
 
-extern bool readline_interrupted;
 
 typedef enum e_node_kind
 {
@@ -80,12 +79,21 @@ struct s_token {
 	t_token *next;
 };
 
+typedef struct s_env t_env;
+struct s_env {
+	char *key;
+	char *value;
+	t_env *next;
+};
+
 /*libft.c*/
 //後でlibft導入するので削除
 char	*ft_strtrim(char const *s1, char const *set);
 char *ft_itoa(int i);
 
 /*main.c*/
+extern bool readline_interrupted;
+extern t_env *g_env_root;
 
 /*error.c*/
 void	fatal_error(const char *msg);
@@ -125,6 +133,12 @@ void reset_signal(void);
 /* exec.c */
 char	*search_path(const char *filename);
 int exec(t_node *node);
+
+/* environ.c */
+t_env *initialize_env();
+void cleanup_env(t_env *env_root);
+char **create_env_array(t_env *env_root);
+const char *ms_getenv(const char *key);
 
 
 #endif
