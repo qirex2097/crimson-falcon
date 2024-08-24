@@ -11,8 +11,10 @@
 /* ************************************************************************** */
 
 #include "minishell.h"
+# include <readline/history.h>
+# include <readline/readline.h>
 
-#define PROMPT  "minishell$ "
+#define PROMPT  SHELL "$ "
 
 //----- ここからデバッグ用
 void print_tokens(t_token *p)

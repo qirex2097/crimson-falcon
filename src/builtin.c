@@ -22,7 +22,7 @@ int is_builtin(char **argv)
 
     i = 1;
     while (builtin_list[i]) {
-        if (strcmp(builtin_list[i], command) == 0) {
+        if (ft_strcmp(builtin_list[i], command) == 0) {
             return i;
         }
         i++;
@@ -93,7 +93,7 @@ bool    check_n_option(const char *argv)
 {
     size_t i;
 
-    if(strncmp(argv, "-n", 2) != 0)
+    if(ft_strncmp(argv, "-n", 2) != 0)
         return (false);
     
     i = 2;
@@ -119,7 +119,7 @@ int builtin_echo(char **argv)
 
     while(argv[i])
     {
-        write(STDOUT_FILENO, argv[i], strlen(argv[i]));
+        write(STDOUT_FILENO, argv[i], ft_strlen(argv[i]));
         if(argv[i + 1])
             write(STDOUT_FILENO, " ", 1);
         i++;
@@ -153,7 +153,8 @@ int builtin_pwd(char **argv)
         perror("minishell: pwd");
         return(-1);
     }
-    printf("%s\n", buff);
+    write(STDOUT_FILENO, buff, ft_strlen(buff));
+    write(STDOUT_FILENO, "\n", 1);
     return(0);
 }
 
@@ -174,14 +175,15 @@ int builtin_export(char **argv)
         i = 1;
         while (argv[i])
         {
-            equals = strchr(argv[i], '=');
+            equals = ft_strchr(argv[i], '=');
             if (equals != NULL)
             {
-                strncpy(key, argv[i], equals - argv[i]);
+                ft_strncpy(key, argv[i], equals - argv[i]);
                 key[equals - argv[i]] = '\0';
-                strncpy(value, equals + 1, strlen(equals + 1) + 1);
+                ft_strncpy(value, equals + 1, ft_strlen(equals + 1) + 1);
                 if (!is_valid_env_name(key))
                 {
+                    ms_perror3(argv[0], argv[i], "not a valid identifier");
                     return(1);
                 }
                 ms_setenv(key, value, 1);
@@ -208,7 +210,7 @@ int builtin_unset(char **argv)
         i = 1;
         while (argv[i])
         {
-            equals = strchr(argv[i], '=');
+            equals = ft_strchr(argv[i], '=');
             if (equals) //'='を含む
             {
                 ms_perror("unset: `=': not a valid identifier");

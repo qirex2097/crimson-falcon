@@ -18,13 +18,11 @@
 # include <limits.h>
 # include <unistd.h>
 # include <stdbool.h>
-# include <string.h>
 # include <sys/wait.h>
 # include <sys/stat.h>
 # include <fcntl.h>
-# include <readline/history.h>
-# include <readline/readline.h>
 
+# define SHELL "minishell"
 
 typedef enum e_node_kind
 {
@@ -87,11 +85,6 @@ struct s_env {
 	t_env *next;
 };
 
-/*libft.c*/
-//後でlibft導入するので削除
-char	*ft_strtrim(char const *s1, char const *set);
-char *ft_itoa(int i);
-
 /*main.c*/
 extern bool readline_interrupted;
 extern t_env g_env_root;
@@ -101,6 +94,8 @@ void	fatal_error(const char *msg);
 void	assert_error(const char *msg);
 void	err_exit(const char *location, const char *msg, int status);
 void	ms_perror(const char *location);
+void	ms_perror2(const char *msg, const char *msg2);
+void	ms_perror3(const char *msg, const char *msg2, const char *msg3);
 
 /*free.c*/
 void free_node(t_node *node);
@@ -143,6 +138,18 @@ const char *ms_getenv(const char *key);
 int ms_setenv(const char *key, const char *value, int overwrite);
 int ms_unsetenv(const char *key);
 bool is_valid_env_name(const char *key);
+
+/*libft.c*/
+//後でlibft導入するので削除
+char	*ft_strtrim(char const *s1, char const *set);
+char *ft_itoa(int i);
+size_t ft_strlen(const char *str);
+char *ft_strncpy(char *dst, const char *src, size_t len);
+int ft_strcmp(const char *s1, const char *s2);
+int ft_strncmp(const char *s1, const char *s2, size_t n);
+char *ft_strchr(const char *s, int c);
+char *ft_strdup(const char *s1);
+char *ft_strncat(char *s1, const char *s2, size_t n);
 
 
 #endif

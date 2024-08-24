@@ -1,5 +1,16 @@
 #include "minishell.h"
 
+void ft_bzero(char *s, size_t n)
+{
+	size_t i;
+	i = 0;
+	while (i < n)
+	{
+		s[i] = '\0';
+		i++;
+	}
+}
+
 //TODO search_pathを書き換える！
 char	*search_path(const char *filename)
 {
@@ -14,23 +25,23 @@ char	*search_path(const char *filename)
 		// /bin:/usr/bin
 		//     ^
 		//     end
-		bzero(path, PATH_MAX);
-		end = strchr(value, ':');
+		ft_bzero(path, PATH_MAX);
+		end = ft_strchr(value, ':');
 		if (end) {
-			strncpy(path, value, end - value);
+			ft_strncpy(path, value, end - value);
 		} else {
-			strncpy(path, value, PATH_MAX - 1);
+			ft_strncpy(path, value, PATH_MAX - 1);
 			path[PATH_MAX - 1] = '\0';
 		}
-		strncat(path, "/", PATH_MAX - 1);
+		ft_strncat(path, "/", PATH_MAX - 1);
 		path[PATH_MAX - 1] = '\0';
-		strncat(path, filename, PATH_MAX - 1);
+		ft_strncat(path, filename, PATH_MAX - 1);
 		path[PATH_MAX - 1] = '\0';
 		if (access(path, X_OK) == 0)
 		{
 			char	*dup;
 
-			dup = strdup(path);
+			dup = ft_strdup(path);
 			if (dup == NULL)
 				fatal_error("strdup");
 			return (dup);
@@ -104,13 +115,13 @@ void exec_child_process(t_cmd *cmd, int prev_fd, int *pfd)
 	if (open_redir_file(cmd->redirects, cmd->heredoc) < 0) {
 		exit(1);//リダイレクトのファイルがオープンできない時は子プロセス終了
 	}
-	if(strchr(argv[0], '/') == NULL)
+	if(ft_strchr(argv[0], '/') == NULL)
 	{
 		path = search_path(argv[0]);
 	}
 	else
 	{
-		path = strdup(argv[0]);
+		path = ft_strdup(argv[0]);
 	}
 	if (is_directory(path))
 		err_exit(argv[0], "is a directory", 126);

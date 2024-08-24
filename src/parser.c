@@ -51,7 +51,7 @@ t_redirect *new_redirect(t_node_kind kind, char* filename)
     if (node == NULL)
         fatal_error("malloc error");
     node->kind = kind;
-    node->filename = strdup(filename);
+    node->filename = ft_strdup(filename);
     node->fd = -1;
     node->next = NULL;
     return (node);
@@ -89,19 +89,19 @@ t_token *append_redirect_element(t_cmd *node, t_token *tokens)
 {
     t_redirect *redirect_node;
     
-    if (strcmp(">", tokens->token) == 0 && is_word(tokens->next)) {
+    if (ft_strcmp(">", tokens->token) == 0 && is_word(tokens->next)) {
         redirect_node = new_redirect(ND_REDIR_OUT, tokens->next->token);
         append_redirect_node(node, redirect_node);
         return tokens->next->next;
-    } else if (strcmp("<", tokens->token) == 0 && is_word(tokens->next)) {
+    } else if (ft_strcmp("<", tokens->token) == 0 && is_word(tokens->next)) {
         redirect_node = new_redirect(ND_REDIR_IN, tokens->next->token);
         append_redirect_node(node, redirect_node);
         return tokens->next->next;
-    } else if (strcmp(">>", tokens->token) == 0 && is_word(tokens->next)) {
+    } else if (ft_strcmp(">>", tokens->token) == 0 && is_word(tokens->next)) {
         redirect_node = new_redirect(ND_REDIR_APPEND, tokens->next->token);
         append_redirect_node(node, redirect_node);
         return tokens->next->next;
-    } else if (strcmp("<<", tokens->token) == 0 && is_word(tokens->next)) {
+    } else if (ft_strcmp("<<", tokens->token) == 0 && is_word(tokens->next)) {
         redirect_node = new_redirect(ND_REDIR_HEREDOC, tokens->next->token);
         // append_redirect_node(node, redirect_node);
         append_heredoc_node(node, redirect_node);
@@ -118,7 +118,7 @@ t_token* append_args_element(t_cmd *node, t_token *token)
     i = 0;
     while (node->args[i] && i < TOKEN_MAX - 1) // node->args のインデックスのチェック
         i++;
-    node->args[i] = strdup(token->token);
+    node->args[i] = ft_strdup(token->token);
     node->args[i + 1] = NULL;
     
     return(token->next);

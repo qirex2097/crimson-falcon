@@ -38,13 +38,13 @@ int set_env_var_value(char *new_line, char *line, int length)
     char env_var_name[LINE_MAX];
     const char *env_var_value;
 
-    strncpy(env_var_name, line, length - 1);
+    ft_strncpy(env_var_name, line, length - 1);
     env_var_name[length - 1] = '\0';
     env_var_value = ms_getenv(env_var_name);
     if (env_var_value != NULL)
     {
-        strncpy(new_line, env_var_value, strlen(env_var_value));
-        return strlen(env_var_value);
+        ft_strncpy(new_line, env_var_value, ft_strlen(env_var_value));
+        return ft_strlen(env_var_value);
     }
     return(0);
 }
@@ -57,8 +57,8 @@ void replace_env_variable(char *new_line, char *line, int *pi, int *pj, int stat
     if (line[1] == '?')
     {
         num_str = ft_itoa(status);
-        strncpy(&new_line[*pj], num_str, strlen(num_str));//ステータスをitoaしてからコピーする
-        *pj += strlen(num_str);
+        ft_strncpy(&new_line[*pj], num_str, ft_strlen(num_str));//ステータスをitoaしてからコピーする
+        *pj += ft_strlen(num_str);
         (*pi)++;
         free(num_str);
     }
@@ -131,10 +131,10 @@ void expand(t_token *tokens, int status)
     pt = tokens;
     while (pt)
     {
-        if (strchr(pt->token, '\'') != NULL ||
-            strchr(pt->token, '"') != NULL ||
-            strchr(pt->token, '\\') != NULL ||
-            strchr(pt->token, '$')) {
+        if (ft_strchr(pt->token, '\'') != NULL ||
+            ft_strchr(pt->token, '"') != NULL ||
+            ft_strchr(pt->token, '\\') != NULL ||
+            ft_strchr(pt->token, '$')) {
             new_token = remove_quotes(pt->token, status);
             free(pt->token);
             pt->token = new_token;

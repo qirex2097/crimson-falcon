@@ -21,7 +21,7 @@ bool is_command_line_operator(char *line)
     
     i = 0;
     while (operators[i]) {
-        if (strncmp(operators[i], line, strlen(operators[i])) == 0) 
+        if (ft_strncmp(operators[i], line, ft_strlen(operators[i])) == 0) 
             return (true);
         i++;
     }
@@ -35,8 +35,8 @@ char *skip_command_line_operator(char *line)
 
     i = 0;
     while (operators[i]) {
-        if (strncmp(operators[i], line, strlen(operators[i])) == 0) 
-            return (line + strlen(operators[i]));
+        if (ft_strncmp(operators[i], line, ft_strlen(operators[i])) == 0) 
+            return (line + ft_strlen(operators[i]));
         i++;
     }
 
@@ -137,7 +137,7 @@ t_token *append_token(char *start, char *end)
     p->token = copy_token(start, end); //トークンの文字列をコピーする
     if (is_command_line_operator(p->token))
     {
-        if (strncmp(p->token, ";", 1) == 0)
+        if (ft_strncmp(p->token, ";", 1) == 0)
             p->kind = TOKEN_DELIMITER;
         else
             p->kind = TOKEN_OPERATOR;
@@ -208,5 +208,5 @@ bool is_delimiter(t_token *token)
 
 bool is_pipe(t_token *token)
 {
-    return(token && token->kind == TOKEN_OPERATOR && strncmp(token->token, "|", 1) == 0);
+    return(token && token->kind == TOKEN_OPERATOR && ft_strncmp(token->token, "|", 1) == 0);
 }
