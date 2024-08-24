@@ -20,6 +20,7 @@
 # include <stdbool.h>
 # include <string.h>
 # include <sys/wait.h>
+# include <sys/stat.h>
 # include <fcntl.h>
 # include <readline/history.h>
 # include <readline/readline.h>
@@ -99,7 +100,7 @@ extern t_env g_env_root;
 void	fatal_error(const char *msg);
 void	assert_error(const char *msg);
 void	err_exit(const char *location, const char *msg, int status);
-void	xperror(const char *location);
+void	ms_perror(const char *location);
 
 /*free.c*/
 void free_node(t_node *node);
@@ -141,6 +142,7 @@ char **create_env_array(t_env *env_root);
 const char *ms_getenv(const char *key);
 int ms_setenv(const char *key, const char *value, int overwrite);
 int ms_unsetenv(const char *key);
+bool is_valid_env_name(const char *key);
 
 
 #endif

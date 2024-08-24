@@ -106,6 +106,19 @@ char **create_env_array(t_env *env_root)
     return env_array;
 }
 
+bool is_valid_env_name(const char *key)
+{
+    if (!key || !(*key) || (!isalpha(*key) && *key != '_'))
+        return false;
+    while (*key)
+    {
+        if (!isalnum(*key) && *key != '_')
+            return false;
+        key++;
+    }
+    return true;
+}
+
 const char *ms_getenv(const char *key)
 {
     t_env *env;

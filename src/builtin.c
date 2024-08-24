@@ -7,11 +7,12 @@ static int builtin_env(char **argv);
 static int builtin_pwd(char **argv);
 static int builtin_export(char **argv);
 static int builtin_unset(char **argv);
+static int builtin_exit(char **argv);
 
 
 // 下の２つにコマンド名と呼び出す関数を登録する
-#define BUILTIN_LIST { "", "cd", "echo", "env", "pwd", "export", "unset", NULL, }
-#define BUILTIN_FUNC { builtin_dummy, builtin_cd, builtin_echo, builtin_env, builtin_pwd, builtin_export, builtin_unset, NULL, }
+#define BUILTIN_LIST { "", "cd", "echo", "env", "pwd", "export", "unset", "exit", NULL, }
+#define BUILTIN_FUNC { builtin_dummy, builtin_cd, builtin_echo, builtin_env, builtin_pwd, builtin_export, builtin_unset, builtin_exit, NULL, }
 
 int is_builtin(char **argv)
 {
@@ -38,7 +39,7 @@ int exec_builtin_command(char **argv)
     
     builtin_no = is_builtin(argv);
     status = builtin_func[builtin_no](argv);
-    
+
     return(status);
 }
 
@@ -52,9 +53,25 @@ int builtin_cd(char **argv)
 {
     char buff[PATH_MAX];
     
+    if (getcwd(buff, PATH_MAX) == 0)
+    {
+        perror("minishell: cd");
+    }
+    else
+    {
+        ms_setenv("OLDPWD", buff, 1);
+    }
     if (argv[1] == NULL)
     {
-        chdir(ms_getenv("HOME"));
+        if (ms_getenv("HOME") == NULL)
+        {
+            ms_perror("cd: HOME not set");
+            return 1 * 256;
+        }
+        if (chdir(ms_getenv("HOME")) == -1)
+        {
+            perror("minishell: cd");
+        }
     }
     else
     {
@@ -62,12 +79,12 @@ int builtin_cd(char **argv)
         {
             perror("minishell: cd");
         }
-        if (getcwd(buff, PATH_MAX) == 0)
-        {
-            perror("minishell: cd");
-        }
-        ms_setenv("PWD", buff, 1);
+   }
+    if (getcwd(buff, PATH_MAX) == 0)
+    {
+        perror("minishell: cd");
     }
+    ms_setenv("PWD", buff, 1);
     return(0);
 }
 
@@ -158,17 +175,15 @@ int builtin_export(char **argv)
         while (argv[i])
         {
             equals = strchr(argv[i], '=');
-            if (equals == argv[i])//先頭が'='
-            {
-                xperror("export: `=': not a valid identifier");
-                return(-1);
-            }
             if (equals != NULL)
             {
                 strncpy(key, argv[i], equals - argv[i]);
                 key[equals - argv[i]] = '\0';
                 strncpy(value, equals + 1, strlen(equals + 1) + 1);
-
+                if (!is_valid_env_name(key))
+                {
+                    return(1);
+                }
                 ms_setenv(key, value, 1);
             }
             i++;
@@ -196,14 +211,25 @@ int builtin_unset(char **argv)
             equals = strchr(argv[i], '=');
             if (equals) //'='を含む
             {
-                xperror("unset: `=': not a valid identifier");
+                ms_perror("unset: `=': not a valid identifier");
                 return(-1);
             }
-            printf("unset:%s\n", argv[i]);
             ms_unsetenv(argv[i]);
             i++;
         }
     }
 
     return(0);
+}
+
+int builtin_exit(char **argv)
+{
+    int value;
+    value = 0;
+    if (argv[1])
+    {
+        value = atoi(argv[1]);
+    }
+    exit(value);
+    return (0);
 }

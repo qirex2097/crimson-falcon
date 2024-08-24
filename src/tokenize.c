@@ -62,7 +62,7 @@ char *skip_quate(char *p, char quote)
         p++;
     else
     {
-        xperror("unexpected EOF while looking for matching \'or\".");
+        ms_perror("unexpected EOF while looking for matching \'or\".");
         return(NULL);
     }
     return(p);
@@ -85,7 +85,7 @@ char *skip_token(char *line)
         {
             if(*p == '\\') {
                 if(*p == '\\' && *(p + 1) == '\0') {//バックスラッシュで終了した場合はエラー
-                    xperror("unexpected EOF while looking for matching `\\'");
+                    ms_perror("unexpected EOF while looking for matching `\\'");
                     return(NULL);
                 }
                 p += 2;
