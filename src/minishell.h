@@ -93,7 +93,7 @@ char *ft_itoa(int i);
 
 /*main.c*/
 extern bool readline_interrupted;
-extern t_env *g_env_root;
+extern t_env g_env_root;
 
 /*error.c*/
 void	fatal_error(const char *msg);
@@ -140,6 +140,7 @@ void cleanup_env(t_env *env_root);
 char **create_env_array(t_env *env_root);
 const char *ms_getenv(const char *key);
 int ms_setenv(const char *key, const char *value, int overwrite);
+int ms_unsetenv(const char *key);
 
 
 #endif

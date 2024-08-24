@@ -6,11 +6,12 @@ static int builtin_echo(char **argv);
 static int builtin_env(char **argv);
 static int builtin_pwd(char **argv);
 static int builtin_export(char **argv);
+static int builtin_unset(char **argv);
 
 
 // 下の２つにコマンド名と呼び出す関数を登録する
-#define BUILTIN_LIST {"", "cd", "echo", "env", "pwd", "export", NULL, }
-#define BUILTIN_FUNC {builtin_dummy, builtin_cd, builtin_echo, builtin_env, builtin_pwd, builtin_export, NULL, }
+#define BUILTIN_LIST { "", "cd", "echo", "env", "pwd", "export", "unset", NULL, }
+#define BUILTIN_FUNC { builtin_dummy, builtin_cd, builtin_echo, builtin_env, builtin_pwd, builtin_export, builtin_unset, NULL, }
 
 int is_builtin(char **argv)
 {
@@ -116,7 +117,7 @@ int builtin_env(char **argv)
     t_env *env;
 
     (void)argv;
-    env = g_env_root;
+    env = g_env_root.next;
 	while (env)
 	{
 		printf("%s=%s\n", env->key, env->value);
@@ -141,6 +142,68 @@ int builtin_pwd(char **argv)
 
 int builtin_export(char **argv)
 {
+    char *equals;
+    char key[1024];
+    char value[1024];
+    int i;
+
     (void)argv;
+    if (argv[1] == NULL)
+    {
+        return builtin_env(NULL);
+    }
+    else
+    {
+        i = 1;
+        while (argv[i])
+        {
+            equals = strchr(argv[i], '=');
+            if (equals == argv[i])//先頭が'='
+            {
+                xperror("export: `=': not a valid identifier");
+                return(-1);
+            }
+            if (equals != NULL)
+            {
+                strncpy(key, argv[i], equals - argv[i]);
+                key[equals - argv[i]] = '\0';
+                strncpy(value, equals + 1, strlen(equals + 1) + 1);
+
+                ms_setenv(key, value, 1);
+            }
+            i++;
+        }
+    }
+
+    return(0);
+}
+
+int builtin_unset(char **argv)
+{
+    char *equals;
+    int i;
+    
+    (void)argv;
+    if (argv[1] == NULL)
+    {
+        return(0);
+    }
+    else
+    {
+        i = 1;
+        while (argv[i])
+        {
+            equals = strchr(argv[i], '=');
+            if (equals) //'='を含む
+            {
+                xperror("unset: `=': not a valid identifier");
+                return(-1);
+            }
+            printf("unset:%s\n", argv[i]);
+            ms_unsetenv(argv[i]);
+            i++;
+        }
+    }
+
     return(0);
 }
