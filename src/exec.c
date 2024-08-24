@@ -100,6 +100,7 @@ int _exec_builtin_command(t_cmd *cmd, int prev_fd, int *pfd)
 void exec_child_process(t_cmd *cmd, int prev_fd, int *pfd)
 {
 	char **argv = cmd->args;
+	char **env_array;
 	char *path;
 	
 	reset_signal();
@@ -127,7 +128,8 @@ void exec_child_process(t_cmd *cmd, int prev_fd, int *pfd)
 		err_exit(argv[0], "is a directory", 126);
 	if (is_command_not_found(path))//コマンドがない時は子プロセス終了
 		err_exit(argv[0], "command not found", 127);
-	execve(path, argv, 0);
+	env_array = create_env_array(g_env_root.next);
+	execve(path, argv, env_array);
 	fatal_error("execve");//ここには来ない。
  }
 

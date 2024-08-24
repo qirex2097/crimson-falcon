@@ -123,18 +123,12 @@ int interpret(char *line, int prev_status)
 t_env g_env_root;
 bool readline_interrupted = false;
 
-int	main(int argc, char **argv)
+int main_loop()
 {
-	char	*line;
-	int	status = 0;
-	(void)argc;
+	char *line;
+	int status;
 
-	rl_outstream = stderr;
-	setup_signal();
-	g_env_root.next = initialize_env();
-	if (g_env_root.next == NULL)
-		exit(1);
-	ms_setenv("SHELL", argv[0], 1);
+	status = 0;
 	while(1)
 	{
 		line = readline(PROMPT);
@@ -146,6 +140,21 @@ int	main(int argc, char **argv)
 		}
 		free(line);
 	}
+	return(status);
+}
+
+int	main(int argc, char **argv)
+{
+	int status;
+	(void)argc;
+
+	rl_outstream = stderr;
+	setup_signal();
+	g_env_root.next = initialize_env();
+	if (g_env_root.next == NULL)
+		exit(1);
+	ms_setenv("SHELL", argv[0], 1);
+	status = main_loop();
 	cleanup_env(g_env_root.next);
 	exit(status);
 }
