@@ -52,7 +52,7 @@ void err_exit(const char *location, const char *msg, int status)
 	exit(status);
 }
 
-void xperror(const char *msg)
+void ms_perror(const char *msg)
 {
 	const char *args[] = {ERROR_PREFIX, "", "\n", NULL};
 	args[1] = msg;

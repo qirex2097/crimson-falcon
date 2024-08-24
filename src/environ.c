@@ -25,6 +25,14 @@ t_env *new_env_var(const char *key, const char *value)
     return(new_var);
 }
 
+void free_env_var(t_env *env)
+{
+    free(env->key);
+    free(env->value);
+    free(env);
+    return;
+}
+
 t_env *initialize_env()
 {
     t_env head;
@@ -62,9 +70,7 @@ void cleanup_env(t_env *env_root)
     while (current)
     {
         t_env *next = current->next;
-        free(current->key);
-        free(current->value);
-        free(current);
+        free_env_var(current);
         current = next;
     }
 }
@@ -100,11 +106,24 @@ char **create_env_array(t_env *env_root)
     return env_array;
 }
 
+bool is_valid_env_name(const char *key)
+{
+    if (!key || !(*key) || (!isalpha(*key) && *key != '_'))
+        return false;
+    while (*key)
+    {
+        if (!isalnum(*key) && *key != '_')
+            return false;
+        key++;
+    }
+    return true;
+}
+
 const char *ms_getenv(const char *key)
 {
     t_env *env;
     
-    env = g_env_root;
+    env = g_env_root.next;
     while(env)
     {
         if (strcmp(key, env->key) == 0)
@@ -118,11 +137,10 @@ int ms_setenv(const char *key, const char *value, int overwrite)
 {
     t_env *env;
     t_env *new_env;
-    
-    env = g_env_root;
+
+    env = g_env_root.next;
     while(env)
     {
-        env = env->next;
         if (strcmp(env->key, key) == 0)
         {
             if (overwrite != 0)
@@ -132,6 +150,7 @@ int ms_setenv(const char *key, const char *value, int overwrite)
             }
             return(0);
         }
+        env = env->next;
     }
     new_env = new_env_var(key, value);
     if (new_env == NULL)
@@ -139,7 +158,28 @@ int ms_setenv(const char *key, const char *value, int overwrite)
         fatal_error("malloc");
         return(-1);
     }
-    new_env->next = g_env_root;
-    g_env_root = new_env;
+    new_env->next = g_env_root.next;
+    g_env_root.next = new_env;
+    return(0);
+}
+
+int ms_unsetenv(const char *key)
+{
+    t_env *prev_env;
+    t_env *env;
+
+    prev_env = &g_env_root;
+    env = g_env_root.next;
+    while(env)
+    {
+        if (strcmp(env->key, key) == 0)
+        {
+            prev_env->next = env->next;
+            free(env);
+            return(0);
+        }
+        prev_env = env;
+        env = env->next;
+    }
     return(0);
 }

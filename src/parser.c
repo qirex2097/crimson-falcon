@@ -133,7 +133,7 @@ t_node *parse_cmd(t_token *tokens)
     pt = tokens;
     if (is_pipe(pt))
     {
-        xperror("syntax error near unexpected token `|'");
+        ms_perror("syntax error near unexpected token `|'");
         return NULL;
     }
     

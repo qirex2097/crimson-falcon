@@ -4,11 +4,12 @@
 char	*search_path(const char *filename)
 {
 	char	path[PATH_MAX];
-	char	*value;
+	const char	*value;
 	char	*end;
-
-	value = getenv("PATH");
-	while (*value)
+	
+	
+	value = ms_getenv("PATH");
+	while (value && *value)
 	{
 		// /bin:/usr/bin
 		//     ^
@@ -46,6 +47,15 @@ bool is_command_not_found(const char *path)
 	return (path == NULL || access(path, F_OK | X_OK) < 0);
 }
 
+bool is_directory(const char *path)
+{
+	struct stat path_stat;
+
+	if (stat(path, &path_stat) != 0)
+		return false;
+	return(S_ISDIR(path_stat.st_mode));
+}
+
 int _exec_builtin_command(t_cmd *cmd, int prev_fd, int *pfd)
 {
 	int status;
@@ -80,7 +90,7 @@ void exec_child_process(t_cmd *cmd, int prev_fd, int *pfd)
 {
 	char **argv = cmd->args;
 	char *path;
-
+	
 	reset_signal();
 	if (prev_fd != -1) {	//パイプの読み出し側が設定されていたら
 		dup2(prev_fd, STDIN_FILENO);
@@ -95,11 +105,17 @@ void exec_child_process(t_cmd *cmd, int prev_fd, int *pfd)
 		exit(1);//リダイレクトのファイルがオープンできない時は子プロセス終了
 	}
 	if(strchr(argv[0], '/') == NULL)
+	{
 		path = search_path(argv[0]);
+	}
 	else
+	{
 		path = strdup(argv[0]);
+	}
+	if (is_directory(path))
+		err_exit(argv[0], "is a directory", 126);
 	if (is_command_not_found(path))//コマンドがない時は子プロセス終了
-		err_exit(path, "command not found", 127);
+		err_exit(argv[0], "command not found", 127);
 	execve(path, argv, 0);
 	fatal_error("execve");//ここには来ない。
  }
@@ -113,12 +129,11 @@ int exec_cmd(t_cmd *cmd, int prev_fd, int *pfd)
 	{
 		return 0;
 	}
-
     if (is_builtin(cmd->args))
     {
-		return(_exec_builtin_command(cmd, prev_fd, pfd));
+		wstatus = _exec_builtin_command(cmd, prev_fd, pfd);
+		return(wstatus);
     } 
-
 	pid = fork();
 	if (pid < 0)
 		fatal_error("fork");
