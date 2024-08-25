@@ -76,3 +76,11 @@ void	ms_perror3(const char *msg, const char *msg2, const char *msg3)
 	args[7] = msg3;
 	print_to_stderr(args);
 }
+
+void ms_perror_syntax(const char *msg, const char *msg2)
+{
+	const char *args[] = {ERROR_PREFIX, "1", "`", "3", "'\n", NULL};
+	args[1] = msg;
+	args[3] = msg2;
+	print_to_stderr(args);
+}

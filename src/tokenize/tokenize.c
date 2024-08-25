@@ -61,12 +61,12 @@ t_token	*tokenizer(char *line)
 			break ;
 		start = curr;
 		curr = skip_token(curr);
-		if (curr == NULL) //',"を閉じていない場合
+		if (curr == NULL)
 		{
 			free_tokens(head.next);
 			return (NULL);
 		}
-		p->next = append_token(start, curr); // tokenをcopyして格納する
+		p->next = append_token(start, curr);
 		p = p->next;
 	}
 	return (head.next);

@@ -96,6 +96,7 @@ void	err_exit(const char *location, const char *msg, int status);
 void	ms_perror(const char *location);
 void	ms_perror2(const char *msg, const char *msg2);
 void	ms_perror3(const char *msg, const char *msg2, const char *msg3);
+void	ms_perror_syntax(const char *msg, const char *msg2);
 
 /*free.c*/
 void free_node(t_node *node);

@@ -13,13 +13,59 @@
 #include "minishell.h"
 #include "parse.h"
 
-t_node	*parse_cmd(t_token *tokens)
+void	parse_cmd_error(t_token *pt)
 {
-	t_token	*pt;
+	char	*str;
+
+	if (pt->next)
+		str = pt->next->token;
+	else
+		str = pt->token;
+	if (is_pipe(pt))
+		ms_perror("syntax error near unexpected token `|'");
+	else if (ft_strcmp(">", pt->token) == 0 || ft_strcmp("<", pt->token) == 0
+		|| ft_strcmp("<<", pt->token) == 0 || ft_strcmp(">>", pt->token) == 0)
+	{
+		if (pt->next == NULL)
+			ms_perror_syntax("syntax error near unexpected token ", "newline");
+		else
+			ms_perror_syntax("syntax error near unexpected token ", str);
+	}
+	else
+		ms_perror("syntax error");
+}
+
+t_token	*parse_cmd_loop(t_cmd *cmd, t_token *pt)
+{
+	while (pt && !is_delimiter(pt))
+	{
+		if (is_pipe(pt))
+		{
+			if (pt == NULL)
+				return (false);
+			if (cmd->args[0] == NULL)
+			{
+				return (pt);
+			}
+			cmd->next = new_cmd();
+			cmd = cmd->next;
+			pt = pt->next;
+		}
+		else if (is_word(pt))
+			pt = append_args_element(cmd, pt);
+		else if (is_redirect(pt))
+			pt = append_redirect_element(cmd, pt);
+		else
+			return (pt);
+	}
+	return (NULL);
+}
+
+t_node	*parse_cmd(t_token *pt)
+{
 	t_node	*node;
 	t_cmd	*cmd;
 
-	pt = tokens;
 	if (is_pipe(pt))
 	{
 		ms_perror("syntax error near unexpected token `|'");
@@ -27,85 +73,36 @@ t_node	*parse_cmd(t_token *tokens)
 	}
 	node = new_node(ND_SIMPLE_CMD);
 	cmd = &node->command;
-	while (pt && !is_delimiter(pt))
+	pt = parse_cmd_loop(cmd, pt);
+	if (pt)
 	{
-		if (is_pipe(pt))
-		{
-			if (pt->next == NULL || !is_word(pt->next))
-			{
-				perror("parse error");
-				free_node(node);
-				return (NULL);
-			}
-			cmd->next = new_cmd();
-			cmd = cmd->next;
-			pt = pt->next;
-		}
-		else if (is_word(pt))
-		{
-			pt = append_args_element(cmd, pt);
-		}
-		else
-		{
-			pt = append_redirect_element(cmd, pt);
-		}
+		parse_cmd_error(pt);
+		free_node(node);
+		return (NULL);
 	}
 	return (node);
-}
-
-t_token	*skip_delimiter(t_token *tokens)
-{
-	t_token	*pt;
-
-	pt = tokens;
-	while (is_delimiter(pt))
-		pt = pt->next;
-	return (pt);
-}
-
-void	split_command_line(t_token *tokens, t_token **table, int table_max)
-{
-	int		i;
-	t_token	*pt;
-
-	pt = skip_delimiter(tokens);
-	i = 0;
-	table[i] = pt;
-	i++;
-	while (pt && i < table_max - 1)
-	{
-		while (pt && !is_delimiter(pt))
-		{
-			pt = pt->next;
-		}
-		pt = skip_delimiter(pt);
-		table[i] = pt;
-		i++;
-	}
-	table[i] = NULL;
-	return ;
 }
 
 t_node	*parse(t_token *tokens)
 {
 	t_node	head;
-	t_node	*p;
+	t_node	*node;
 	t_token	*pt_table[100];
 	int		i;
 
-	split_command_line(tokens, pt_table, 100);
+	split_by_delimiter(tokens, pt_table, 100);
 	head.next = NULL;
-	p = &head;
+	node = &head;
 	i = 0;
 	while (pt_table[i])
 	{
-		p->next = parse_cmd(pt_table[i]);
-		if (p->next == NULL)
+		node->next = parse_cmd(pt_table[i]);
+		if (node->next == NULL)
 		{
 			free_node(head.next);
 			return (NULL);
 		}
-		p = p->next;
+		node = node->next;
 		i++;
 	}
 	return (head.next);

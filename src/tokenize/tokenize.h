@@ -18,4 +18,3 @@ char	*skip_token(char *line);
 char	*skip_blank(char *line);
 char	*skip_command_line_operator(char *line);
 char	*skip_quate(char *p, char quote);
-

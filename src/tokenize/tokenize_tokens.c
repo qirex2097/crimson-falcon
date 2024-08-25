@@ -19,7 +19,7 @@ char	*skip_token_loop(char *p)
 	{
 		if (*p == '\\')
 		{
-			if (*p == '\\' && *(p + 1) == '\0') //バックスラッシュで終了した場合はエラー
+			if (*p == '\\' && *(p + 1) == '\0')
 			{
 				ms_perror("unexpected EOF while looking for matching `\\'");
 				return (NULL);
@@ -84,7 +84,7 @@ t_token	*append_token(char *start, char *end)
 		fatal_error("malloc");
 		return (NULL);
 	}
-	p->token = copy_token(start, end); /* トークンの文字列をコピーする */
+	p->token = copy_token(start, end);
 	if (is_command_line_operator(p->token))
 	{
 		if (ft_strncmp(p->token, ";", 1) == 0)

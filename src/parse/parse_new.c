@@ -61,4 +61,3 @@ t_redirect	*new_redirect(t_node_kind kind, char *filename)
 	node->next = NULL;
 	return (node);
 }
-

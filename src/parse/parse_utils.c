@@ -11,21 +11,37 @@
 /* ************************************************************************** */
 
 #include "minishell.h"
+#include "parse.h"
 
-#define TOKEN_MAX 200
+t_token	*skip_delimiter(t_token *tokens)
+{
+	t_token	*pt;
 
-/* parse_new.c */
-void		initialize_cmd(t_cmd *cmd);
-t_cmd		*new_cmd(void);
-t_node		*new_node(t_node_kind kind);
-t_redirect	*new_redirect(t_node_kind kind, char *filename);
+	pt = tokens;
+	while (is_delimiter(pt))
+		pt = pt->next;
+	return (pt);
+}
 
-/* parse_append.c */
-void		append_redirect_node(t_cmd *node, t_redirect *child_node);
-t_token		*append_redirect_element(t_cmd *node, t_token *tokens);
-t_token		*append_args_element(t_cmd *node, t_token *token);
+void	split_by_delimiter(t_token *tokens, t_token **table, int table_max)
+{
+	int		i;
+	t_token	*pt;
 
-bool		is_redirect(t_token *pt);
-
-/* parse_utils.c */
-void		split_by_delimiter(t_token *tokens, t_token **table, int table_max);
+	pt = skip_delimiter(tokens);
+	i = 0;
+	table[i] = pt;
+	i++;
+	while (pt && i < table_max - 1)
+	{
+		while (pt && !is_delimiter(pt))
+		{
+			pt = pt->next;
+		}
+		pt = skip_delimiter(pt);
+		table[i] = pt;
+		i++;
+	}
+	table[i] = NULL;
+	return ;
+}

@@ -13,21 +13,13 @@
 #include "minishell.h"
 #include "parse.h"
 
-t_token	*append_pipe_element(t_cmd *cmd, t_token *pt)
-{
-	if (pt->next == NULL || !is_word(pt->next))
-		return (NULL);
-	cmd->next = new_cmd();
-	cmd = cmd->next;
-	pt = pt->next;
-	return (pt);
-}
-
 void	append_redirect_node(t_cmd *node, t_redirect *child_node)
 {
 	t_redirect	**redir_root;
 	t_redirect	*p;
 
+	if (node == NULL)
+		return ;
 	if (node->kind == ND_REDIR_HEREDOC)
 		redir_root = &node->heredoc;
 	else
@@ -45,10 +37,21 @@ void	append_redirect_node(t_cmd *node, t_redirect *child_node)
 	}
 }
 
+bool	is_redirect(t_token *pt)
+{
+	if ((ft_strcmp(">", pt->token) == 0 || ft_strcmp("<", pt->token) == 0
+			|| ft_strcmp(">>", pt->token) == 0 || ft_strcmp("<<",
+				pt->token) == 0) && is_word(pt->next))
+		return (true);
+	else
+		return (false);
+}
+
 t_token	*append_redirect_element(t_cmd *node, t_token *tokens)
 {
 	t_redirect	*redirect_node;
 
+	redirect_node = NULL;
 	if (ft_strcmp(">", tokens->token) == 0 && is_word(tokens->next))
 		redirect_node = new_redirect(ND_REDIR_OUT, tokens->next->token);
 	else if (ft_strcmp("<", tokens->token) == 0 && is_word(tokens->next))
@@ -58,21 +61,18 @@ t_token	*append_redirect_element(t_cmd *node, t_token *tokens)
 	else if (ft_strcmp("<<", tokens->token) == 0 && is_word(tokens->next))
 		redirect_node = new_redirect(ND_REDIR_HEREDOC, tokens->next->token);
 	else
-	{
-		perror("parse error");
-		return (NULL);
-	}
-
+		assert_error("append_redirect_element");
 	append_redirect_node(node, redirect_node);
 	return (tokens->next->next);
 }
 
+// args[]の大きさはTOKEN_MAX
 t_token	*append_args_element(t_cmd *node, t_token *token)
 {
 	int	i;
 
 	i = 0;
-	while (node->args[i] && i < TOKEN_MAX - 1) // node->args のインデックスのチェック
+	while (node->args[i] && i < TOKEN_MAX - 1)
 		i++;
 	node->args[i] = ft_strdup(token->token);
 	node->args[i + 1] = NULL;
