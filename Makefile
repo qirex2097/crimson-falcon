@@ -29,6 +29,8 @@ SRCS	=	src/main.c\
 			src/tokenize/tokenize_tokens.c\
 			src/tokenize/tokenize_skips.c\
 			src/parse/parser.c \
+			src/parse/parse_new.c \
+			src/parse/parse_append.c \
 			src/builtin/builtin.c \
 			src/expand/expand.c \
 			src/redirect/redirect.c \
