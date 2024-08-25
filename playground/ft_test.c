@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signal.c                                           :+:      :+:    :+:   */
+/*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,40 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
-#include <readline/readline.h>
-
-void	sigint_handler(int sig)
+int	main(void)
 {
-	(void)sig;
-	readline_interrupted = true;
-	printf("\n");
-	rl_on_new_line();
-	rl_replace_line("", 0);
-	rl_redisplay();
-	return ;
-}
+	char	**operators;
 
-void	setup_signal(void)
-{
-	if (signal(SIGQUIT, SIG_IGN) == SIG_ERR)
-	{
-		fatal_error("signal");
-	}
-	if (signal(SIGINT, sigint_handler) == SIG_ERR)
-	{
-		fatal_error("signal");
-	}
-}
+	(void)operators;
 
-void	reset_signal(void)
-{
-	if (signal(SIGQUIT, SIG_DFL) == SIG_ERR)
-	{
-		fatal_error("signal");
-	}
-	if (signal(SIGINT, SIG_DFL) == SIG_ERR)
-	{
-		fatal_error("signal");
-	}
+	return (0);
 }

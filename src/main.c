@@ -11,143 +11,62 @@
 /* ************************************************************************** */
 
 #include "minishell.h"
-# include <readline/history.h>
-# include <readline/readline.h>
+#include <readline/history.h>
+#include <readline/readline.h>
 
-#define PROMPT  SHELL "$ "
+// プロンプトの定義 "minishell$ "
+#define PROMPT SHELL "$ "
 
-//----- ここからデバッグ用
-void print_tokens(t_token *p)
+// グローバル変数
+t_env	g_env_root;
+bool	readline_interrupted = false;
+
+int	interpret(char *line, int prev_status)
 {
-	int i;
-	while (p)
-	{
-		if (is_word(p)) {
-			write(STDERR_FILENO, "w:>", 3);
-			i = 0;
-			while (p->token[i])
-			{
-				write(STDERR_FILENO, &p->token[i], 1);
-				i++;
-			}
-			write(STDERR_FILENO, "<\n", 2);
-		}
-		else if (is_operator(p))
-			printf("o:%s\n", p->token);
-		p = p->next;
-	}
-}
-
-void print_cmd(t_cmd *cmd)
-{
-	int i, j;
-	t_redirect *redir;
-	i = 0;
-	while(cmd)
-	{
-		printf("print_cmd:i=%d\n", i);
-		j = 0;
-		while (cmd->args[j])
-		{
-			printf("%s", cmd->args[j]);
-			if (cmd->args[j+1]) printf(",");
-			j++;
-		}
-		printf("\n");
-		redir = cmd->redirects;
-		while (redir)
-		{
-			if (redir->kind == ND_REDIR_OUT) {
-				printf(">%s\n", redir->filename);
-			} else if (redir->kind == ND_REDIR_IN) {
-				printf("<%s\n", redir->filename);
-			} else if (redir->kind == ND_REDIR_APPEND) {
-				printf(">>%s\n", redir->filename);
-			} else if (redir->kind == ND_REDIR_HEREDOC) {
-				printf("<<%s\n", redir->filename);
-			}
-			redir = redir->next;
-		}
-		i++;
-		cmd = cmd->next;
-	}
-}
-
-void print_node(t_node *node)
-{
-	int i = 0;
-	while(node)
-	{
-		printf("----- print_noode:i=%d\n", i);
-		print_cmd(&node->command);
-		node = node->next;
-		i++;
-	}
-}
-
-void print_env(t_env *env)
-{
-	int i = 0;
-	while (env)
-	{
-		printf("%d:%s=%s\n", i, env->key, env->value);
-		env = env->next;
-		i++;
-	}
-}
-//----- ここまでデバッグ用
-
-int interpret(char *line, int prev_status)
-{
-	t_token *tokens;
-	int status;
+	t_token	*tokens;
+	int		status;
 	t_node	*node;
 
-	tokens = tokenizer(line);//トークンに分割
+	tokens = tokenizer(line); //トークンに分割
 	if (tokens == NULL)
 	{
-		return(0);
+		return (0);
 	}
-	add_history(line);//トークンがなければ履歴に登録しない
+	add_history(line); //トークンがなければ履歴に登録しない
 	expand(tokens, prev_status);
 	node = parse(tokens);
 	status = exec(node);
 	free_tokens(tokens);
 	if (node)
 		free_node(node);
-
-    return(status);
+	return (status);
 }
 
-// グローバル変数
-t_env g_env_root;
-bool readline_interrupted = false;
-
-int main_loop()
+int	main_loop(void)
 {
-	char *line;
-	int status;
+	char	*line;
+	int		status;
 
 	status = 0;
-	while(1)
+	while (1)
 	{
 		line = readline(PROMPT);
-		if(!line)
-			break;
-		if(*line)
+		if (!line)
+			break ;
+		if (*line)
 		{
 			status = interpret(line, status);
 		}
 		free(line);
 	}
-	return(status);
+	return (status);
 }
 
 int	main(int argc, char **argv)
 {
-	int status;
-	(void)argc;
+	int	status;
 
+	(void)argc;
 	rl_outstream = stderr;
 	setup_signal();
 	g_env_root.next = initialize_env();
