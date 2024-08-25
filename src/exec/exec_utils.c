@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "exec.h"
 #include "minishell.h"
+#include "exec.h"
 
 void	ft_bzero(char *s, size_t n)
 {
