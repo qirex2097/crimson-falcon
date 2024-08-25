@@ -36,6 +36,9 @@ SRCS	=	src/main.c\
 			src/expand/expand.c \
 			src/redirect/redirect.c \
 			src/exec/exec.c \
+			src/exec/exec_utils.c \
+			src/exec/exec_child.c \
+			src/exec/exec_builtin.c \
 			src/environ/environ.c \
 			src/error/error.c\
 			src/free.c\
