@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signal.c                                           :+:      :+:    :+:   */
+/*   exec_child.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -11,39 +11,33 @@
 /* ************************************************************************** */
 
 #include "minishell.h"
-#include <readline/readline.h>
+#include "exec.h"
 
-void	sigint_handler(int sig)
+int	_exec_builtin_command(t_cmd *cmd, int prev_fd, int *pfd)
 {
-	(void)sig;
-	readline_interrupted = true;
-	printf("\n");
-	rl_on_new_line();
-	rl_replace_line("", 0);
-	rl_redisplay();
-	return ;
-}
+	int	status;
+	int	original_fd[2];
 
-void	setup_signal(void)
-{
-	if (signal(SIGQUIT, SIG_IGN) == SIG_ERR)
+	original_fd[0] = -1;
+	original_fd[1] = -1;
+	if (prev_fd != -1)
 	{
-		fatal_error("signal");
+		original_fd[0] = dup(STDIN_FILENO);
+		dup2(prev_fd, STDIN_FILENO);
+		close(prev_fd);
 	}
-	if (signal(SIGINT, sigint_handler) == SIG_ERR)
+	if (cmd->next)
 	{
-		fatal_error("signal");
+		original_fd[1] = dup(STDOUT_FILENO);
+		dup2(pfd[1], STDOUT_FILENO);
+		close(pfd[1]);
 	}
-}
-
-void	reset_signal(void)
-{
-	if (signal(SIGQUIT, SIG_DFL) == SIG_ERR)
-	{
-		fatal_error("signal");
-	}
-	if (signal(SIGINT, SIG_DFL) == SIG_ERR)
-	{
-		fatal_error("signal");
-	}
+	if (open_redir_file(cmd->redirects, cmd->heredoc) < 0)
+		return (1);
+	status = exec_builtin_command(cmd->args);
+	if (original_fd[0] != -1)
+		dup2(original_fd[0], STDIN_FILENO);
+	if (original_fd[1] != -1)
+		dup2(original_fd[1], STDOUT_FILENO);
+	return (status);
 }

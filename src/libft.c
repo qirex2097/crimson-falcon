@@ -1,4 +1,5 @@
 #include "minishell.h"
+#include <string.h>
 
 
 /*TODO: 後でlibft使うからいらない。*/
@@ -59,4 +60,39 @@ char *ft_itoa(int num)//i=0-255の範囲でよい
     i++;
     buff[i] = '\0';
     return(buff);
+}
+
+size_t ft_strlen(const char *str)
+{
+	return strlen(str);
+}
+
+char *ft_strncpy(char *dst, const char *src, size_t len)
+{
+	return strncpy(dst, src, len);
+}
+
+int ft_strcmp(const char *s1, const char *s2)
+{
+	return strcmp(s1, s2);
+}
+
+int ft_strncmp(const char *s1, const char *s2, size_t n)
+{
+	return strncmp(s1, s2, n);
+}
+
+char *ft_strchr(const char *s, int c)
+{
+	return strchr(s, c);
+}
+
+char *ft_strdup(const char *s1)
+{
+	return strdup(s1);
+}
+
+char *ft_strncat(char *s1, const char *s2, size_t n)
+{
+	return strncat(s1, s2, n);
 }

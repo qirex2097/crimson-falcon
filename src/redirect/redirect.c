@@ -1,4 +1,5 @@
 #include "minishell.h"
+# include <readline/readline.h>
 
 void heredoc_loop(const char *delimiter, int fd)
 {
@@ -16,7 +17,7 @@ void heredoc_loop(const char *delimiter, int fd)
         }
         if (fd >= 0)
         {
-            write(fd, line, strlen(line));
+            write(fd, line, ft_strlen(line));
             write(fd, "\n", 1);
         }
         free(line);

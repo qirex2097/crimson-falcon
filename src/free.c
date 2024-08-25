@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include    "minishell.h"
+#include "minishell.h"
 
 void	free_args(char **argv)
 {
@@ -27,7 +27,7 @@ void	free_args(char **argv)
 	free(argv);
 }
 
-void free_redirect(t_redirect *redir)
+void	free_redirect(t_redirect *redir)
 {
 	if (redir->next)
 	{
@@ -37,9 +37,10 @@ void free_redirect(t_redirect *redir)
 	free(redir->filename);
 }
 
-void free_cmd(t_cmd *cmd)
+void	free_cmd(t_cmd *cmd)
 {
-	if (cmd->next) {
+	if (cmd->next)
+	{
 		free_cmd(cmd->next);
 		free(cmd->next);
 	}
@@ -51,11 +52,12 @@ void free_cmd(t_cmd *cmd)
 	free_args(cmd->args);
 }
 
-void free_node(t_node *node)
+void	free_node(t_node *node)
 {
-	if (node == NULL) 
-		return;
-	if (node->next) {
+	if (node == NULL)
+		return ;
+	if (node->next)
+	{
 		free_node(node->next);
 		free(node->next);
 	}

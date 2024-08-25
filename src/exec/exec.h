@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signal.c                                           :+:      :+:    :+:   */
+/*   exec_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,40 +10,13 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
-#include <readline/readline.h>
+/* exec_utils.c */
+char	*search_path(const char *filename);
+bool	is_command_not_found(const char *path);
+bool	is_directory(const char *path);
 
-void	sigint_handler(int sig)
-{
-	(void)sig;
-	readline_interrupted = true;
-	printf("\n");
-	rl_on_new_line();
-	rl_replace_line("", 0);
-	rl_redisplay();
-	return ;
-}
+/* exec_child.c */
+void	exec_child_process(t_cmd *cmd, int prev_fd, int *pfd);
 
-void	setup_signal(void)
-{
-	if (signal(SIGQUIT, SIG_IGN) == SIG_ERR)
-	{
-		fatal_error("signal");
-	}
-	if (signal(SIGINT, sigint_handler) == SIG_ERR)
-	{
-		fatal_error("signal");
-	}
-}
-
-void	reset_signal(void)
-{
-	if (signal(SIGQUIT, SIG_DFL) == SIG_ERR)
-	{
-		fatal_error("signal");
-	}
-	if (signal(SIGINT, SIG_DFL) == SIG_ERR)
-	{
-		fatal_error("signal");
-	}
-}
+/* exec_builtin.c */
+int		_exec_builtin_command(t_cmd *cmd, int prev_fd, int *pfd);

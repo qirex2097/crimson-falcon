@@ -22,7 +22,7 @@ int is_builtin(char **argv)
 
     i = 1;
     while (builtin_list[i]) {
-        if (strcmp(builtin_list[i], command) == 0) {
+        if (ft_strcmp(builtin_list[i], command) == 0) {
             return i;
         }
         i++;
@@ -55,7 +55,7 @@ int builtin_cd(char **argv)
     
     if (getcwd(buff, PATH_MAX) == 0)
     {
-        perror("minishell: cd");
+        ms_perror("cd");
     }
     else
     {
@@ -65,24 +65,25 @@ int builtin_cd(char **argv)
     {
         if (ms_getenv("HOME") == NULL)
         {
-            ms_perror("cd: HOME not set");
+            ms_perror2("cd", "HOME not set");
             return 1 * 256;
         }
         if (chdir(ms_getenv("HOME")) == -1)
         {
-            perror("minishell: cd");
+            ms_perror("cd");
+            return 1 * 256;
         }
     }
     else
     {
         if (chdir(argv[1]) == -1)
         {
-            perror("minishell: cd");
+            ms_perror("cd");
         }
    }
     if (getcwd(buff, PATH_MAX) == 0)
     {
-        perror("minishell: cd");
+        ms_perror("cd");
     }
     ms_setenv("PWD", buff, 1);
     return(0);
@@ -93,7 +94,7 @@ bool    check_n_option(const char *argv)
 {
     size_t i;
 
-    if(strncmp(argv, "-n", 2) != 0)
+    if(ft_strncmp(argv, "-n", 2) != 0)
         return (false);
     
     i = 2;
@@ -119,7 +120,7 @@ int builtin_echo(char **argv)
 
     while(argv[i])
     {
-        write(STDOUT_FILENO, argv[i], strlen(argv[i]));
+        write(STDOUT_FILENO, argv[i], ft_strlen(argv[i]));
         if(argv[i + 1])
             write(STDOUT_FILENO, " ", 1);
         i++;
@@ -150,10 +151,11 @@ int builtin_pwd(char **argv)
     
     if (getcwd(buff, PATH_MAX) == NULL)
     {
-        perror("minishell: pwd");
+        ms_perror(argv[0]);
         return(-1);
     }
-    printf("%s\n", buff);
+    write(STDOUT_FILENO, buff, ft_strlen(buff));
+    write(STDOUT_FILENO, "\n", 1);
     return(0);
 }
 
@@ -174,14 +176,15 @@ int builtin_export(char **argv)
         i = 1;
         while (argv[i])
         {
-            equals = strchr(argv[i], '=');
+            equals = ft_strchr(argv[i], '=');
             if (equals != NULL)
             {
-                strncpy(key, argv[i], equals - argv[i]);
+                ft_strncpy(key, argv[i], equals - argv[i]);
                 key[equals - argv[i]] = '\0';
-                strncpy(value, equals + 1, strlen(equals + 1) + 1);
+                ft_strncpy(value, equals + 1, ft_strlen(equals + 1) + 1);
                 if (!is_valid_env_name(key))
                 {
+                    ms_perror3(argv[0], argv[i], "not a valid identifier");
                     return(1);
                 }
                 ms_setenv(key, value, 1);
@@ -195,7 +198,6 @@ int builtin_export(char **argv)
 
 int builtin_unset(char **argv)
 {
-    char *equals;
     int i;
     
     (void)argv;
@@ -208,11 +210,10 @@ int builtin_unset(char **argv)
         i = 1;
         while (argv[i])
         {
-            equals = strchr(argv[i], '=');
-            if (equals) //'='を含む
+            if (!is_valid_env_name(argv[i])) //環境変数の名前チェック
             {
-                ms_perror("unset: `=': not a valid identifier");
-                return(-1);
+                ms_perror3(argv[0], argv[i], "not a valid identifier");
+                return(1 * 256);
             }
             ms_unsetenv(argv[i]);
             i++;
@@ -221,15 +222,28 @@ int builtin_unset(char **argv)
 
     return(0);
 }
+int ft_isnum(char *str)
+{
+    if (str == NULL || *str == '\0') return 0;
+
+    while (*str)
+    {
+        if (!('0' <= *str && *str <= '9'))
+            return 0;
+        str++;
+    }
+    return 1;
+}
 
 int builtin_exit(char **argv)
 {
     int value;
-    value = 0;
-    if (argv[1])
-    {
+    if (argv[1] == NULL)
+        value = 0;
+    else if (ft_isnum(argv[1]))
         value = atoi(argv[1]);
-    }
+    else
+        value = 255;
     exit(value);
     return (0);
 }

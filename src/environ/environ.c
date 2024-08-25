@@ -16,11 +16,27 @@ char *ft_strndup(const char *str, int n)
     return(line);
 }
 
+int ft_isalpha(int c)
+{
+    if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z'))
+        return 1;
+    else
+        return 0;
+}
+
+int ft_isalnum(int c)
+{
+    if (ft_isalpha(c) || ('0' <= c && c <= '9'))
+        return 1;
+    else 
+        return 0;
+}
+//----------------------------------------
 t_env *new_env_var(const char *key, const char *value)
 {
     t_env *new_var = malloc(sizeof(t_env));
-    new_var->key = strdup(key);
-    new_var->value = strdup(value);
+    new_var->key = ft_strdup(key);
+    new_var->value = ft_strdup(value);
     new_var->next = NULL;
     return(new_var);
 }
@@ -47,12 +63,12 @@ t_env *initialize_env()
     head.next = NULL;
     while (environ[i])
     {
-        equals = strchr(environ[i], '=');
+        equals = ft_strchr(environ[i], '=');
         if (equals)
         {
-            strncpy(key, environ[i], equals - environ[i]);
+            ft_strncpy(key, environ[i], equals - environ[i]);
             key[equals - environ[i]] = '\0';
-            strncpy(value, equals + 1, strlen(equals + 1) + 1);
+            ft_strncpy(value, equals + 1, ft_strlen(equals + 1) + 1);
             new_env = new_env_var(key, value);
             new_env->next = head.next;
             head.next = new_env;
@@ -96,7 +112,7 @@ char **create_env_array(t_env *env_root)
     current = env_root;
     while (current)
     {
-        env_array[i] = malloc(strlen(current->key) + strlen(current->value) + 2);
+        env_array[i] = malloc(ft_strlen(current->key) + ft_strlen(current->value) + 2);
         sprintf(env_array[i], "%s=%s", current->key, current->value);
         i++;
         current = current->next;
@@ -108,11 +124,11 @@ char **create_env_array(t_env *env_root)
 
 bool is_valid_env_name(const char *key)
 {
-    if (!key || !(*key) || (!isalpha(*key) && *key != '_'))
+    if (!key || !(*key) || (!ft_isalpha(*key) && *key != '_'))
         return false;
     while (*key)
     {
-        if (!isalnum(*key) && *key != '_')
+        if (!ft_isalnum(*key) && *key != '_')
             return false;
         key++;
     }
@@ -126,7 +142,7 @@ const char *ms_getenv(const char *key)
     env = g_env_root.next;
     while(env)
     {
-        if (strcmp(key, env->key) == 0)
+        if (ft_strcmp(key, env->key) == 0)
             return(env->value);
         env = env->next;
     }
@@ -141,12 +157,12 @@ int ms_setenv(const char *key, const char *value, int overwrite)
     env = g_env_root.next;
     while(env)
     {
-        if (strcmp(env->key, key) == 0)
+        if (ft_strcmp(env->key, key) == 0)
         {
             if (overwrite != 0)
             {
                 free(env->value);
-                env->value = strdup(value);
+                env->value = ft_strdup(value);
             }
             return(0);
         }
@@ -172,7 +188,7 @@ int ms_unsetenv(const char *key)
     env = g_env_root.next;
     while(env)
     {
-        if (strcmp(env->key, key) == 0)
+        if (ft_strcmp(env->key, key) == 0)
         {
             prev_env->next = env->next;
             free(env);
