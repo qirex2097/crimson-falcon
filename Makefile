@@ -34,6 +34,7 @@ SRCS	=	src/main.c\
 			src/parse/parse_utils.c \
 			src/builtin/builtin.c \
 			src/expand/expand.c \
+			src/expand/expand_utils.c \
 			src/redirect/redirect.c \
 			src/exec/exec.c \
 			src/exec/exec_utils.c \
