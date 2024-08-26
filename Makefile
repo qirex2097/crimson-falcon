@@ -32,6 +32,7 @@ SRCS	=	src/main.c\
 			src/parse/parse_new.c \
 			src/parse/parse_append.c \
 			src/parse/parse_utils.c \
+			src/parse/parse_redirect.c \
 			src/builtin/builtin.c \
 			src/expand/expand.c \
 			src/expand/expand_utils.c \
