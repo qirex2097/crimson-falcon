@@ -10,54 +10,34 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "error.h"
 #include "minishell.h"
 
-void	err_exit(const char *location, const char *msg, int status)
+void	print_to_stderr(const char **args)
 {
-	ms_perror2(location, msg);
-	exit(status);
+	int	i;
+
+	i = 0;
+	while (args[i])
+	{
+		write(STDERR_FILENO, args[i], ft_strlen(args[i]));
+		i++;
+	}
 }
 
-void	ms_perror(const char *msg)
+void	fatal_error(const char *msg)
 {
-	const char	*args[] = {": ", "1", "\n", NULL};
+	const char	*args[] = {"Fatal Error: ", "1", "\n", NULL};
 
 	args[1] = msg;
 	print_to_stderr(args);
+	exit(1);
 }
 
-void	ms_perror2(const char *msg, const char *msg2)
+void	assert_error(const char *msg)
 {
-	const char	*args[] = {": ", "1", ": ", "3", "\n", NULL};
+	const char	*args[] = {"Assert Error: ", "1", "\n", NULL};
 
 	args[1] = msg;
-	args[3] = msg2;
 	print_to_stderr(args);
-}
-
-void	ms_perror3(const char *msg, const char *msg2, const char *msg3)
-{
-	const char	*args[10];
-
-	args[0] = ": ";
-	args[1] = msg;
-	args[2] = ": ";
-	args[3] = "`";
-	args[4] = msg2;
-	args[5] = "'";
-	args[6] = ": ";
-	args[7] = msg3;
-	args[8] = "\n";
-	args[9] = NULL;
-	print_to_stderr(args);
-}
-
-void	ms_perror_syntax(const char *msg, const char *msg2)
-{
-	const char	*args[] = {": ", "1", "`", "3", "'\n", NULL};
-
-	args[1] = msg;
-	args[3] = msg2;
-	print_to_stderr(args);
+	exit(255);
 }

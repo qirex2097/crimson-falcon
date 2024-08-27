@@ -34,6 +34,10 @@ SRCS	=	src/main.c\
 			src/parse/parse_utils.c \
 			src/parse/parse_redirect.c \
 			src/builtin/builtin.c \
+			src/builtin/builtin_cd.c \
+			src/builtin/builtin_echo.c \
+			src/builtin/builtin_export.c \
+			src/builtin/builtin_exit.c \
 			src/expand/expand.c \
 			src/expand/expand_utils.c \
 			src/redirect/redirect.c \
@@ -43,6 +47,7 @@ SRCS	=	src/main.c\
 			src/exec/exec_builtin.c \
 			src/environ/environ.c \
 			src/error/error.c\
+			src/error/error_utils.c \
 			src/free.c\
 			src/signal.c\
 			src/libft.c
