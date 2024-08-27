@@ -13,107 +13,68 @@
 #include "minishell.h"
 #include "expand.h"
 
-int	get_env_variable_name_end(char *line)
+void	remove_quotes_init(int *i, int *j, bool *in_single_quotes,
+		bool *in_double_quotes)
 {
-	int	i;
+	*i = 0;
+	*j = 0;
+	*in_single_quotes = false;
+	*in_double_quotes = false;
+}
 
-	i = 0;
-	if (line[0] != '$' && is_alpha_under(line[1]))
+bool	quotes_check(char ch, bool *in_single_quotes, bool *in_double_quotes)
+{
+	if (ch == '\'' && !*in_double_quotes)
 	{
-		return (0);
+		*in_single_quotes = !*in_single_quotes;
+		return (true);
 	}
-	i = 1;
-	while (is_alpha_under_number(line[i]))
+	else if (ch == '"' && !*in_single_quotes)
+	{
+		*in_double_quotes = !*in_double_quotes;
+		return (true);
+	}
+	return (false);
+}
+
+int	remove_quotes_loop(char *new_line, char *line, int status)
+{
+	int		i;
+	int		j;
+	bool	in_single_quotes;
+	bool	in_double_quotes;
+
+	remove_quotes_init(&i, &j, &in_single_quotes, &in_double_quotes);
+	while (line[i])
+	{
+		if (quotes_check(line[i], &in_single_quotes, &in_double_quotes))
+			(void)i;
+		else if ((!in_single_quotes && !in_double_quotes) && line[i] == '\\')
+			new_line[j++] = line[++i];
+		else if (!in_single_quotes && line[i] == '$')
+		{
+			if (line[i + 1] == '?')
+				replace_exit_status_var(new_line, status, &i, &j);
+			else
+				replace_env_var(new_line, line, &i, &j);
+		}
+		else if ((in_single_quotes && line[i] != '\'') || (!in_single_quotes
+				&& !in_double_quotes) || (in_double_quotes && line[i] != '"'))
+			new_line[j++] = line[i];
 		i++;
-	return (i);
-}
-
-int	set_env_var_value(char *new_line, char *line, int length)
-{
-	char		env_var_name[LINE_MAX];
-	const char	*env_var_value;
-
-	ft_strncpy(env_var_name, line, length - 1);
-	env_var_name[length - 1] = '\0';
-	env_var_value = ms_getenv(env_var_name);
-	if (env_var_value != NULL)
-	{
-		ft_strncpy(new_line, env_var_value, ft_strlen(env_var_value));
-		return (ft_strlen(env_var_value));
 	}
-	return (0);
-}
-
-void	replace_env_variable(char *new_line, char *line, int *pi, int *pj)
-{
-	int	end;
-
-	end = get_env_variable_name_end(&line[*pi]); //環境変数名の最後の位置
-	if (end > 0)
-	{
-		*pj += set_env_var_value(&new_line[*pj], &line[*pi + 1], end);
-		*pi = *pi + end - 1;
-	}
-	else
-	{
-		new_line[(*pj)++] = line[*pi];
-	}
+	return (j);
 }
 
 char	*remove_quotes(char *line, int status)
 {
-	char	*num_str;
+	int		j;
 	char	*new_line;
-	bool	in_single_quotes;
-	bool	in_double_quotes;
 
-	int i, j;
 	new_line = (char *)malloc(LINE_MAX * sizeof(char));
 	if (new_line == NULL)
 		fatal_error("malloc");
-	i = j = 0;
-	in_single_quotes = false;
-	in_double_quotes = false;
-	while (line[i])
-	{
-		if (line[i] == '\'' && !in_double_quotes)
-		{
-			in_single_quotes = !in_single_quotes;
-		}
-		else if (line[i] == '"' && !in_single_quotes)
-		{
-			in_double_quotes = !in_double_quotes;
-		}
-		else if (in_single_quotes && line[i] != '\'') //シングルクオート内はそのままコピー
-		{
-			new_line[j++] = line[i];
-		}
-		else if ((!in_single_quotes && !in_double_quotes) && line[i] == '\\')
-		//バックスラッシュの処理
-		{
-			new_line[j++] = line[++i]; //バックスラッシュの後の文字を入れる
-		}
-		else if (line[i] == '$') //環境変数の処理
-		{
-			if (line[i + 1] == '?')
-			{
-				num_str = ft_itoa(status);
-				ft_strncpy(&new_line[j], num_str, ft_strlen(num_str));
-					//ステータスをitoaしてからコピーする
-				j += ft_strlen(num_str);
-				i++;
-				free(num_str);
-			}
-			else
-				replace_env_variable(new_line, line, &i, &j);
-		}
-		else if ((!in_single_quotes && !in_double_quotes) || (in_double_quotes
-				&& line[i] != '"'))
-		{
-			new_line[j++] = line[i];
-		}
-		i++;
-	}
+	j = remove_quotes_loop(new_line, line, status);
 	new_line[j] = '\0';
 	return (new_line);
 }

@@ -40,6 +40,7 @@ SRCS	=	src/main.c\
 			src/builtin/builtin_exit.c \
 			src/expand/expand.c \
 			src/expand/expand_utils.c \
+			src/expand/expand_env_var.c \
 			src/redirect/redirect.c \
 			src/exec/exec.c \
 			src/exec/exec_utils.c \
