@@ -41,14 +41,15 @@ SRCS	=	src/main.c\
 			src/expand/expand.c \
 			src/expand/expand_utils.c \
 			src/expand/expand_env_var.c \
-			src/redirect/redirect.c \
 			src/exec/exec.c \
 			src/exec/exec_utils.c \
 			src/exec/exec_child.c \
 			src/exec/exec_builtin.c \
-			src/environ/environ.c \
 			src/error/error.c\
 			src/error/error_utils.c \
+			src/redirect/redirect.c \
+			src/redirect/redirect_heredoc.c \
+			src/environ/environ.c \
 			src/free.c\
 			src/signal.c\
 			src/libft.c
