@@ -60,8 +60,11 @@ int	open_heredoc(t_redirect *redir)
 {
 	while (redir->next)
 	{
-		readline_interrupted = false;
-		heredoc_loop(redir->filename, -1);
+		if (redir->kind == ND_REDIR_HEREDOC)
+		{
+			readline_interrupted = false;
+			heredoc_loop(redir->filename, -1);
+		}
 		redir = redir->next;
 	}
 	return (create_heredoc(redir->filename));

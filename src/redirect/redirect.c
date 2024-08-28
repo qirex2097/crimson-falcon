@@ -13,6 +13,39 @@
 #include "minishell.h"
 #include "redirect.h"
 
+int	open_redir_file_sub2(t_redirect *redir)
+{
+	int	status;
+	int	target_fd;
+
+	status = 0;
+	if (redir == NULL)
+		return (0);
+	if (redir->kind == ND_REDIR_HEREDOC)
+	{
+		redir->fd = open_heredoc(redir);
+		target_fd = STDIN_FILENO;
+	}
+	else
+	{
+		return (-1); // Unknown redirection type
+	}
+	if (redir->fd < 0)
+	{
+		perror(redir->filename);
+		return (-1); // File Open Error
+	}
+	if (dup2(redir->fd, target_fd) < 0)
+	{
+		perror("dup2");
+		close(redir->fd);
+		return (-1); // Dup2 Error
+	}
+	close(redir->fd);
+	return (status);
+}
+
+
 int	open_redir_file_sub(t_redirect *redir)
 {
 	int	status;
@@ -36,11 +69,6 @@ int	open_redir_file_sub(t_redirect *redir)
 		redir->fd = open(redir->filename, O_CREAT | O_WRONLY | O_APPEND, 0644);
 		target_fd = STDOUT_FILENO;
 	}
-	else if (redir->kind == ND_REDIR_HEREDOC)
-	{
-		redir->fd = open_heredoc(redir);
-		target_fd = STDIN_FILENO;
-	}
 	else
 	{
 		return (-1); // Unknown redirection type
@@ -57,8 +85,6 @@ int	open_redir_file_sub(t_redirect *redir)
 		return (-1); // Dup2 Error
 	}
 	close(redir->fd);
-	if (redir->kind == ND_REDIR_HEREDOC)
-		return (status);
 	status = open_redir_file_sub(redir->next);
 	return (status);
 }
@@ -70,7 +96,7 @@ int	open_redir_file(t_redirect *redir, t_redirect *heredoc)
 	status = 0;
 	if (heredoc != NULL)
 	{
-		status = open_redir_file_sub(heredoc);
+		status = open_redir_file_sub2(heredoc);
 		if (status != 0)
 			return (status);
 	}
