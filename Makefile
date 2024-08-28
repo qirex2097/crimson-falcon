@@ -50,6 +50,9 @@ SRCS	=	src/main.c\
 			src/redirect/redirect.c \
 			src/redirect/redirect_heredoc.c \
 			src/environ/environ.c \
+			src/environ/environ_ftlib.c \
+			src/environ/environ_setenv.c \
+			src/environ/environ_array.c \
 			src/free.c\
 			src/signal.c\
 			src/libft.c
