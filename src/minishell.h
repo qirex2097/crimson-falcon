@@ -52,8 +52,8 @@ struct						s_cmd
 	t_node_kind				kind;
 	// CMD
 	char					**args;
-	t_redirect				*redirects;
-	t_redirect				*heredoc;
+	t_redirect				*redir_out;
+	t_redirect				*redir_in;
 	// PIPE
 	t_cmd					*next;
 };

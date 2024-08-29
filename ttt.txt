@@ -1,5 +1,2 @@
-/Users/masaru/Desktop/min_shell
-EOF
-/Users/masaru/Desktop/min_shell
 abc
 123

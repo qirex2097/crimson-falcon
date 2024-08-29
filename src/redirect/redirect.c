@@ -13,43 +13,47 @@
 #include "minishell.h"
 #include "redirect.h"
 
-int	open_redir_file_sub2(t_redirect *redir)
+int	apply_redirection(t_redirect *redir, int target_fd)
 {
-	int	status;
-	int	target_fd;
-
-	status = 0;
-	if (redir == NULL)
-		return (0);
-	if (redir->kind == ND_REDIR_HEREDOC)
-	{
-		redir->fd = open_heredoc(redir);
-		target_fd = STDIN_FILENO;
-	}
-	else
-	{
-		return (-1); // Unknown redirection type
-	}
 	if (redir->fd < 0)
 	{
 		perror(redir->filename);
-		return (-1); // File Open Error
+		return (-1);
 	}
 	if (dup2(redir->fd, target_fd) < 0)
 	{
 		perror("dup2");
 		close(redir->fd);
-		return (-1); // Dup2 Error
+		return (-1);
 	}
 	close(redir->fd);
-	return (status);
+	return (0);
 }
 
+int	open_redir_in(t_redirect *redir)
+{
+	int	target_fd;
 
-int	open_redir_file_sub(t_redirect *redir)
+	if (redir == NULL)
+		return (0);
+	if (redir->kind == ND_REDIR_HEREDOC)
+	{
+		redir->fd = create_heredoc(redir->filename);
+		target_fd = STDIN_FILENO;
+	}
+	else if (redir->kind == ND_REDIR_IN && redir->next == NULL)
+	{
+		redir->fd = open(redir->filename, O_RDONLY);
+		target_fd = STDIN_FILENO;
+	}
+	else
+		return (-1);
+	return (apply_redirection(redir, target_fd));
+}
+
+int	open_redir_out(t_redirect *redir)
 {
 	int	status;
-	int	target_fd;
 
 	status = 0;
 	if (redir == NULL)
@@ -57,48 +61,38 @@ int	open_redir_file_sub(t_redirect *redir)
 	if (redir->kind == ND_REDIR_OUT)
 	{
 		redir->fd = open(redir->filename, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-		target_fd = STDOUT_FILENO;
-	}
-	else if (redir->kind == ND_REDIR_IN)
-	{
-		redir->fd = open(redir->filename, O_RDONLY);
-		target_fd = STDIN_FILENO;
 	}
 	else if (redir->kind == ND_REDIR_APPEND)
 	{
 		redir->fd = open(redir->filename, O_CREAT | O_WRONLY | O_APPEND, 0644);
-		target_fd = STDOUT_FILENO;
 	}
 	else
-	{
-		return (-1); // Unknown redirection type
-	}
-	if (redir->fd < 0)
-	{
-		perror(redir->filename);
-		return (-1); // File Open Error
-	}
-	if (dup2(redir->fd, target_fd) < 0)
-	{
-		perror("dup2");
-		close(redir->fd);
-		return (-1); // Dup2 Error
-	}
-	close(redir->fd);
-	status = open_redir_file_sub(redir->next);
+		return (-1);
+	status = apply_redirection(redir, STDOUT_FILENO);
+	if (status != 0)
+		return (status);
+	status = open_redir_out(redir->next);
 	return (status);
 }
 
-int	open_redir_file(t_redirect *redir, t_redirect *heredoc)
+int	open_redir_file(t_redirect *redir_out, t_redirect *redir_in)
 {
 	int	status;
 
 	status = 0;
-	if (heredoc != NULL)
+	if (redir_in != NULL)
 	{
-		status = open_redir_file_sub2(heredoc);
+		while (redir_in->next)
+		{
+			if (redir_in->kind == ND_REDIR_HEREDOC)
+			{
+				heredoc_loop(redir_in->filename, -1);
+			}
+			redir_in = redir_in->next;
+		}
+		status = open_redir_in(redir_in);
 		if (status != 0)
 			return (status);
 	}
-	return (open_redir_file_sub(redir));
+	return (open_redir_out(redir_out));
 }

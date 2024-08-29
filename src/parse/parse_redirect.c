@@ -20,14 +20,12 @@ void	append_redirect_node(t_cmd *node, t_redirect *child_node)
 
 	if (node == NULL)
 		return ;
-	if (child_node->kind == ND_REDIR_HEREDOC)
-		redir_root = &node->heredoc;
+	if (child_node->kind == ND_REDIR_HEREDOC || child_node->kind == ND_REDIR_IN)
+		redir_root = &node->redir_in;
 	else
-		redir_root = &node->redirects;
+		redir_root = &node->redir_out;
 	if (*redir_root == NULL)
-	{
 		*redir_root = child_node;
-	}
 	else
 	{
 		p = *redir_root;

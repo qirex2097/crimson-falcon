@@ -44,10 +44,15 @@ void	free_cmd(t_cmd *cmd)
 		free_cmd(cmd->next);
 		free(cmd->next);
 	}
-	if (cmd->redirects)
+	if (cmd->redir_in)
 	{
-		free_redirect(cmd->redirects);
-		free(cmd->redirects);
+		free_redirect(cmd->redir_in);
+		free(cmd->redir_in);
+	}
+	if (cmd->redir_out)
+	{
+		free_redirect(cmd->redir_out);
+		free(cmd->redir_out);
 	}
 	free_args(cmd->args);
 }

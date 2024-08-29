@@ -45,7 +45,7 @@ void	exec_child_process(t_cmd *cmd, int prev_fd, int *pfd)
 	argv = cmd->args;
 	reset_signal();
 	prepare_pipe(cmd, prev_fd, pfd);
-	if (open_redir_file(cmd->redirects, cmd->heredoc) < 0)
+	if (open_redir_file(cmd->redir_out, cmd->redir_in) < 0)
 	{
 		exit(1);
 	}

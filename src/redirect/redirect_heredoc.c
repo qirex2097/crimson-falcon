@@ -23,7 +23,7 @@ void	heredoc_loop(const char *delimiter, int fd)
 		line = readline("> ");
 		if (line == NULL)
 			break ;
-		if (readline_interrupted || strcmp(line, delimiter) == 0)
+		if (readline_interrupted == true || strcmp(line, delimiter) == 0)
 		{
 			free(line);
 			break ;
@@ -35,7 +35,6 @@ void	heredoc_loop(const char *delimiter, int fd)
 		}
 		free(line);
 	}
-	rl_on_new_line();
 	return ;
 }
 
@@ -54,18 +53,4 @@ int	create_heredoc(const char *delimiter)
 		return (-1);
 	}
 	return (pfd[0]);
-}
-
-int	open_heredoc(t_redirect *redir)
-{
-	while (redir->next)
-	{
-		if (redir->kind == ND_REDIR_HEREDOC)
-		{
-			readline_interrupted = false;
-			heredoc_loop(redir->filename, -1);
-		}
-		redir = redir->next;
-	}
-	return (create_heredoc(redir->filename));
 }

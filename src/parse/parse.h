@@ -25,6 +25,7 @@ void		append_redirect_node(t_cmd *node, t_redirect *child_node);
 t_token		*append_redirect_element(t_cmd *node, t_token *tokens);
 t_token		*append_args_element(t_cmd *node, t_token *token);
 
+/* parse_redirect.c */
 bool		is_redirect(t_token *pt);
 
 /* parse_utils.c */
