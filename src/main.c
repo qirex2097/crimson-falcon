@@ -50,13 +50,12 @@ int	main_loop(void)
 	status = 0;
 	while (1)
 	{
+		readline_interrupted = false;
 		line = readline(PROMPT);
 		if (!line)
 			break ;
-		if (*line)
-		{
+		else if (*line)
 			status = interpret(line, status);
-		}
 		free(line);
 	}
 	return (status);

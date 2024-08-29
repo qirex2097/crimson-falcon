@@ -11,4 +11,5 @@
 /* ************************************************************************** */
 
 /* redirect_heredoc.c */
-int	open_heredoc(t_redirect *redir);
+void	heredoc_loop(const char *delimiter, int fd);
+int		create_heredoc(const char *delimiter);

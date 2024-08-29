@@ -32,7 +32,7 @@ int	_exec_builtin_command(t_cmd *cmd, int prev_fd, int *pfd)
 		dup2(pfd[1], STDOUT_FILENO);
 		close(pfd[1]);
 	}
-	if (open_redir_file(cmd->redirects, cmd->heredoc) < 0)
+	if (open_redir_file(cmd->redir_out, cmd->redir_in) < 0)
 		return (1);
 	status = exec_builtin_command(cmd->args);
 	if (original_fd[0] != -1)

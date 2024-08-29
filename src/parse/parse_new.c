@@ -19,7 +19,8 @@ void	initialize_cmd(t_cmd *cmd)
 	if (cmd->args == NULL)
 		fatal_error("malloc error");
 	cmd->args[0] = NULL;
-	cmd->redirects = NULL;
+	cmd->redir_in = NULL;
+	cmd->redir_out = NULL;
 	cmd->next = NULL;
 	return ;
 }
