@@ -1,6 +1,23 @@
 # min_shell
 7.17~
 8.9~
+
+## グローバル変数
+グローバル変数は以下の２つ
+- t_env	g_env_root;<-----環境変数を格納するため
+- bool	readline_interrupted = false;<------シグナルを受け取った時にtrue
+
+## Makefile
+- RLDIR    = $(shell brew --prefix readline) <-----これはreadlineをインストールしたから必要になった
+- OBJ    := $(patsubst $(SRCS_DIR)/%.c,$(OBJS_DIR)/%.o,$(SRCS))<----サブディレクトリに.oファイルを作るため
+
+## main.c
+-	rl_outstream = stderr;<------テスト用の設定、本来は不要
+
+## main_debug.c
+このファイルはデバッグ用で不要
+
+
 # Minishell プロジェクトの要件
 
 ## 基本機能
@@ -39,3 +56,4 @@
 ## その他の要件
 - [ ] メモリリークの防止（readlineを除く）
 - [ ] Makefileの作成（NAME, all, clean, fclean, re ルールを含む）
+
