@@ -32,15 +32,27 @@ SRCS	=	src/main.c\
 			src/parse/parse_new.c \
 			src/parse/parse_append.c \
 			src/parse/parse_utils.c \
+			src/parse/parse_redirect.c \
 			src/builtin/builtin.c \
+			src/builtin/builtin_cd.c \
+			src/builtin/builtin_echo.c \
+			src/builtin/builtin_export.c \
+			src/builtin/builtin_exit.c \
 			src/expand/expand.c \
-			src/redirect/redirect.c \
+			src/expand/expand_utils.c \
+			src/expand/expand_env_var.c \
 			src/exec/exec.c \
 			src/exec/exec_utils.c \
 			src/exec/exec_child.c \
 			src/exec/exec_builtin.c \
-			src/environ/environ.c \
 			src/error/error.c\
+			src/error/error_utils.c \
+			src/redirect/redirect.c \
+			src/redirect/redirect_heredoc.c \
+			src/environ/environ.c \
+			src/environ/environ_ftlib.c \
+			src/environ/environ_setenv.c \
+			src/environ/environ_array.c \
 			src/free.c\
 			src/signal.c\
 			src/libft.c

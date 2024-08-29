@@ -1,27 +1,45 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parser_append.c                                    :+:      :+:    :+:   */
+/*   environ.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/05 20:16:43 by kahori            #+#    #+#             */
-/*   Updated: 2024/08/05 20:52:00 by kahori           ###   ########.fr       */
+/*   Created: 2024/07/31 09:28:55 by kahori            #+#    #+#             */
+/*   Updated: 2024/08/05 20:23:40 by kahori           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-#include "parse.h"
 
-// args[]の大きさはTOKEN_MAX
-t_token	*append_args_element(t_cmd *node, t_token *token)
+char	*ft_strndup(const char *str, int n)
 {
-	int	i;
+	char	*line;
+	int		i;
 
+	line = malloc(sizeof(char) * (n + 1));
 	i = 0;
-	while (node->args[i] && i < TOKEN_MAX - 1)
+	while (i < n)
+	{
+		line[i] = str[i];
 		i++;
-	node->args[i] = ft_strdup(token->token);
-	node->args[i + 1] = NULL;
-	return (token->next);
+	}
+	line[i] = '\0';
+	return (line);
+}
+
+int	ft_isalpha(int c)
+{
+	if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z'))
+		return (1);
+	else
+		return (0);
+}
+
+int	ft_isalnum(int c)
+{
+	if (ft_isalpha(c) || ('0' <= c && c <= '9'))
+		return (1);
+	else
+		return (0);
 }

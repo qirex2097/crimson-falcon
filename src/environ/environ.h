@@ -1,27 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parser_append.c                                    :+:      :+:    :+:   */
+/*   environ.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kahori <kahori@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/05 20:16:43 by kahori            #+#    #+#             */
-/*   Updated: 2024/08/05 20:52:00 by kahori           ###   ########.fr       */
+/*   Created: 2024/07/31 09:28:55 by kahori            #+#    #+#             */
+/*   Updated: 2024/08/05 20:23:40 by kahori           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
-#include "parse.h"
+/* environ_ftlib.c */
+char	*ft_strndup(const char *str, int n);
+int		ft_isalpha(int c);
+int		ft_isalnum(int c);
 
-// args[]の大きさはTOKEN_MAX
-t_token	*append_args_element(t_cmd *node, t_token *token)
-{
-	int	i;
-
-	i = 0;
-	while (node->args[i] && i < TOKEN_MAX - 1)
-		i++;
-	node->args[i] = ft_strdup(token->token);
-	node->args[i + 1] = NULL;
-	return (token->next);
-}
+/* environ.c */
+t_env	*new_env_var(const char *key, const char *value);

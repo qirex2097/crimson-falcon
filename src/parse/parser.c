@@ -22,7 +22,7 @@ void	parse_cmd_error(t_token *pt)
 	else
 		str = pt->token;
 	if (is_pipe(pt))
-		ms_perror("syntax error near unexpected token `|'");
+		ms_perror_syntax("syntax error near unexpected token ", "|");
 	else if (ft_strcmp(">", pt->token) == 0 || ft_strcmp("<", pt->token) == 0
 		|| ft_strcmp("<<", pt->token) == 0 || ft_strcmp(">>", pt->token) == 0)
 	{
@@ -41,12 +41,8 @@ t_token	*parse_cmd_loop(t_cmd *cmd, t_token *pt)
 	{
 		if (is_pipe(pt))
 		{
-			if (pt == NULL)
-				return (false);
 			if (cmd->args[0] == NULL)
-			{
 				return (pt);
-			}
 			cmd->next = new_cmd();
 			cmd = cmd->next;
 			pt = pt->next;
@@ -68,7 +64,7 @@ t_node	*parse_cmd(t_token *pt)
 
 	if (is_pipe(pt))
 	{
-		ms_perror("syntax error near unexpected token `|'");
+		parse_cmd_error(pt);
 		return (NULL);
 	}
 	node = new_node(ND_SIMPLE_CMD);
