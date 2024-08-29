@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
 EOF
 
 cleanup() {
-	rm -f cmp out a.out print_args
+	rm -f cmp out a.out print_args exit42 infinite_loop no_exec_perm no_read_perm
 }
 
 assert() {
@@ -59,7 +59,7 @@ assert() {
 # Empty line (EOF)
 assert ''
 
-# Absolute path commands without args 
+# Absolute path commands without args
 assert '/bin/pwd'
 assert '/bin/echo'
 assert '/bin/ls'
@@ -138,5 +138,74 @@ assert 'echo $HOME'
 assert 'echo "$HOME"'
 assert "echo '\$HOME'"
 assert 'echo "This is $XXX!"'
+
+# Expand Variable
+assert 'echo $USER'
+assert 'echo $USER$PATH$TERM'
+assert 'echo "$USER  $PATH   $TERM"'
+
+# Special Parameter $?
+assert 'echo $?'
+assert 'invalid\necho $?\necho $?'
+assert 'exit42\necho $?\necho $?'
+assert 'exit42\n\necho $?\necho $?'
+
+## unset
+export hoge fuga=fuga
+assert 'unset'
+assert 'unset hoge'
+assert 'unset fuga'
+assert 'unset nosuch'
+assert 'unset [invalid]'
+assert 'unset hoge fuga'
+assert 'unset hoge nosuch fuga'
+assert 'unset fuga \n export | echo $fuga'
+assert 'unset [invalid] fuga \n echo $fuga'
+
+# Signal handling
+echo "int main() { while (1) ; }" | gcc -xc -o infinite_loop -
+
+## Signal to shell processes
+print_desc "SIGTERM to SHELL"
+(sleep 0.01; pkill -SIGTERM bash;
+ sleep 0.01; pkill -SIGTERM minishell) &
+assert './infinite_loop' 2>/dev/null # Redirect stderr to suppress signal terminated message
+
+print_desc "SIGQUIT to SHELL"
+(sleep 0.01; pkill -SIGQUIT bash; # SIGQUIT should not kill the shell
+ sleep 0.01; pkill -SIGTERM bash;
+ sleep 0.01; pkill -SIGQUIT minishell; # SIGQUIT should not kill the shell
+ sleep 0.01; pkill -SIGTERM minishell) &
+assert './infinite_loop' 2>/dev/null # Redirect stderr to suppress signal terminated message
+
+print_desc "SIGINT to SHELL"
+(sleep 0.01; pkill -SIGINT bash; # SIGINT should not kill the shell
+ sleep 0.01; pkill -SIGTERM bash;
+ sleep 0.01; pkill -SIGINT minishell; # SIGINT should not kill the shell
+ sleep 0.01; pkill -SIGTERM minishell) &
+assert './infinite_loop' 2>/dev/null # Redirect stderr to suppress signal terminated message
+
+## Signal to child processes
+print_desc "SIGTERM to child process"
+(sleep 0.01; pkill -SIGTERM infinite_loop;
+ sleep 0.01; pkill -SIGTERM infinite_loop) &
+assert './infinite_loop'
+
+print_desc "SIGINT to child process"
+(sleep 0.01; pkill -SIGINT infinite_loop;
+ sleep 0.01; pkill -SIGINT infinite_loop) &
+assert './infinite_loop'
+
+print_desc "SIGQUIT to child process"
+(sleep 0.01; pkill -SIGQUIT infinite_loop;
+ sleep 0.01; pkill -SIGQUIT infinite_loop) &
+assert './infinite_loop'
+
+print_desc "SIGUSR1 to child process"
+(sleep 0.01; pkill -SIGUSR1 infinite_loop;
+ sleep 0.01; pkill -SIGUSR1 infinite_loop) &
+assert './infinite_loop'
+
+
 
 cleanup
