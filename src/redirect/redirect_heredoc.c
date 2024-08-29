@@ -38,7 +38,7 @@ void	heredoc_loop(const char *delimiter, int fd)
 	return ;
 }
 
-int	create_heredoc(const char *delimiter)
+int	open_heredoc(const char *delimiter)
 {
 	int	pfd[2];
 

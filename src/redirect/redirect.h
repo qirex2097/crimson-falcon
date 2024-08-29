@@ -12,4 +12,4 @@
 
 /* redirect_heredoc.c */
 void	heredoc_loop(const char *delimiter, int fd);
-int		create_heredoc(const char *delimiter);
+int		open_heredoc(const char *delimiter);

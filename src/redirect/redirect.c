@@ -30,25 +30,31 @@ int	apply_redirection(t_redirect *redir, int target_fd)
 	return (0);
 }
 
-int	open_redir_in(t_redirect *redir)
+int	open_redir_in(t_redirect *redir_in)
 {
-	int	target_fd;
-
-	if (redir == NULL)
+	if (redir_in == NULL)
 		return (0);
-	if (redir->kind == ND_REDIR_HEREDOC)
+	while (redir_in->next)
 	{
-		redir->fd = create_heredoc(redir->filename);
-		target_fd = STDIN_FILENO;
+		if (redir_in->kind == ND_REDIR_HEREDOC)
+		{
+			heredoc_loop(redir_in->filename, -1);
+		}
+		redir_in = redir_in->next;
 	}
-	else if (redir->kind == ND_REDIR_IN && redir->next == NULL)
+	if (redir_in->kind == ND_REDIR_HEREDOC)
 	{
-		redir->fd = open(redir->filename, O_RDONLY);
-		target_fd = STDIN_FILENO;
+		redir_in->fd = open_heredoc(redir_in->filename);
+	}
+	else if (redir_in->kind == ND_REDIR_IN && redir_in->next == NULL)
+	{
+		redir_in->fd = open(redir_in->filename, O_RDONLY);
 	}
 	else
-		return (-1);
-	return (apply_redirection(redir, target_fd));
+	{
+		assert_error("open_redir_in");
+	}
+	return (apply_redirection(redir_in, STDIN_FILENO));
 }
 
 int	open_redir_out(t_redirect *redir)
@@ -79,20 +85,8 @@ int	open_redir_file(t_redirect *redir_out, t_redirect *redir_in)
 {
 	int	status;
 
-	status = 0;
-	if (redir_in != NULL)
-	{
-		while (redir_in->next)
-		{
-			if (redir_in->kind == ND_REDIR_HEREDOC)
-			{
-				heredoc_loop(redir_in->filename, -1);
-			}
-			redir_in = redir_in->next;
-		}
-		status = open_redir_in(redir_in);
-		if (status != 0)
-			return (status);
-	}
+	status = open_redir_in(redir_in);
+	if (status != 0)
+		return (status);
 	return (open_redir_out(redir_out));
 }
