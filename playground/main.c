@@ -12,15 +12,16 @@
 
 #include <stdio.h>
 
+// environ変数の宣言
+extern char **environ;
 
-int main(int argc, char **argv)
-{
-	int i;
-	i = 0;
-	while (i < argc)
-	{
-		printf("%s\n", argv[i]);
-		i++;
-	}
-	return 0;
+int main() {
+    char **env = environ;
+
+    while (*env) {
+        printf("%s\n", *env);
+        env++;
+    }
+
+    return 0;
 }

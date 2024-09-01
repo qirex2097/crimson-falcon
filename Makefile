@@ -18,9 +18,8 @@ NAME     = minishell
 
 CC       = cc
 RM		= rm -rf
-RLDIR    = $(shell brew --prefix readline)
 
-INCLUDES = -Isrc -I$(RLDIR)/include
+INCLUDES = -Isrc
 CFLAGS   = -Wall -Wextra -Werror $(INCLUDES)
 LIBS     = -lreadline -L$(RLDIR)/lib
 SRCS	=	src/main.c\

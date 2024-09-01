@@ -34,13 +34,22 @@ void	free_env_var(t_env *env)
 
 t_env	*initialize_env_loop(char *start, char *end)
 {
-	char	key[1024];
-	char	value[1024];
+	int length;
+	char	*key;
+	char	*value;
+	t_env *new_env;
+
+	length = end - start;
+	key = malloc(length + 1);
+	value = malloc(ft_strlen(end) + 1);
 
 	ft_strncpy(key, start, end - start);
 	key[end - start] = '\0';
 	ft_strncpy(value, end + 1, ft_strlen(end + 1) + 1);
-	return (new_env_var(key, value));
+	new_env = new_env_var(key, value);
+	free(key);
+	free(value);
+	return (new_env);
 }
 
 t_env	*initialize_env(void)

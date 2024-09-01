@@ -18,6 +18,9 @@ int main(int argc, char *argv[]) {
 }
 EOF
 
+print_desc() {
+	echo -e $YELLOW"$1"$RESET
+}
 cleanup() {
 	rm -f cmp out a.out print_args exit42 infinite_loop no_exec_perm no_read_perm
 }
