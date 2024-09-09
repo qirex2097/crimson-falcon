@@ -23,11 +23,10 @@ void heredoc_write(char *str, int fd)
 	p = ft_strchr(str, '$');
 	while (*str && (p != NULL && *(p + 1) != '\0'))
 	{
-		length = p - str;
-		write(fd, str, length);
-		length = get_env_var_name_end(p);
+		write(fd, str, p - str);
+		length = get_env_var_name_length(p);
 		key = ft_strndup(p + 1, length - 1);
-		str = p + get_env_var_name_end(p);
+		str = p + length;
 		p = ft_strchr(str, '$');
 		value = ms_getenv(key);
 		if (value)

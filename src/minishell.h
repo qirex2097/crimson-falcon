@@ -117,7 +117,7 @@ bool						is_pipe(t_token *token);
 
 /* expand.c */
 void						expand(t_token *tokens, int prev_status);
-int	get_env_var_name_end(char *line);
+int	get_env_var_name_length(char *line);
 
 /*parse.c*/
 t_node						*parse(t_token *tokens);
