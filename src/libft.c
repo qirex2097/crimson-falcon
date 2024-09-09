@@ -96,3 +96,20 @@ char *ft_strncat(char *s1, const char *s2, size_t n)
 {
 	return strncat(s1, s2, n);
 }
+
+char	*ft_strndup(const char *str, size_t n)
+{
+	char	*line;
+	size_t		i;
+
+	line = malloc(sizeof(char) * (n + 1));
+	i = 0;
+	while (i < n)
+	{
+		line[i] = str[i];
+		i++;
+	}
+	line[i] = '\0';
+	return (line);
+}
+
