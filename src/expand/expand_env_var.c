@@ -13,7 +13,7 @@
 #include "minishell.h"
 #include "expand.h"
 
-int	get_env_var_name_end(char *line)
+int	get_env_var_name_length(char *line)
 {
 	int	i;
 
@@ -44,16 +44,16 @@ int	set_env_var_value(char *new_line, char *line, int length)
 	return (0);
 }
 
-//end = 環境変数名の最後の位置
+//length = 環境変数名の最後の位置
 void	replace_env_var(char *new_line, char *line, int *pi, int *pj)
 {
-	int	end;
+	int	length;
 
-	end = get_env_var_name_end(&line[*pi]);
-	if (end > 0)
+	length = get_env_var_name_length(&line[*pi]);
+	if (length > 0)
 	{
-		*pj += set_env_var_value(&new_line[*pj], &line[*pi + 1], end);
-		*pi = *pi + end - 1;
+		*pj += set_env_var_value(&new_line[*pj], &line[*pi + 1], length);
+		*pi = *pi + length - 1;
 	}
 	else
 	{

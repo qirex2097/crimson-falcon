@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 /* environ_ftlib.c */
-char	*ft_strndup(const char *str, int n);
 int		ft_isalpha(int c);
 int		ft_isalnum(int c);
 

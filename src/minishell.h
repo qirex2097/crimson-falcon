@@ -117,6 +117,7 @@ bool						is_pipe(t_token *token);
 
 /* expand.c */
 void						expand(t_token *tokens, int prev_status);
+int	get_env_var_name_length(char *line);
 
 /*parse.c*/
 t_node						*parse(t_token *tokens);
@@ -159,5 +160,6 @@ int							ft_strncmp(const char *s1, const char *s2,
 char						*ft_strchr(const char *s, int c);
 char						*ft_strdup(const char *s1);
 char						*ft_strncat(char *s1, const char *s2, size_t n);
+char *ft_strndup(const char *s1, size_t n);
 
 #endif

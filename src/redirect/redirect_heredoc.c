@@ -13,6 +13,30 @@
 #include "minishell.h"
 #include <readline/readline.h>
 
+void heredoc_write(char *str, int fd)
+{
+	char *key;
+	const char *value;
+	char *p;
+	int length;
+
+	p = ft_strchr(str, '$');
+	while (*str && (p != NULL && *(p + 1) != '\0'))
+	{
+		write(fd, str, p - str);
+		length = get_env_var_name_length(p);
+		key = ft_strndup(p + 1, length - 1);
+		str = p + length;
+		p = ft_strchr(str, '$');
+		value = ms_getenv(key);
+		if (value)
+			write(fd, value, ft_strlen(value));
+		free(key);
+	}
+	write(fd, str, ft_strlen(str));
+	write(fd, "\n", 1);
+}
+
 void	heredoc_loop(const char *delimiter, int fd)
 {
 	char	*line;
@@ -30,8 +54,7 @@ void	heredoc_loop(const char *delimiter, int fd)
 		}
 		if (fd >= 0)
 		{
-			write(fd, line, ft_strlen(line));
-			write(fd, "\n", 1);
+			heredoc_write(line, fd);
 		}
 		free(line);
 	}
