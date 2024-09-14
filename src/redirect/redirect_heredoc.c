@@ -13,6 +13,8 @@
 #include "minishell.h"
 #include <readline/readline.h>
 
+volatile bool heredoc_interrupted;
+
 void heredoc_write(char *str, int fd)
 {
 	char *key;
@@ -43,7 +45,6 @@ void	heredoc_loop(const char *delimiter, int fd)
 
 	while (1)
 	{
-		readline_interrupted = false;
 		line = readline("> ");
 		if (line == NULL)
 			break ;
@@ -70,6 +71,7 @@ int	open_heredoc(const char *delimiter)
 	readline_interrupted = false;
 	heredoc_loop(delimiter, pfd[1]);
 	close(pfd[1]);
+	write(STDERR_FILENO, "x\n", 2);
 	if (readline_interrupted)
 	{
 		close(pfd[0]);

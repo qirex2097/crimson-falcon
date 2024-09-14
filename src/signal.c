@@ -13,14 +13,19 @@
 #include "minishell.h"
 #include <readline/readline.h>
 
+extern bool main_loop_readline;
+
 void	sigint_handler(int sig)
 {
 	(void)sig;
 	readline_interrupted = true;
-	printf("\n");
+	write(STDOUT_FILENO, "\n", 1);
 	rl_on_new_line();
-	rl_replace_line("", 0);
-	rl_redisplay();
+	if (main_loop_readline)
+	{
+		rl_replace_line("", 0);
+		rl_redisplay();
+	}
 	return ;
 }
 

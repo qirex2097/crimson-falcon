@@ -61,11 +61,8 @@ void	free_node(t_node *node)
 {
 	if (node == NULL)
 		return ;
-	if (node->next)
-	{
-		free_node(node->next);
-		free(node->next);
-	}
+	free_node(node->next);
 	free_cmd(&node->command);
+	free(node);
 }
 /*--------------*/

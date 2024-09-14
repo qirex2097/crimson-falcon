@@ -100,13 +100,9 @@ t_token	*append_token(char *start, char *end)
 
 void	free_tokens(t_token *tokens)
 {
-	if (tokens->next == NULL)
-	{
-		free(tokens->token);
-		free(tokens);
-	}
-	else
-	{
-		free_tokens(tokens->next);
-	}
+	if (tokens == NULL)
+		return;
+	free_tokens(tokens->next);
+	free(tokens->token);
+	free(tokens);
 }
