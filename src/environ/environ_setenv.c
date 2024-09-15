@@ -90,7 +90,7 @@ int	ms_unsetenv(const char *key)
 		if (ft_strcmp(env->key, key) == 0)
 		{
 			prev_env->next = env->next;
-			free(env);
+			free_env_var(env);
 			return (0);
 		}
 		prev_env = env;

@@ -20,6 +20,7 @@
 // グローバル変数
 t_env	g_env_root;
 bool	readline_interrupted = false;
+bool	main_loop_readline;
 
 int	interpret(char *line, int prev_status)
 {
@@ -50,8 +51,9 @@ int	main_loop(void)
 	status = 0;
 	while (1)
 	{
-		readline_interrupted = false;
+		main_loop_readline = true;
 		line = readline(PROMPT);
+		main_loop_readline = false;
 		if (!line)
 			break ;
 		else if (*line)
@@ -70,10 +72,8 @@ int	main(int argc, char **argv)
 	rl_outstream = stderr;
 	setup_signal();
 	g_env_root.next = initialize_env();
-#if 0
 	if (g_env_root.next == NULL)
 		exit(1);
-#endif
 	ms_setenv("SHELL", argv[0], 1);
 	status = main_loop();
 	cleanup_env(g_env_root.next);
