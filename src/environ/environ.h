@@ -16,3 +16,4 @@ int		ft_isalnum(int c);
 
 /* environ.c */
 t_env	*new_env_var(const char *key, const char *value);
+void	free_env_var(t_env *env);

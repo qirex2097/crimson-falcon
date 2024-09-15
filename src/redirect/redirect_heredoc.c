@@ -71,7 +71,6 @@ int	open_heredoc(const char *delimiter)
 	readline_interrupted = false;
 	heredoc_loop(delimiter, pfd[1]);
 	close(pfd[1]);
-	write(STDERR_FILENO, "x\n", 2);
 	if (readline_interrupted)
 	{
 		close(pfd[0]);
